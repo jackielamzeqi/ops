@@ -37,10 +37,21 @@ npm run agent:start  # 一键启动本机监测（http://127.0.0.1:3847）
 npm run agent:setup  # 登录 Mac 自动启动（每台电脑执行一次）
 npm run agent:status # 查看是否在线
 npm run leaderboard  # 手动拉取并打印大模型榜单 JSON
-npm run dev          # 开发服务器
-npm run build        # 生产构建 → docs/（GitHub Pages）
-npm run preview      # 预览构建产物 (http://localhost:3000)
+npm run dev          # ★ 日常改代码请用这个（热更新，立刻看到效果）
+npm run build        # 生产构建 → docs/
+npm run preview      # 预览构建产物（验证线上包）
 ```
+
+### 改完代码如何立刻看到效果？
+
+| 场景 | 做法 |
+|------|------|
+| **日常开发** | `npm run dev` → 打开 http://localhost:5173/ops/ ，保存即热更新 |
+| **验证生产包** | `npm run build && npm run preview` |
+| **更新线上 Pages** | `git push` 到 `main` → GitHub Actions 自动构建发布（约 1–2 分钟） |
+
+不要边改源码边刷新 https://jackielamzeqi.github.io/ops/ —— 那是构建产物，未 push / 未构建前不会变。  
+若 PWA 仍显示旧版：硬刷新（Cmd+Shift+R），或在开发者工具 → Application → Service Workers 里 Unregister 后再刷新。
 
 ### 换电脑（个人 ↔ 公司）
 
@@ -53,7 +64,15 @@ npm run preview      # 预览构建产物 (http://localhost:3000)
 
 - GitHub Pages：https://jackielamzeqi.github.io/ops/
 - 发布仓库：https://github.com/jackielamzeqi/ops（本目录即该仓库工作树）
-- Pages 源：`main` 分支 `/docs`
+- Pages 源：GitHub Actions（推送 `main` 自动 `npm run build` 并发布）
+
+### 自动发布（一次性配置）
+
+1. 将本仓库的 `.github/workflows/deploy-pages.yml` 提交并推送到 `main`
+2. 打开 https://github.com/jackielamzeqi/ops/settings/pages  
+   - **Build and deployment → Source** 选 **GitHub Actions**（不要再选 Deploy from a branch /docs）
+3. 之后每次 `git push origin main`，Actions 会自动构建并更新线上站  
+   可在 https://github.com/jackielamzeqi/ops/actions 查看进度
 
 ## 技术栈
 
@@ -75,7 +94,7 @@ personal-ops/                 # = jackielamzeqi/ops 单仓库
 └── index.html
 ```
 
-发布：`npm run build` → `git add docs && git commit && git push`（无需再维护 `GitHub/ops` 镜像目录）。
+发布：改代码 → `git commit` → `git push`（Actions 自动 build 并发布 Pages）。本地联调请用 `npm run dev`，不必每次手跑 build。
 
 ## 下一步（详见 `项目需求.md` 第 10 节）
 

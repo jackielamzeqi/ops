@@ -1,11 +1,17 @@
 /** 大模型榜单：Artificial Analysis + Arena（日更缓存） */
 
+import { resolveBrandKey } from '../components/CreatorLogo'
+
 export interface LeaderboardModel {
   rank: number
   name: string
   shortName: string
   slug: string
   creator: string
+  /** ISO 国家码，如 us / cn */
+  countryCode: string | null
+  /** emoji 国旗 */
+  countryFlag: string
   releaseDate: string | null
   contextWindow: number | null
   /** USD / 1M tokens，综合价（约 3:1 混合） */
@@ -36,7 +42,7 @@ export interface LeaderboardSnapshot {
   fromCache?: boolean
 }
 
-const CACHE_KEY = 'personal-ops-leaderboard-v1'
+const CACHE_KEY = 'personal-ops-leaderboard-v2'
 const DAY_MS = 24 * 60 * 60 * 1000
 const TOP_N = 30
 
@@ -52,7 +58,7 @@ type AaModel = {
   slug?: string
   release_date?: string
   deprecated?: boolean
-  creator?: { name?: string }
+  creator?: { name?: string; country?: string; slug?: string }
   evaluations?: Record<string, number | boolean | null>
   pricing?: {
     price_1m_blended_3_to_1?: number | null
@@ -65,6 +71,164 @@ type AaModel = {
 type IndexFile = {
   generated_at?: string
   models?: { rank: number; name: string; slug: string; creator?: string; score: number }[]
+}
+
+const BRAND_CREATOR_NAME: Record<string, string> = {
+  anthropic: 'Anthropic',
+  openai: 'OpenAI',
+  google: 'Google',
+  meta: 'Meta',
+  xai: 'SpaceXAI',
+  alibaba: 'Alibaba',
+  deepseek: 'DeepSeek',
+  moonshot: 'Kimi',
+  minimax: 'MiniMax',
+  zhipu: 'Z AI',
+  mistral: 'Mistral',
+}
+
+const CREATOR_COUNTRY: Record<string, string> = {
+  anthropic: 'us',
+  openai: 'us',
+  google: 'us',
+  meta: 'us',
+  spacexai: 'us',
+  xai: 'us',
+  amazon: 'us',
+  microsoft: 'us',
+  nvidia: 'us',
+  perplexity: 'us',
+  databricks: 'us',
+  cohere: 'ca',
+  mistral: 'fr',
+  'ai21 labs': 'il',
+  alibaba: 'cn',
+  deepseek: 'cn',
+  kimi: 'cn',
+  moonshot: 'cn',
+  minimax: 'cn',
+  'z ai': 'cn',
+  zhipu: 'cn',
+  baidu: 'cn',
+  tencent: 'cn',
+  bytedance: 'cn',
+  'bytedance seed': 'cn',
+  stepfun: 'cn',
+  xiaomi: 'cn',
+  qwen: 'cn',
+}
+
+const COUNTRY_LABEL: Record<string, string> = {
+  us: '美国',
+  cn: '中国',
+  fr: '法国',
+  ca: '加拿大',
+  il: '以色列',
+  kr: '韩国',
+  in: '印度',
+  ae: '阿联酋',
+  ch: '瑞士',
+  es: '西班牙',
+}
+
+export function countryFlagEmoji(code?: string | null): string {
+  const c = (code || '').trim().toLowerCase()
+  if (!/^[a-z]{2}$/.test(c)) return '🏳️'
+  const A = 0x1f1e6
+  return String.fromCodePoint(A + c.charCodeAt(0) - 97, A + c.charCodeAt(1) - 97)
+}
+
+export function countryLabel(code?: string | null): string {
+  const c = (code || '').trim().toLowerCase()
+  return COUNTRY_LABEL[c] || c.toUpperCase() || '未知'
+}
+
+function inferCreatorName(slug: string, name: string, hint?: string | null): string {
+  const fromHint = (hint || '').trim()
+  if (fromHint && fromHint !== '—') return fromHint
+  const brand = resolveBrandKey({ creator: hint, slug, name })
+  if (brand && BRAND_CREATOR_NAME[brand]) return BRAND_CREATOR_NAME[brand]
+  return '—'
+}
+
+function inferCountryCode(
+  aaCountry?: string | null,
+  creator?: string | null,
+  slug?: string,
+  name?: string
+): string | null {
+  const fromAa = (aaCountry || '').trim().toLowerCase()
+  if (/^[a-z]{2}$/.test(fromAa)) return fromAa
+  const c = (creator || '').trim().toLowerCase()
+  if (CREATOR_COUNTRY[c]) return CREATOR_COUNTRY[c]
+  for (const [key, code] of Object.entries(CREATOR_COUNTRY)) {
+    if (c.includes(key)) return code
+  }
+  const brand = resolveBrandKey({ creator, slug, name })
+  if (brand === 'alibaba' || brand === 'deepseek' || brand === 'moonshot' || brand === 'minimax' || brand === 'zhipu') {
+    return 'cn'
+  }
+  if (brand === 'mistral') return 'fr'
+  if (brand) return 'us'
+  return null
+}
+
+function stripModelVariant(slug: string): string {
+  return normSlug(slug)
+    .replace(
+      /-(adaptive|xhigh|high|medium|low|max|max-effort|non-reasoning|with-fallback|thinking|preview|exp|experimental|chat|instruct)(-|$)/g,
+      '-'
+    )
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
+/** AA 镜像滞后时，用同族模型补发布日期 / 公司 / 国家 */
+function findRelatedAa(slug: string, name: string, bySlug: Map<string, AaModel>, all: AaModel[]): AaModel | null {
+  const direct = bySlug.get(slug)
+  if (direct) return direct
+  const base = stripModelVariant(slug)
+  if (base && bySlug.has(base)) return bySlug.get(base)!
+  const keys = [base, normSlug(name), stripModelVariant(name)].filter(Boolean)
+  let best: AaModel | null = null
+  let bestScore = 0
+  for (const m of all) {
+    const ms = m.slug || ''
+    if (!ms) continue
+    const mb = stripModelVariant(ms)
+    for (const k of keys) {
+      if (!k) continue
+      if (ms === k || mb === k) return m
+      if (ms.startsWith(k + '-') || k.startsWith(ms + '-') || mb.startsWith(k) || k.startsWith(mb)) {
+        const score = Math.min(k.length, mb.length)
+        if (score > bestScore) {
+          best = m
+          bestScore = score
+        }
+      }
+    }
+  }
+  return bestScore >= 8 ? best : null
+}
+
+/** 取同族最新发布日期（如 claude-opus-5 → 最近的 claude-opus-*；kimi-k3 → kimi-*） */
+function findFamilyReleaseDate(slug: string, all: AaModel[]): string | null {
+  const parts = stripModelVariant(slug).split('-').filter(Boolean)
+  const minLen = parts[0] && parts[0].length >= 4 ? 1 : 2
+  for (let len = Math.min(parts.length, 4); len >= minLen; len--) {
+    const prefix = parts.slice(0, len).join('-')
+    if (prefix.length < 4) continue
+    const dates = all
+      .map((m) => {
+        const ms = m.slug || ''
+        if (!(ms === prefix || ms.startsWith(`${prefix}-`))) return null
+        return m.release_date || null
+      })
+      .filter((d): d is string => !!d)
+      .sort()
+    if (dates.length) return dates[dates.length - 1]
+  }
+  return null
 }
 
 type ArenaBoard = {
@@ -198,9 +362,12 @@ export async function fetchModelLeaderboard(force = false): Promise<LeaderboardS
     warnings.push(`Artificial Analysis 镜像拉取失败：${(e as Error).message || e}`)
   }
 
-  // 日更指数（更新鲜）覆盖 AA 镜像分数
-  const overlays: Record<string, Partial<Record<'intelligence' | 'coding' | 'science' | 'gpqa', number>>> =
-    {}
+  // 日更指数（更新鲜）覆盖 AA 镜像分数；并带回 creator 供 AA 缺字段时回退
+  type Overlay = Partial<Record<'intelligence' | 'coding' | 'science' | 'gpqa', number>> & {
+    creator?: string
+    name?: string
+  }
+  const overlays: Record<string, Overlay> = {}
   const overlayFiles: { file: string; key: 'intelligence' | 'coding' | 'science' | 'gpqa'; label: string }[] =
     [
       { file: 'aa-intelligence.json', key: 'intelligence', label: 'AA Intelligence' },
@@ -217,6 +384,8 @@ export async function fetchModelLeaderboard(force = false): Promise<LeaderboardS
         const score =
           f.key === 'science' || f.key === 'gpqa' ? toPct(m.score) : Math.round(m.score * 10) / 10
         if (score != null) overlays[slug][f.key] = score
+        if (m.creator && !overlays[slug].creator) overlays[slug].creator = m.creator
+        if (m.name && !overlays[slug].name) overlays[slug].name = m.name
       }
       if (!sources.find((s) => s.id === 'aa-index')) {
         sources.push({
@@ -283,11 +452,28 @@ export async function fetchModelLeaderboard(force = false): Promise<LeaderboardS
   const top = seeds.slice(0, TOP_N)
 
   const models: LeaderboardModel[] = top.map((s, i) => {
-    const aa = s.aa || bySlug.get(s.slug)
     const o = overlays[s.slug] || {}
+    const related = findRelatedAa(s.slug, o.name || s.slug, bySlug, aaModels)
+    const aa = s.aa || bySlug.get(s.slug) || related || undefined
     const ev = aa?.evaluations || {}
-    const name = aa?.name || s.slug
+    const name = aa?.name || o.name || s.slug
     const shortName = aa?.short_name || name
+    const creator = inferCreatorName(
+      s.slug,
+      name,
+      aa?.creator?.name || related?.creator?.name || o.creator
+    )
+    const countryCode = inferCountryCode(
+      aa?.creator?.country || related?.creator?.country,
+      creator,
+      s.slug,
+      name
+    )
+    const releaseDate =
+      aa?.release_date ||
+      related?.release_date ||
+      findFamilyReleaseDate(s.slug, aaModels) ||
+      null
     const arenaT = findArena(s.slug, name, textMap)
     const arenaC = findArena(s.slug, name, codeMap)
     const science =
@@ -311,8 +497,10 @@ export async function fetchModelLeaderboard(force = false): Promise<LeaderboardS
       name,
       shortName,
       slug: s.slug,
-      creator: aa?.creator?.name || '—',
-      releaseDate: aa?.release_date || null,
+      creator,
+      countryCode,
+      countryFlag: countryFlagEmoji(countryCode),
+      releaseDate,
       contextWindow: aa?.capabilities?.context_window_tokens ?? null,
       priceBlended: blendedPrice(aa?.pricing),
       priceInput: aa?.pricing?.price_1m_input_tokens ?? null,

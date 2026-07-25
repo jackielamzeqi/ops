@@ -7,7 +7,15 @@ export const KB_REPO =
 export const KB_BRANCH =
   (import.meta.env.VITE_GITHUB_KB_BRANCH as string | undefined)?.trim() || 'main'
 
+export interface KbDirEntry {
+  name: string
+  path: string
+  type: 'file' | 'folder'
+}
+
 const contentCache = new Map<string, string>()
+const dirCache = new Map<string, { at: number; entries: KbDirEntry[] }>()
+const DIR_CACHE_MS = 30_000
 
 function encodePath(path: string): string {
   return path
@@ -31,16 +39,30 @@ export function setCachedKbContent(path: string, content: string) {
   contentCache.set(path, content)
 }
 
-export interface KbDirEntry {
-  name: string
-  path: string
-  type: 'file' | 'folder'
+export function clearKbContentCache(path?: string) {
+  if (path) contentCache.delete(path)
+  else contentCache.clear()
+}
+
+export function clearKbDirCache(path?: string) {
+  if (path != null) dirCache.delete(path)
+  else dirCache.clear()
 }
 
 /** 列出目录下一级内容 */
-export async function fetchKbDirListing(token: string, dirPath: string): Promise<KbDirEntry[]> {
+export async function fetchKbDirListing(
+  token: string,
+  dirPath: string,
+  opts?: { force?: boolean }
+): Promise<KbDirEntry[]> {
+  const key = dirPath || ''
+  const cached = dirCache.get(key)
+  if (!opts?.force && cached && Date.now() - cached.at < DIR_CACHE_MS) {
+    return cached.entries
+  }
+
   const url =
-    `https://api.github.com/repos/${KB_OWNER}/${KB_REPO}/contents/${encodePath(dirPath || '')}` +
+    `https://api.github.com/repos/${KB_OWNER}/${KB_REPO}/contents/${encodePath(key)}` +
     `?ref=${encodeURIComponent(KB_BRANCH)}`
 
   const res = await fetch(url, {
@@ -48,10 +70,15 @@ export async function fetchKbDirListing(token: string, dirPath: string): Promise
       Accept: 'application/vnd.github+json',
       Authorization: `Bearer ${token}`,
       'X-GitHub-Api-Version': '2022-11-28',
+      'Cache-Control': 'no-cache',
     },
+    cache: 'no-store',
   })
   if (!res.ok) {
-    if (res.status === 404) return []
+    if (res.status === 404) {
+      dirCache.set(key, { at: Date.now(), entries: [] })
+      return []
+    }
     if (res.status === 401 || res.status === 403) {
       throw new Error('GitHub 权限不足，请使用含 repo 权限的 Token 重新登录')
     }
@@ -63,7 +90,7 @@ export async function fetchKbDirListing(token: string, dirPath: string): Promise
   if (!Array.isArray(data)) {
     throw new Error((data as { message?: string }).message || '无法读取目录')
   }
-  return data
+  const entries = data
     .filter((e) => e.type === 'file' || e.type === 'dir')
     .map((e) => ({
       name: e.name,
@@ -74,12 +101,20 @@ export async function fetchKbDirListing(token: string, dirPath: string): Promise
       if (a.type !== b.type) return a.type === 'folder' ? -1 : 1
       return a.name.localeCompare(b.name, 'zh')
     })
+  dirCache.set(key, { at: Date.now(), entries })
+  return entries
 }
 
 /** 拉取仓库文件正文（Markdown/文本） */
-export async function fetchKbFileContent(token: string, path: string): Promise<string> {
-  const cached = contentCache.get(path)
-  if (cached) return cached
+export async function fetchKbFileContent(
+  token: string,
+  path: string,
+  opts?: { force?: boolean }
+): Promise<string> {
+  if (!opts?.force) {
+    const cached = contentCache.get(path)
+    if (cached) return cached
+  }
 
   const url =
     `https://api.github.com/repos/${KB_OWNER}/${KB_REPO}/contents/${encodePath(path)}` +
@@ -90,7 +125,9 @@ export async function fetchKbFileContent(token: string, path: string): Promise<s
       Accept: 'application/vnd.github.raw+json',
       Authorization: `Bearer ${token}`,
       'X-GitHub-Api-Version': '2022-11-28',
+      'Cache-Control': 'no-cache',
     },
+    cache: 'no-store',
   })
 
   if (res.ok) {
@@ -116,7 +153,9 @@ export async function fetchKbFileContent(token: string, path: string): Promise<s
       Accept: 'application/vnd.github+json',
       Authorization: `Bearer ${token}`,
       'X-GitHub-Api-Version': '2022-11-28',
+      'Cache-Control': 'no-cache',
     },
+    cache: 'no-store',
   })
   if (!jsonRes.ok) {
     if (jsonRes.status === 404) throw new Error('仓库中未找到该文件')

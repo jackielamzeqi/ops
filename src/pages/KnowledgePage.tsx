@@ -1,6 +1,7 @@
 import { useAuthStore, useKnowledgeStore } from '../store'
 import type { TreeNode } from '../store/data'
-import { useState } from 'react'
+import { KB_BRANCH, KB_OWNER, KB_REPO } from '../lib/githubKb'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 function TreeView({
@@ -12,14 +13,27 @@ function TreeView({
   depth?: number
   accessToken: string | null
 }) {
-  const { currentPath, selectFile, expandedDirs, toggleDir } = useKnowledgeStore()
+  const {
+    currentPath,
+    selectFile,
+    expandedDirs,
+    toggleDir,
+    ensureDirLoaded,
+    loadingDirs,
+    loadedDirs,
+    dirErrors,
+  } = useKnowledgeStore()
 
   return (
     <div className="tree-node">
       {nodes.map((node) => {
         const isExpanded = expandedDirs.includes(node.path)
         const isActive = currentPath === node.path
+        const isLoading = loadingDirs.includes(node.path)
+        const dirError = dirErrors[node.path]
         const hasChildren = Boolean(node.children?.length) || node.type === 'folder'
+        const showChildren = node.type === 'folder' && isExpanded
+        const childNodes = node.children || []
 
         return (
           <div key={node.path}>
@@ -38,11 +52,11 @@ function TreeView({
                   </span>
                   <span className="tree-icon">📁</span>
                   <span className="tree-name" title={node.name}>{node.name}</span>
-                  {node.fileCount !== undefined && (
-                    <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--color-text-tertiary)' }}>
-                      {node.fileCount}
-                    </span>
-                  )}
+                  {isLoading ? (
+                    <span className="tree-meta">同步中</span>
+                  ) : node.fileCount !== undefined ? (
+                    <span className="tree-meta">{node.fileCount}</span>
+                  ) : null}
                 </>
               ) : (
                 <>
@@ -52,9 +66,44 @@ function TreeView({
                 </>
               )}
             </div>
-            {node.type === 'folder' && isExpanded && node.children && node.children.length > 0 && (
+            {showChildren && (
               <div className="tree-children">
-                <TreeView nodes={node.children} depth={depth + 1} accessToken={accessToken} />
+                {childNodes.length > 0 ? (
+                  <TreeView nodes={childNodes} depth={depth + 1} accessToken={accessToken} />
+                ) : isLoading ? (
+                  <div
+                    className="tree-status"
+                    style={{ paddingLeft: `${(depth + 1) * 16 + 8}px` }}
+                  >
+                    正在从 GitHub 同步…
+                  </div>
+                ) : dirError ? (
+                  <div
+                    className="tree-status tree-status-error"
+                    style={{ paddingLeft: `${(depth + 1) * 16 + 8}px` }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      void ensureDirLoaded(node.path, accessToken, true)
+                    }}
+                    title="点击重试"
+                  >
+                    {dirError} · 点击重试
+                  </div>
+                ) : loadedDirs.includes(node.path) ? (
+                  <div
+                    className="tree-status"
+                    style={{ paddingLeft: `${(depth + 1) * 16 + 8}px` }}
+                  >
+                    空目录
+                  </div>
+                ) : (
+                  <div
+                    className="tree-status"
+                    style={{ paddingLeft: `${(depth + 1) * 16 + 8}px` }}
+                  >
+                    尚未同步
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -75,11 +124,36 @@ export default function KnowledgePage() {
     setSearchQuery,
     searchResults,
     selectFile,
+    expandedDirs,
+    ensureDirLoaded,
+    loadingDirs,
+    dirErrors,
   } = useKnowledgeStore()
   const { user, accessToken } = useAuthStore()
   const navigate = useNavigate()
   const [showSearch, setShowSearch] = useState(false)
   const canAccess = Boolean(user?.isWhitelisted && accessToken)
+  const rootLoading = loadingDirs.includes('')
+  const rootError = dirErrors['']
+
+  // 进入页面：同步仓库根目录 + 默认已展开目录的 GitHub 最新列表
+  useEffect(() => {
+    if (!canAccess || !accessToken) return
+    let cancelled = false
+    ;(async () => {
+      await ensureDirLoaded('', accessToken, false)
+      if (cancelled) return
+      for (const path of useKnowledgeStore.getState().expandedDirs) {
+        if (cancelled) return
+        await ensureDirLoaded(path, accessToken, false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+    // 仅在登录态变化时触发；expandedDirs 后续由 toggleDir 自行加载
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canAccess, accessToken])
 
   if (!canAccess) {
     return (
@@ -101,7 +175,21 @@ export default function KnowledgePage() {
   return (
     <div className="fade-in" style={{ height: '100%' }}>
       <div className="kb-secure-banner">
-        🔐 已通过 GitHub 账号 <strong>@{user?.username}</strong> 验证 · 知识库仅对白名单账号开放
+        🔐 已通过 GitHub 账号 <strong>@{user?.username}</strong> 验证 · 同步{' '}
+        <strong>
+          {KB_OWNER}/{KB_REPO}
+        </strong>
+        @{KB_BRANCH}
+        {rootLoading ? ' · 同步中…' : null}
+        {rootError ? (
+          <button
+            type="button"
+            className="kb-banner-retry"
+            onClick={() => void ensureDirLoaded('', accessToken, true)}
+          >
+            根目录失败，点击重试
+          </button>
+        ) : null}
       </div>
       <div className="kb-layout">
         <div className="kb-sidebar">
@@ -154,7 +242,7 @@ export default function KnowledgePage() {
         <div className="kb-content">
           {contentStatus === 'loading' && currentPath ? (
             <div className="kb-content-empty">
-              <div style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: 8 }}>正在加载…</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: 8 }}>正在从 GitHub 加载…</div>
               <div style={{ fontSize: '0.8rem', color: 'var(--color-text-tertiary)', fontFamily: 'var(--font-mono)' }}>
                 {currentPath}
               </div>
@@ -165,7 +253,9 @@ export default function KnowledgePage() {
                 {currentPath}
                 {contentStatus === 'error' && contentError ? (
                   <span style={{ color: '#fb923c', marginLeft: 8 }}>· {contentError}</span>
-                ) : null}
+                ) : (
+                  <span style={{ marginLeft: 8, color: 'var(--color-text-tertiary)' }}>· GitHub 最新</span>
+                )}
               </div>
               <pre style={{
                 whiteSpace: 'pre-wrap',
@@ -183,10 +273,11 @@ export default function KnowledgePage() {
               <div style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: 8 }}>知识库</div>
               <div style={{ fontSize: '0.85rem' }}>
                 从左侧选择文件查看内容<br />
-                或使用搜索快速定位
+                目录树会实时同步 GitHub 仓库最新文件
               </div>
               <div style={{ marginTop: 24, fontSize: '0.72rem', color: 'var(--color-text-tertiary)' }}>
-                知识库结构：00_Inbox · 01_Raw · 02_Operations · 03_Wiki · 99_System
+                {KB_OWNER}/{KB_REPO}@{KB_BRANCH}
+                {expandedDirs.length ? ` · 已展开 ${expandedDirs.length} 个目录` : ''}
               </div>
             </div>
           )}

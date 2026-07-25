@@ -76,15 +76,35 @@ function expandHome(p) {
     : p
 }
 
+/** 直接扫已知目录 + PATH，避免 launchd 精简 PATH / `which` 解析失败 */
 function which(bin) {
+  if (!bin) return null
+  if (path.isAbsolute(bin) && fs.existsSync(bin) && fs.statSync(bin).isFile()) {
+    return bin
+  }
+  const dirs = [
+    ...TOOL_BIN_DIRS,
+    ...(process.env.PATH || '').split(path.delimiter).filter(Boolean),
+  ]
+  const seen = new Set()
+  for (const dir of dirs) {
+    if (seen.has(dir)) continue
+    seen.add(dir)
+    const full = path.join(dir, bin)
+    try {
+      if (fs.existsSync(full) && fs.statSync(full).isFile()) return full
+    } catch {
+      /* continue */
+    }
+  }
   try {
-    const searchPath = [...TOOL_BIN_DIRS, process.env.PATH]
-      .filter(Boolean)
-      .join(path.delimiter)
-    return execFileSync('which', [bin], {
-      encoding: 'utf8',
-      env: { ...process.env, PATH: searchPath },
-    }).trim() || null
+    const searchPath = [...TOOL_BIN_DIRS, process.env.PATH].filter(Boolean).join(path.delimiter)
+    return (
+      execFileSync('/usr/bin/which', [bin], {
+        encoding: 'utf8',
+        env: { ...process.env, PATH: searchPath },
+      }).trim() || null
+    )
   } catch {
     return null
   }
@@ -100,18 +120,22 @@ function asLiteral(s) {
 }
 
 function resolveLaunchBinary(command, preferredPath) {
-  const candidates = [preferredPath, command, which(command)].filter(Boolean)
+  const candidates = [
+    preferredPath,
+    which(command),
+    ...TOOL_BIN_DIRS.map((d) => path.join(d, command)),
+    command,
+  ].filter(Boolean)
   for (const c of candidates) {
     try {
-      if (c && fs.existsSync(c) && fs.statSync(c).isFile()) {
-        return path.resolve(c)
+      const abs = path.isAbsolute(c) ? c : which(c) || c
+      if (abs && fs.existsSync(abs) && fs.statSync(abs).isFile()) {
+        return path.resolve(abs)
       }
     } catch {
       /* continue */
     }
   }
-  const w = which(command)
-  if (w) return w
   throw new Error(`找不到可执行文件：${command}`)
 }
 

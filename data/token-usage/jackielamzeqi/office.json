@@ -2,13 +2,13 @@
   "schemaVersion": 2,
   "account": "jackielamzeqi",
   "workEnv": "office",
-  "savedAt": "2026-07-25T17:13:48.493Z",
+  "savedAt": "2026-07-25T17:33:48.506Z",
   "snapshot": {
     "ok": true,
     "source": "token-agent",
     "reference": "https://github.com/Javis603/token-monitor",
     "engine": "tokscale",
-    "updatedAt": "2026-07-25T17:13:48.490Z",
+    "updatedAt": "2026-07-25T17:33:48.503Z",
     "hostname": "sz-11188601m2",
     "platform": "darwin-arm64",
     "tools": [
@@ -201,17 +201,17 @@
           "planName": "Pro",
           "priceLabel": "$20/mo",
           "unit": "percent",
-          "usedPercent": 0.1507246376811594,
-          "remainingPercent": 99.84927536231883,
-          "autoPercentUsed": 0.17333333333333334,
+          "usedPercent": 3.1855072463768117,
+          "remainingPercent": 96.81449275362318,
+          "autoPercentUsed": 3.663333333333333,
           "apiPercentUsed": 0,
-          "totalPercentUsed": 0.1507246376811594,
+          "totalPercentUsed": 3.1855072463768117,
           "limitCents": 2000,
-          "includedSpendCents": 52,
-          "remainingCents": 1948,
+          "includedSpendCents": 1099,
+          "remainingCents": 901,
           "billingCycleStart": "1784945547000",
           "billingCycleEnd": "1787623947000",
-          "displayMessage": "You've used 3% of your included usage",
+          "displayMessage": "You've used 55% of your included usage",
           "source": "cursor:GetCurrentPeriodUsage"
         },
         "codex": {
@@ -226,7 +226,7 @@
           "remainingPercent": 0,
           "windowSeconds": 604800,
           "resetAt": 1785409987,
-          "resetAfterSeconds": 410362,
+          "resetAfterSeconds": 409162,
           "secondaryUsedPercent": null,
           "creditsBalanceUsd": 0,
           "hasCredits": false,
@@ -281,7 +281,7 @@
         }
       },
       "errors": [],
-      "updatedAt": "2026-07-25T17:13:48.490Z"
+      "updatedAt": "2026-07-25T17:33:48.503Z"
     },
     "warnings": [
       "tokscale 采集失败：tokscale dependency missing; run npm install"

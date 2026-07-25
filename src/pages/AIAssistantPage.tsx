@@ -17,7 +17,7 @@ import { WORK_ENVS } from '../lib/workEnv'
 import { useTokenMonitor } from '../hooks/useTokenMonitor'
 import { useExchangeRate } from '../hooks/useExchangeRate'
 import { useModelLeaderboard } from '../hooks/useModelLeaderboard'
-import { formatContext, formatScore } from '../lib/modelLeaderboard'
+import { countryLabel, formatContext, formatScore } from '../lib/modelLeaderboard'
 import { launchLocalTool, type OfficialBilling, type TokenSnapshot } from '../lib/tokenMonitor'
 import { ToolLogo } from '../components/ToolLogo'
 import { CreatorLogo } from '../components/CreatorLogo'
@@ -36,6 +36,63 @@ const MODEL_BAR_COLORS = [
 ]
 
 type QuotaDot = 'ok' | 'low' | 'bad'
+
+/** 解析官方重置时间戳（unix 秒 / 毫秒 / ISO） */
+function parseResetDate(raw?: string | number | null): Date | null {
+  if (raw == null || raw === '') return null
+  if (typeof raw === 'number' && Number.isFinite(raw)) {
+    const d = new Date(raw < 1e12 ? raw * 1000 : raw)
+    return Number.isNaN(d.getTime()) ? null : d
+  }
+  const s = String(raw).trim()
+  if (/^\d+$/.test(s)) {
+    const n = Number(s)
+    const d = new Date(n < 1e12 ? n * 1000 : n)
+    return Number.isNaN(d.getTime()) ? null : d
+  }
+  const d = new Date(s)
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
+function formatResetDate(raw?: string | number | null): string | null {
+  const d = parseResetDate(raw)
+  if (!d) return null
+  return d.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
+}
+
+/** 各工具下一轮 Token 重置说明 */
+function tokenResetHint(
+  toolId: string,
+  bill?: OfficialBilling | null,
+  account?: NonNullable<OfficialBilling['accounts']>[number]
+): string {
+  if (account) {
+    const t = formatResetDate(account.resetAt)
+    return t ? `下一轮 Token 重置：${t}` : '暂无官方重置时间'
+  }
+  if (!bill?.ok) return '暂无官方重置时间'
+  if (bill.kind === 'credits') return '充值余额制 · 无固定重置周期'
+  if (toolId === 'kimi') {
+    const weekly = formatResetDate(bill.weeklyResetAt)
+    const five = formatResetDate(bill.fiveHour?.resetAt)
+    if (weekly && five) return `下一轮 Token 重置：周额度 ${weekly} · 5h ${five}`
+    if (weekly) return `下一轮 Token 重置：${weekly}`
+    return '暂无官方重置时间'
+  }
+  if (toolId === 'cursor') {
+    const t = formatResetDate(bill.billingCycleEnd)
+    return t ? `下一轮 Token 重置：${t}` : '暂无官方重置时间'
+  }
+  const t = formatResetDate(bill.resetAt)
+  return t ? `下一轮 Token 重置：${t}` : '暂无官方重置时间'
+}
 
 function remainingFromBill(bill?: OfficialBilling | null): number | null {
   if (!bill?.ok) return null
@@ -1500,7 +1557,7 @@ export default function AIAssistantPage() {
                             ? formatPlanLabel(account.planName) || 'Plus'
                             : `${formatCost(accountCny)}/月`}
                         </span>
-                        <span className="quota-pct">{loggedIn ? `${remain}%` : '未登录'}</span>
+                        <span className="quota-pct">{loggedIn ? `已用 ${pct}%` : '未登录'}</span>
                       </button>
                     </div>
                     {loggedIn ? (
@@ -1512,6 +1569,7 @@ export default function AIAssistantPage() {
                           <span>已用 {pct}%{account.windowSeconds ? ` · ${Math.round(account.windowSeconds / 3600)}h 窗口` : ''}</span>
                           <span>剩余 {remain}%</span>
                         </div>
+                        <div className="quota-reset">{tokenResetHint(t.id, bill, account)}</div>
                       </>
                     ) : (
                       <div className="quota-meta account-login-hint">
@@ -1530,8 +1588,6 @@ export default function AIAssistantPage() {
                 const remaining = bill.remaining ?? total - used
                 const usedPct =
                   total > 0 ? Math.min(Math.round((used / total) * 100), 100) : used > 0 ? 100 : 0
-                const remainPct =
-                  total > 0 ? Math.max(Math.min(Math.round((remaining / total) * 100), 100), 0) : used > 0 ? 0 : 100
                 return (
                   <div key={row.key} className="quota-item">
                     <div className="quota-head">
@@ -1553,7 +1609,7 @@ export default function AIAssistantPage() {
                         <span className="quota-price-cny">
                           剩余 {formatMoneyCny(remaining, fx.rate)}
                         </span>
-                        <span className="quota-pct">{remainPct}%</span>
+                        <span className="quota-pct">已用 {usedPct}%</span>
                       </button>
                     </div>
                     <div className="quota-track">
@@ -1569,6 +1625,7 @@ export default function AIAssistantPage() {
                         {formatMoneyCny(remaining, fx.rate)}
                       </span>
                     </div>
+                    <div className="quota-reset">{tokenResetHint(t.id, bill)}</div>
                   </div>
                 )
               }
@@ -1607,7 +1664,7 @@ export default function AIAssistantPage() {
                         <span className="quota-price-cny">
                           {bal != null ? `余额 ${bal}` : `剩余 ${remain}%`}
                         </span>
-                        <span className="quota-pct">{remain}%</span>
+                        <span className="quota-pct">已用 {pct}%</span>
                       </div>
                     </div>
                     <div className="quota-track">
@@ -1628,6 +1685,7 @@ export default function AIAssistantPage() {
                         {bal != null ? `余额 ${bal}` : `剩余 ${remain}%`}
                       </span>
                     </div>
+                    <div className="quota-reset">{tokenResetHint(t.id, bill)}</div>
                   </div>
                 )
               }
@@ -1668,7 +1726,7 @@ export default function AIAssistantPage() {
                         }
                       >
                         <span className="quota-price-cny">{priceText}</span>
-                        <span className="quota-pct">{remain}%</span>
+                        <span className="quota-pct">已用 {pct}%</span>
                       </button>
                     </div>
                     <div className="quota-track">
@@ -1703,12 +1761,12 @@ export default function AIAssistantPage() {
                         </>
                       )}
                     </div>
+                    <div className="quota-reset">{tokenResetHint(t.id, bill)}</div>
                   </div>
                 )
               }
 
               // 回退：本机 Token 估算；外国工具无数据时套餐默认 $20 换算人民币
-              const remainTokenPct = Math.max(100 - tokenPct, 0)
               return (
                 <div key={row.key} className="quota-item">
                   <div className="quota-head">
@@ -1730,7 +1788,7 @@ export default function AIAssistantPage() {
                       }
                     >
                       <span className="quota-price-cny">{formatCost(cny)}/月</span>
-                      <span className="quota-pct">{remainTokenPct}%</span>
+                      <span className="quota-pct">已用 {tokenPct}%</span>
                     </button>
                   </div>
                   <div className="quota-track">
@@ -1749,6 +1807,7 @@ export default function AIAssistantPage() {
                         : ''}
                     </span>
                   </div>
+                  <div className="quota-reset">{tokenResetHint(t.id, bill)}</div>
                 </div>
               )
             })}
@@ -1794,6 +1853,7 @@ export default function AIAssistantPage() {
             <thead>
               <tr>
                 <th>#</th>
+                <th>国家</th>
                 <th>公司</th>
                 <th>模型</th>
                 <th>发布日期</th>
@@ -1809,10 +1869,17 @@ export default function AIAssistantPage() {
               {(leaderboard?.models || []).map((m) => {
                 const priceCny =
                   m.priceBlended != null ? usdToCny(m.priceBlended, fx.rate) : null
+                const flag = m.countryFlag || '🏳️'
+                const nation = countryLabel(m.countryCode)
                 return (
                   <tr key={m.slug}>
                     <td>
                       <span className={`rank-badge ${m.rank <= 3 ? 'top' : ''}`}>{m.rank}</span>
+                    </td>
+                    <td>
+                      <span className="lb-country" title={nation} aria-label={nation}>
+                        {flag}
+                      </span>
                     </td>
                     <td>
                       <div
@@ -1869,7 +1936,7 @@ export default function AIAssistantPage() {
               })}
               {!lbLoading && !(leaderboard?.models?.length) && (
                 <tr>
-                  <td colSpan={10} style={{ textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
+                  <td colSpan={11} style={{ textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
                     暂无榜单数据，请点击刷新或检查网络
                   </td>
                 </tr>

@@ -19,8 +19,10 @@ import {
   fetchKbDirListing,
   getCachedKbContent,
   setCachedKbContent,
+  clearKbDirCache,
   KB_OWNER,
   KB_REPO,
+  KB_BRANCH,
 } from '../lib/githubKb'
 import { detectWorkEnv, type WorkEnv } from '../lib/workEnv'
 import { USD_CNY, usdToCny } from '../utils/helpers'
@@ -163,34 +165,64 @@ interface KnowledgeState {
   searchQuery: string
   /** 已展开目录（用数组保证 Zustand 能触发重渲染） */
   expandedDirs: string[]
+  /** 已成功从 GitHub 同步过的目录 */
   loadedDirs: string[]
-  /** 打开文件：本地 mock → 内存缓存 → GitHub API */
+  /** 正在拉取的目录 */
+  loadingDirs: string[]
+  /** 目录加载错误 */
+  dirErrors: Record<string, string>
+  /** 打开文件：优先 GitHub 最新内容，失败再回退本地 */
   selectFile: (path: string, accessToken?: string | null) => Promise<void>
   setSearchQuery: (q: string) => void
   /** 展开/折叠；展开时按需从 GitHub 拉取下级 */
   toggleDir: (path: string, accessToken?: string | null) => Promise<void>
+  /** 确保目录已从 GitHub 加载（用于默认展开目录） */
+  ensureDirLoaded: (path: string, accessToken?: string | null, force?: boolean) => Promise<void>
   clearSelection: () => void
 }
 
+function findTreeNode(nodes: TreeNode[], path: string): TreeNode | null {
+  for (const n of nodes) {
+    if (n.path === path) return n
+    if (n.children?.length) {
+      const hit = findTreeNode(n.children, path)
+      if (hit) return hit
+    }
+  }
+  return null
+}
+
+/** 以 GitHub 列表为准替换子节点；保留已展开子目录的缓存 children */
+function mergeChildNodes(prev: TreeNode[] | undefined, children: TreeNode[]): TreeNode[] {
+  const prevByPath = new Map((prev || []).map((c) => [c.path, c]))
+  return children.map((c) => {
+    const old = prevByPath.get(c.path)
+    if (c.type === 'folder' && old?.type === 'folder' && old.children?.length) {
+      return {
+        ...c,
+        children: old.children,
+        fileCount: old.fileCount ?? old.children.length,
+      }
+    }
+    if (c.type === 'folder' && old?.type === 'folder') {
+      return {
+        ...c,
+        children: old.children || [],
+        fileCount: old.fileCount ?? old.children?.length ?? 0,
+      }
+    }
+    return c
+  })
+}
+
 function updateTreeChildren(nodes: TreeNode[], dirPath: string, children: TreeNode[]): TreeNode[] {
+  if (!dirPath) {
+    return mergeChildNodes(nodes, children)
+  }
   return nodes.map((n) => {
     if (n.path === dirPath) {
-      // 合并已有与远程，远程优先补全
-      const prev = n.children || []
-      const byPath = new Map(prev.map((c) => [c.path, c]))
-      for (const c of children) {
-        const old = byPath.get(c.path)
-        if (old?.type === 'folder' && old.children?.length && c.type === 'folder') {
-          byPath.set(c.path, { ...c, children: old.children, fileCount: old.fileCount })
-        } else {
-          byPath.set(c.path, c)
-        }
-      }
-      const merged = [...byPath.values()].sort((a, b) => {
-        if (a.type !== b.type) return a.type === 'folder' ? -1 : 1
-        return a.name.localeCompare(b.name, 'zh')
-      })
-      return { ...n, children: merged, fileCount: merged.length }
+      const next = mergeChildNodes(n.children, children)
+      return { ...n, children: next, fileCount: next.length }
     }
     if (n.children?.length) {
       return { ...n, children: updateTreeChildren(n.children, dirPath, children) }
@@ -199,11 +231,19 @@ function updateTreeChildren(nodes: TreeNode[], dirPath: string, children: TreeNo
   })
 }
 
+function listingToNodes(listing: { name: string; path: string; type: 'file' | 'folder' }[]): TreeNode[] {
+  return listing.map((e) =>
+    e.type === 'folder'
+      ? { name: e.name, path: e.path, type: 'folder' as const, children: [], fileCount: 0 }
+      : { name: e.name, path: e.path, type: 'file' as const }
+  )
+}
+
 function fallbackFromIndex(path: string): string {
   const hit = searchIndex.find((i) => i.path === path)
   const title = hit?.title || path.split('/').pop() || path
   const preview = hit?.preview || '暂无预览'
-  return `# ${title}\n\n${preview}\n\n---\n\n> 路径：\`${path}\`\n>\n> 未能从 GitHub 拉取正文。请确认 Token 含 \`repo\` 权限，且仓库为 \`${KB_OWNER}/${KB_REPO}\`。`
+  return `# ${title}\n\n${preview}\n\n---\n\n> 路径：\`${path}\`\n>\n> 未能从 GitHub 拉取正文。请确认 Token 含 \`repo\` 权限，且仓库为 \`${KB_OWNER}/${KB_REPO}\`（分支 \`${KB_BRANCH}\`）。`
 }
 
 export const useKnowledgeStore = create<KnowledgeState>((set, get) => ({
@@ -216,12 +256,48 @@ export const useKnowledgeStore = create<KnowledgeState>((set, get) => ({
   searchQuery: '',
   expandedDirs: ['00_Inbox'],
   loadedDirs: [],
+  loadingDirs: [],
+  dirErrors: {},
   selectFile: async (path, accessToken) => {
-    const local = fileContents[path] || getCachedKbContent(path)
-    if (local) {
+    const cached = getCachedKbContent(path)
+    const mock = fileContents[path]
+
+    // 有 Token：始终拉 GitHub 最新；可先展示缓存/mock 作占位
+    if (accessToken) {
       set({
         currentPath: path,
-        currentContent: local,
+        currentContent: cached || mock || null,
+        contentStatus: cached || mock ? 'ready' : 'loading',
+        contentError: null,
+      })
+      try {
+        const text = await fetchKbFileContent(accessToken, path, { force: true })
+        setCachedKbContent(path, text)
+        if (get().currentPath !== path) return
+        set({
+          currentContent: text,
+          contentStatus: 'ready',
+          contentError: null,
+        })
+      } catch (e) {
+        if (get().currentPath !== path) return
+        const msg = (e as Error).message || '加载失败'
+        const fallback = cached || mock || fallbackFromIndex(path)
+        set({
+          currentContent: fallback.includes('未能从 GitHub')
+            ? fallback
+            : `${fallback}\n\n---\n\n> GitHub 最新内容拉取失败：${msg}`,
+          contentStatus: cached || mock ? 'ready' : 'error',
+          contentError: msg,
+        })
+      }
+      return
+    }
+
+    if (cached || mock) {
+      set({
+        currentPath: path,
+        currentContent: cached || mock || null,
         contentStatus: 'ready',
         contentError: null,
       })
@@ -230,39 +306,10 @@ export const useKnowledgeStore = create<KnowledgeState>((set, get) => ({
 
     set({
       currentPath: path,
-      currentContent: null,
-      contentStatus: 'loading',
-      contentError: null,
+      currentContent: fallbackFromIndex(path),
+      contentStatus: 'error',
+      contentError: '未登录，无法从 GitHub 拉取正文',
     })
-
-    if (!accessToken) {
-      set({
-        currentContent: fallbackFromIndex(path),
-        contentStatus: 'error',
-        contentError: '未登录，无法从 GitHub 拉取正文',
-      })
-      return
-    }
-
-    try {
-      const text = await fetchKbFileContent(accessToken, path)
-      setCachedKbContent(path, text)
-      // 用户可能已点开其他文件
-      if (get().currentPath !== path) return
-      set({
-        currentContent: text,
-        contentStatus: 'ready',
-        contentError: null,
-      })
-    } catch (e) {
-      if (get().currentPath !== path) return
-      const msg = (e as Error).message || '加载失败'
-      set({
-        currentContent: fallbackFromIndex(path) + `\n\n> 错误：${msg}`,
-        contentStatus: 'error',
-        contentError: msg,
-      })
-    }
   },
   setSearchQuery: (q) => {
     if (!q.trim()) {
@@ -278,8 +325,48 @@ export const useKnowledgeStore = create<KnowledgeState>((set, get) => ({
     )
     set({ searchQuery: q, searchResults: filtered })
   },
+  ensureDirLoaded: async (path, accessToken, force = false) => {
+    if (!accessToken) return
+    if (get().loadingDirs.includes(path)) return
+
+    set({
+      loadingDirs: [...get().loadingDirs.filter((p) => p !== path), path],
+      dirErrors: Object.fromEntries(
+        Object.entries(get().dirErrors).filter(([k]) => k !== path)
+      ),
+    })
+
+    try {
+      if (force) clearKbDirCache(path)
+      // force=false 时走 30s 目录缓存，过期后自动拿 GitHub 最新列表
+      const listing = await fetchKbDirListing(accessToken, path, { force })
+      const children = listingToNodes(listing)
+      const node = path ? findTreeNode(get().tree, path) : null
+      const localCount = path ? node?.children?.length || 0 : get().tree.length
+      // 远程为空且本地仅有 mock 骨架时保留骨架，避免整树空白
+      if (children.length === 0 && localCount > 0) {
+        set({
+          loadedDirs: [...get().loadedDirs.filter((p) => p !== path), path],
+          loadingDirs: get().loadingDirs.filter((p) => p !== path),
+        })
+        return
+      }
+      set({
+        tree: updateTreeChildren(get().tree, path, children),
+        loadedDirs: [...get().loadedDirs.filter((p) => p !== path), path],
+        loadingDirs: get().loadingDirs.filter((p) => p !== path),
+      })
+    } catch (e) {
+      const msg = (e as Error).message || '目录加载失败'
+      // 失败不写入 loadedDirs，允许再次展开重试
+      set({
+        loadingDirs: get().loadingDirs.filter((p) => p !== path),
+        dirErrors: { ...get().dirErrors, [path]: msg },
+      })
+    }
+  },
   toggleDir: async (path, accessToken) => {
-    const { expandedDirs, loadedDirs, tree } = get()
+    const { expandedDirs } = get()
     const isOpen = expandedDirs.includes(path)
     if (isOpen) {
       set({ expandedDirs: expandedDirs.filter((p) => p !== path) })
@@ -287,42 +374,8 @@ export const useKnowledgeStore = create<KnowledgeState>((set, get) => ({
     }
 
     set({ expandedDirs: [...expandedDirs, path] })
-
-    // 已拉取过，或本地已有下级文件/子目录，不再请求
-    const findNode = (nodes: TreeNode[], p: string): TreeNode | null => {
-      for (const n of nodes) {
-        if (n.path === p) return n
-        if (n.children) {
-          const hit = findNode(n.children, p)
-          if (hit) return hit
-        }
-      }
-      return null
-    }
-    const node = findNode(tree, path)
-    const hasLocalChildren = Boolean(node?.children?.length)
-    if (loadedDirs.includes(path) || (hasLocalChildren && !accessToken)) return
     if (!accessToken) return
-
-    try {
-      const listing = await fetchKbDirListing(accessToken, path)
-      const children: TreeNode[] = listing.map((e) =>
-        e.type === 'folder'
-          ? { name: e.name, path: e.path, type: 'folder' as const, children: [], fileCount: 0 }
-          : { name: e.name, path: e.path, type: 'file' as const }
-      )
-      if (children.length === 0 && hasLocalChildren) {
-        set({ loadedDirs: [...get().loadedDirs, path] })
-        return
-      }
-      set({
-        tree: updateTreeChildren(get().tree, path, children),
-        loadedDirs: [...get().loadedDirs.filter((p) => p !== path), path],
-      })
-    } catch {
-      // 保留本地树，静默失败
-      set({ loadedDirs: [...get().loadedDirs.filter((p) => p !== path), path] })
-    }
+    await get().ensureDirLoaded(path, accessToken, false)
   },
   clearSelection: () =>
     set({

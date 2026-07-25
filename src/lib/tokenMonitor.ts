@@ -77,7 +77,10 @@ export interface OfficialBilling {
   includedSpendCents?: number
   remainingCents?: number
   windowSeconds?: number | null
-  resetAt?: number | null
+  resetAt?: number | string | null
+  /** Cursor 账单周期（毫秒时间戳字符串或数字） */
+  billingCycleStart?: number | string | null
+  billingCycleEnd?: number | string | null
   creditsBalanceUsd?: number
   hasCredits?: boolean
   displayMessage?: string | null
@@ -90,7 +93,7 @@ export interface OfficialBilling {
     usedPercent?: number
     remainingPercent?: number
     windowSeconds?: number | null
-    resetAt?: number | null
+    resetAt?: number | string | null
   }>
   /** Kimi Code */
   weeklyUsed?: number

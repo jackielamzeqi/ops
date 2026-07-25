@@ -1,0 +1,37 @@
+{
+  "name": "personal-ops",
+  "version": "1.0.0",
+  "description": "personal-ops - 个人 AI 工作台 + GitHub 知识库入口 + 任务看板 PWA",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "VITE_BASE=/ops/ vite build && cp docs/index.html docs/404.html && touch docs/.nojekyll",
+    "build:pages": "npm run build",
+    "preview": "vite preview --host",
+    "serve": "vite preview --host --port 3000",
+    "agent": "node scripts/token-agent.mjs",
+    "agent:once": "node scripts/token-agent.mjs --once",
+    "agent:start": "bash scripts/agent-ctl.sh start",
+    "agent:stop": "bash scripts/agent-ctl.sh stop",
+    "agent:status": "bash scripts/agent-ctl.sh status",
+    "agent:setup": "bash scripts/agent-ctl.sh install",
+    "agent:unsetup": "bash scripts/agent-ctl.sh uninstall",
+    "leaderboard": "node scripts/leaderboard-collect.mjs --once"
+  },
+  "dependencies": {
+    "puppeteer-core": "^25.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "tokscale": "4.6.0",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "vite-plugin-pwa": "^0.21.0"
+  }
+}

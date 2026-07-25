@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 2,
+  "account": "jackielamzeqi",
+  "workEnv": "office",
+  "savedAt": "2026-07-25T17:13:48.493Z",
+  "snapshot": {
+    "ok": true,
+    "source": "token-agent",
+    "reference": "https://github.com/Javis603/token-monitor",
+    "engine": "tokscale",
+    "updatedAt": "2026-07-25T17:13:48.490Z",
+    "hostname": "sz-11188601m2",
+    "platform": "darwin-arm64",
+    "tools": [
+      {
+        "id": "claude",
+        "name": "Claude CLI",
+        "tokscaleClient": "claude",
+        "installed": true,
+        "binaries": [
+          {
+            "name": "claude",
+            "path": "/Users/11188601/.local/bin/claude"
+          }
+        ],
+        "dataDirs": [
+          "/Users/11188601/.claude/projects",
+          "/Users/11188601/.claude"
+        ],
+        "apps": [],
+        "status": "waiting",
+        "provider": "OpenRouter",
+        "configuredModel": "HY3(free)",
+        "displayName": "OpenRouter",
+        "monthTokens": 0,
+        "monthCostUsd": 0
+      },
+      {
+        "id": "codex",
+        "name": "ChatGPT",
+        "tokscaleClient": "codex",
+        "installed": true,
+        "binaries": [
+          {
+            "name": "codex",
+            "path": "/Users/11188601/.nvm/versions/node/v22.23.1/bin/codex"
+          }
+        ],
+        "dataDirs": [
+          "/Users/11188601/.codex/sessions",
+          "/Users/11188601/.codex"
+        ],
+        "apps": [],
+        "status": "waiting",
+        "provider": "ChatGPT",
+        "configuredModel": "GPT-5.6 Sol",
+        "displayName": "ChatGPT",
+        "monthTokens": 0,
+        "monthCostUsd": 0
+      },
+      {
+        "id": "kimi",
+        "name": "Kimi Code",
+        "tokscaleClient": "kimi",
+        "installed": true,
+        "binaries": [
+          {
+            "name": "kimi",
+            "path": "/Users/11188601/.kimi-code/bin/kimi"
+          }
+        ],
+        "dataDirs": [
+          "/Users/11188601/.kimi-code/sessions",
+          "/Users/11188601/.kimi-code"
+        ],
+        "apps": [],
+        "status": "waiting",
+        "provider": "Kimi Code",
+        "configuredModel": "K2.7",
+        "displayName": "Kimi Code",
+        "monthTokens": 0,
+        "monthCostUsd": 0
+      },
+      {
+        "id": "cursor",
+        "name": "Cursor",
+        "tokscaleClient": "cursor",
+        "installed": true,
+        "binaries": [
+          {
+            "name": "cursor",
+            "path": "/Users/11188601/.local/bin/cursor"
+          },
+          {
+            "name": "cursor-agent",
+            "path": "/Users/11188601/.local/bin/cursor-agent"
+          },
+          {
+            "name": "agent",
+            "path": "/Users/11188601/.local/bin/agent"
+          }
+        ],
+        "dataDirs": [
+          "/Users/11188601/.config/tokscale/cursor-cache",
+          "/Users/11188601/.cursor"
+        ],
+        "apps": [
+          "/Applications/Cursor.app"
+        ],
+        "status": "waiting",
+        "provider": "Cursor",
+        "configuredModel": "Auto",
+        "displayName": "Cursor",
+        "monthTokens": 0,
+        "monthCostUsd": 0
+      }
+    ],
+    "trackedClients": [
+      "claude",
+      "codex",
+      "kimi",
+      "cursor"
+    ],
+    "today": {
+      "totalTokens": 0,
+      "totalCostUsd": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cacheReadTokens": 0,
+      "clients": {},
+      "clientCosts": {},
+      "clientActiveMs": {},
+      "clientCacheRead": {},
+      "models": {},
+      "modelCosts": {},
+      "modelClients": {},
+      "modelInput": {},
+      "modelOutput": {},
+      "modelCacheRead": {}
+    },
+    "week": {
+      "totalTokens": 0,
+      "totalCostUsd": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cacheReadTokens": 0,
+      "clients": {},
+      "clientCosts": {},
+      "clientActiveMs": {},
+      "clientCacheRead": {},
+      "models": {},
+      "modelCosts": {},
+      "modelClients": {},
+      "modelInput": {},
+      "modelOutput": {},
+      "modelCacheRead": {}
+    },
+    "month": {
+      "totalTokens": 0,
+      "totalCostUsd": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cacheReadTokens": 0,
+      "clients": {},
+      "clientCosts": {},
+      "clientActiveMs": {},
+      "clientCacheRead": {},
+      "models": {},
+      "modelCosts": {},
+      "modelClients": {},
+      "modelInput": {},
+      "modelOutput": {},
+      "modelCacheRead": {}
+    },
+    "durations": {
+      "today": {},
+      "week": {},
+      "month": {}
+    },
+    "history": [],
+    "billing": {
+      "byTool": {
+        "claude": {
+          "ok": true,
+          "toolId": "claude",
+          "kind": "credits",
+          "provider": "OpenRouter",
+          "billingMode": "prepaid",
+          "unit": "USD",
+          "total": 5,
+          "used": 1.883221109,
+          "remaining": 3.116778891,
+          "source": "openrouter:/api/v1/credits"
+        },
+        "cursor": {
+          "ok": true,
+          "toolId": "cursor",
+          "kind": "plan_percent",
+          "provider": "Cursor",
+          "billingMode": "subscription",
+          "planName": "Pro",
+          "priceLabel": "$20/mo",
+          "unit": "percent",
+          "usedPercent": 0.1507246376811594,
+          "remainingPercent": 99.84927536231883,
+          "autoPercentUsed": 0.17333333333333334,
+          "apiPercentUsed": 0,
+          "totalPercentUsed": 0.1507246376811594,
+          "limitCents": 2000,
+          "includedSpendCents": 52,
+          "remainingCents": 1948,
+          "billingCycleStart": "1784945547000",
+          "billingCycleEnd": "1787623947000",
+          "displayMessage": "You've used 3% of your included usage",
+          "source": "cursor:GetCurrentPeriodUsage"
+        },
+        "codex": {
+          "ok": true,
+          "toolId": "codex",
+          "kind": "plan_percent",
+          "provider": "ChatGPT",
+          "billingMode": "subscription",
+          "planName": "plus",
+          "unit": "percent",
+          "usedPercent": 100,
+          "remainingPercent": 0,
+          "windowSeconds": 604800,
+          "resetAt": 1785409987,
+          "resetAfterSeconds": 410362,
+          "secondaryUsedPercent": null,
+          "creditsBalanceUsd": 0,
+          "hasCredits": false,
+          "allowed": false,
+          "limitReached": true,
+          "accountEmail": "jackie.lamzeqi@gmail.com",
+          "accounts": [
+            {
+              "email": "linsone@gmail.com",
+              "name": null,
+              "planName": "plus",
+              "status": "not_logged_in"
+            },
+            {
+              "email": "jackie.lamzeqi@gmail.com",
+              "name": "林泽期",
+              "planName": "plus",
+              "status": "logged_in",
+              "usedPercent": 100,
+              "remainingPercent": 0,
+              "windowSeconds": 604800,
+              "resetAt": 1785409987
+            }
+          ],
+          "source": "chatgpt:wham/usage"
+        },
+        "kimi": {
+          "ok": true,
+          "toolId": "kimi",
+          "kind": "plan_percent",
+          "provider": "Kimi Code",
+          "billingMode": "subscription",
+          "planName": "BASIC",
+          "unit": "percent",
+          "usedPercent": 0,
+          "remainingPercent": 100,
+          "weeklyUsed": 0,
+          "weeklyLimit": 100,
+          "weeklyRemaining": 100,
+          "weeklyResetAt": "2026-07-31T17:42:58.681992Z",
+          "fiveHour": {
+            "used": 0,
+            "limit": 100,
+            "remaining": 100,
+            "usedPercent": 0,
+            "resetAt": "2026-07-25T20:42:58.681992Z"
+          },
+          "balanceCny": 3.77,
+          "monthlyUsedCny": 21.23,
+          "currency": "CNY",
+          "source": "kimi:/coding/v1/usages"
+        }
+      },
+      "errors": [],
+      "updatedAt": "2026-07-25T17:13:48.490Z"
+    },
+    "warnings": [
+      "tokscale 采集失败：tokscale dependency missing; run npm install"
+    ],
+    "cached": false
+  }
+}

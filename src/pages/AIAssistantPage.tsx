@@ -1566,10 +1566,9 @@ export default function AIAssistantPage() {
                           <div className="quota-fill" style={{ width: `${pct}%`, background: getToolColor(t.id) }} />
                         </div>
                         <div className="quota-meta">
-                          <span>已用 {pct}%{account.windowSeconds ? ` · ${Math.round(account.windowSeconds / 3600)}h 窗口` : ''}</span>
+                          <span>已用 {pct}%{account.windowSeconds ? ` · ${Math.round(account.windowSeconds / 3600)}h 窗口` : ''} · {tokenResetHint(t.id, bill, account)}</span>
                           <span>剩余 {remain}%</span>
                         </div>
-                        <div className="quota-reset">{tokenResetHint(t.id, bill, account)}</div>
                       </>
                     ) : (
                       <div className="quota-meta account-login-hint">
@@ -1607,7 +1606,7 @@ export default function AIAssistantPage() {
                         })}
                       >
                         <span className="quota-price-cny">
-                          剩余 {formatMoneyCny(remaining, fx.rate)}
+                          充值 {formatMoneyCny(total, fx.rate)}
                         </span>
                         <span className="quota-pct">已用 {usedPct}%</span>
                       </button>
@@ -1619,13 +1618,9 @@ export default function AIAssistantPage() {
                       />
                     </div>
                     <div className="quota-meta">
-                      <span>已用 {formatMoneyCny(used, fx.rate)}</span>
-                      <span>
-                        充值 {formatMoneyCny(total, fx.rate)} · 剩余{' '}
-                        {formatMoneyCny(remaining, fx.rate)}
-                      </span>
+                      <span>已用 {formatMoneyCny(used, fx.rate)} · {tokenResetHint(t.id, bill)}</span>
+                      <span>剩余 {formatMoneyCny(remaining, fx.rate)}</span>
                     </div>
-                    <div className="quota-reset">{tokenResetHint(t.id, bill)}</div>
                   </div>
                 )
               }
@@ -1662,7 +1657,11 @@ export default function AIAssistantPage() {
                         }}
                       >
                         <span className="quota-price-cny">
-                          {bal != null ? `余额 ${bal}` : `剩余 ${remain}%`}
+                          {bill.monthlyUsedCny != null
+                            ? `加购 ${formatCost(bill.monthlyUsedCny)}`
+                            : bal != null
+                              ? `余额 ${bal}`
+                              : `剩余 ${remain}%`}
                         </span>
                         <span className="quota-pct">已用 {pct}%</span>
                       </div>
@@ -1677,15 +1676,13 @@ export default function AIAssistantPage() {
                       <span>
                         周额度 {pct}%
                         {bill.fiveHour ? ` · 5h ${fivePct}%` : ''}
-                        {bill.monthlyUsedCny != null
-                          ? ` · 本月加购 ${formatCost(bill.monthlyUsedCny)}`
-                          : ''}
+                        {' · '}
+                        {tokenResetHint(t.id, bill)}
                       </span>
                       <span>
                         {bal != null ? `余额 ${bal}` : `剩余 ${remain}%`}
                       </span>
                     </div>
-                    <div className="quota-reset">{tokenResetHint(t.id, bill)}</div>
                   </div>
                 )
               }
@@ -1746,6 +1743,8 @@ export default function AIAssistantPage() {
                             {bill.apiPercentUsed != null
                               ? ` · API ${Math.round(bill.apiPercentUsed)}%`
                               : ''}
+                            {' · '}
+                            {tokenResetHint(t.id, bill)}
                           </span>
                           <span>剩余 {remain}%</span>
                         </>
@@ -1756,12 +1755,13 @@ export default function AIAssistantPage() {
                             {bill.windowSeconds
                               ? ` · ${Math.round(bill.windowSeconds / 3600)}h 窗口`
                               : ''}
+                            {' · '}
+                            {tokenResetHint(t.id, bill)}
                           </span>
                           <span>剩余 {remain}%</span>
                         </>
                       )}
                     </div>
-                    <div className="quota-reset">{tokenResetHint(t.id, bill)}</div>
                   </div>
                 )
               }
@@ -1798,7 +1798,7 @@ export default function AIAssistantPage() {
                     />
                   </div>
                   <div className="quota-meta">
-                    <span>已用 {formatNumber(usedTokens)}</span>
+                    <span>已用 {formatNumber(usedTokens)} · {tokenResetHint(t.id, bill)}</span>
                     <span>
                       额度 {formatNumber(tokenQuota)} · 剩余{' '}
                       {formatNumber(Math.max(tokenQuota - usedTokens, 0))}
@@ -1807,7 +1807,6 @@ export default function AIAssistantPage() {
                         : ''}
                     </span>
                   </div>
-                  <div className="quota-reset">{tokenResetHint(t.id, bill)}</div>
                 </div>
               )
             })}

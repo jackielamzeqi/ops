@@ -19,7 +19,6 @@ import {
   fetchKbDirListing,
   getCachedKbContent,
   setCachedKbContent,
-  clearKbDirCache,
   KB_OWNER,
   KB_REPO,
   KB_BRANCH,
@@ -337,8 +336,8 @@ export const useKnowledgeStore = create<KnowledgeState>((set, get) => ({
     })
 
     try {
-      if (force) clearKbDirCache(path)
-      // force=false 时走 30s 目录缓存，过期后自动拿 GitHub 最新列表
+      // force=true 直接请求 GitHub；失败时库内回退最近一次成功列表
+      // force=false 走 30s 目录缓存，过期后自动拿 GitHub 最新列表
       const listing = await fetchKbDirListing(accessToken, path, { force })
       const children = listingToNodes(listing)
       const node = path ? findTreeNode(get().tree, path) : null

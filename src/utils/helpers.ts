@@ -79,7 +79,7 @@ export function getToolColor(toolId: string): string {
 export function getToolName(toolId: string): string {
   const names: Record<string, string> = {
     chatgpt: 'ChatGPT',
-    claude: 'Claude CLI',
+    claude: 'Claude Code',
     kimi: 'Kimi Code',
     hunyuan: '混元',
     glm: 'GLM',

@@ -17,6 +17,51 @@ const contentCache = new Map<string, string>()
 const dirCache = new Map<string, { at: number; entries: KbDirEntry[] }>()
 const DIR_CACHE_MS = 30_000
 
+const REQUEST_TIMEOUT_MS = 15_000
+/** 网络抖动 / 5xx 自动重试的退避间隔 */
+const RETRY_DELAYS_MS = [600, 1800]
+
+/** 带超时与自动重试的 GitHub API 请求；网络级失败返回中文错误 */
+async function githubFetch(url: string, token: string, accept: string): Promise<Response> {
+  let lastError: unknown = null
+  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+    if (attempt > 0) {
+      await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[attempt - 1]))
+    }
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+    try {
+      const res = await fetch(url, {
+        headers: {
+          Accept: accept,
+          Authorization: `Bearer ${token}`,
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Cache-Control': 'no-cache',
+        },
+        cache: 'no-store',
+        signal: controller.signal,
+      })
+      if (res.status >= 500 && attempt < RETRY_DELAYS_MS.length) {
+        lastError = new Error(`GitHub 服务异常（${res.status}）`)
+        continue
+      }
+      return res
+    } catch (e) {
+      lastError = e
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+  if (lastError instanceof DOMException && lastError.name === 'AbortError') {
+    throw new Error('连接 GitHub 超时，请检查网络或代理')
+  }
+  const raw = lastError instanceof Error ? lastError.message : ''
+  if (!raw || /failed to fetch|networkerror|load failed/i.test(raw)) {
+    throw new Error('无法连接 GitHub，请检查网络或代理')
+  }
+  throw new Error(raw)
+}
+
 function encodePath(path: string): string {
   return path
     .split('/')
@@ -65,15 +110,14 @@ export async function fetchKbDirListing(
     `https://api.github.com/repos/${KB_OWNER}/${KB_REPO}/contents/${encodePath(key)}` +
     `?ref=${encodeURIComponent(KB_BRANCH)}`
 
-  const res = await fetch(url, {
-    headers: {
-      Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${token}`,
-      'X-GitHub-Api-Version': '2022-11-28',
-      'Cache-Control': 'no-cache',
-    },
-    cache: 'no-store',
-  })
+  let res: Response
+  try {
+    res = await githubFetch(url, token, 'application/vnd.github+json')
+  } catch (e) {
+    // 网络失败：回退最近一次成功的目录列表，保证目录树可用
+    if (cached) return cached.entries
+    throw e
+  }
   if (!res.ok) {
     if (res.status === 404) {
       dirCache.set(key, { at: Date.now(), entries: [] })
@@ -120,15 +164,7 @@ export async function fetchKbFileContent(
     `https://api.github.com/repos/${KB_OWNER}/${KB_REPO}/contents/${encodePath(path)}` +
     `?ref=${encodeURIComponent(KB_BRANCH)}`
 
-  const res = await fetch(url, {
-    headers: {
-      Accept: 'application/vnd.github.raw+json',
-      Authorization: `Bearer ${token}`,
-      'X-GitHub-Api-Version': '2022-11-28',
-      'Cache-Control': 'no-cache',
-    },
-    cache: 'no-store',
-  })
+  const res = await githubFetch(url, token, 'application/vnd.github.raw+json')
 
   if (res.ok) {
     const ct = res.headers.get('content-type') || ''
@@ -148,15 +184,7 @@ export async function fetchKbFileContent(
   }
 
   // 回退：标准 contents JSON
-  const jsonRes = await fetch(url, {
-    headers: {
-      Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${token}`,
-      'X-GitHub-Api-Version': '2022-11-28',
-      'Cache-Control': 'no-cache',
-    },
-    cache: 'no-store',
-  })
+  const jsonRes = await githubFetch(url, token, 'application/vnd.github+json')
   if (!jsonRes.ok) {
     if (jsonRes.status === 404) throw new Error('仓库中未找到该文件')
     if (jsonRes.status === 401 || jsonRes.status === 403) {

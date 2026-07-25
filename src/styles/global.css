@@ -698,15 +698,7 @@ textarea.input { resize: vertical; line-height: 1.6; }
 }
 .quota-track { height: 6px; background: var(--color-surface-3); border-radius: 3px; overflow: hidden; }
 .quota-fill { height: 100%; border-radius: 3px; }
-.quota-meta { display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.7rem; color: var(--color-text-tertiary); gap: 8px; }
-.quota-reset {
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 0.5px solid var(--color-separator-opaque);
-  font-size: 0.7rem;
-  color: var(--color-text-secondary);
-  line-height: 1.4;
-}
+.quota-meta { display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 6px; font-size: 0.7rem; color: var(--color-text-tertiary); gap: 4px 8px; line-height: 1.4; }
 .account-email { display: block; margin-top: 2px; font-size: 0.7rem; color: var(--color-text-secondary); font-weight: 400; }
 .chatgpt-account.logged-in { border: 1px solid rgba(48, 209, 88, 0.22); }
 .chatgpt-account.not-logged-in { opacity: 0.78; }

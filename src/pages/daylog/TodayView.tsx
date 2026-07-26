@@ -96,7 +96,10 @@ export default function TodayView({ entries, upsertEntry, profile, onShowReview,
   const started = messages.length > 0
   const canSend = (draft.trim().length > 0 || pendingImages.length > 0) && !typing
   const minAnswers = getMinAnswers()
-  const todayDone = entry ? entryCompleted(entry, minAnswers) : false
+  // 说明书 8.2：完成 = 当天已生成并保存总结。首页「查看今日总结」「已完成」以总结为准，
+  // 避免只聊了三句但没生成总结时按钮点了进空白页（无响应）。
+  const hasSummaryToday = Boolean(entry?.summary)
+  const todayDone = hasSummaryToday
   const activeMode: DaylogMode = entry?.mode ?? mode
   const activeModeLabel = DAYLOG_MODES.find((m) => m.id === activeMode)?.label ?? '回顾一天'
 
@@ -583,29 +586,30 @@ export default function TodayView({ entries, upsertEntry, profile, onShowReview,
         <div ref={bottomRef} />
       </div>
 
-      {/* CHAT-03：快捷回答 chips，始终保留自由输入 */}
-      {chips.length > 0 && (
-        <div className="daylog-chips">
-          {chips.map((c) => (
-            <button key={c} className="daylog-chip" onClick={() => void send(c, 'quick')}>
-              {c}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="daylog-chat-dock">
+        {/* CHAT-03：快捷回答 chips，始终保留自由输入 */}
+        {chips.length > 0 && (
+          <div className="daylog-chips">
+            {chips.map((c) => (
+              <button key={c} className="daylog-chip" onClick={() => void send(c, 'quick')}>
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
 
-      {answerCount >= minAnswers && !entry?.summary && (
-        <button className="daylog-generate-btn" onClick={generate} disabled={generating || typing}>
-          {generating ? '正在生成总结…' : '生成今日总结'}
-        </button>
-      )}
-      {entry?.summary && (
-        <button className="daylog-generate-btn" onClick={onShowReview}>
-          查看今日总结
-        </button>
-      )}
+        {answerCount >= minAnswers && !entry?.summary && (
+          <button className="daylog-generate-btn" onClick={generate} disabled={generating || typing}>
+            {generating ? '正在生成总结…' : '生成今日总结'}
+          </button>
+        )}
+        {entry?.summary && (
+          <button className="daylog-generate-btn" onClick={onShowReview}>
+            查看今日总结
+          </button>
+        )}
 
-      <div className="daylog-input-area">
+        <div className="daylog-input-area">
         {/* CHAT-04：模式调节按钮，立即影响下一轮策略 */}
         <div className="daylog-adjust-row">
           <button className="daylog-adjust-btn" onClick={() => void applyDirective('noAnalyze')} disabled={typing}>
@@ -702,6 +706,7 @@ export default function TodayView({ entries, upsertEntry, profile, onShowReview,
         {!offlineHint && backendLabel && (
           <div className="daylog-local-hint">由 {backendLabel} 驱动</div>
         )}
+        </div>
       </div>
     </div>
   )

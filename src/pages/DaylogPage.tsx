@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { DaylogEntry, DaylogProfile } from '../lib/daylogTypes'
 import { todayStr } from '../lib/daylogStats'
 import { getAllEntries, saveEntry } from '../lib/daylogDb'
@@ -20,15 +20,42 @@ const VIEWS: { id: DaylogView; label: string }[] = [
 
 export default function DaylogPage() {
   const [view, setView] = useState<DaylogView>('today')
+  const [navVisible, setNavVisible] = useState(true)
   const [entries, setEntries] = useState<DaylogEntry[]>([])
   const [selectedDate, setSelectedDate] = useState(todayStr())
   const [profile, setProfile] = useState<DaylogProfile>(() => loadProfile())
   const [profileEditing, setProfileEditing] = useState(false)
+  const scrollStopTimer = useRef<number | null>(null)
+  const lastScrollTop = useRef(0)
 
   useEffect(() => {
     getAllEntries()
       .then(setEntries)
       .catch(() => setEntries([]))
+  }, [])
+
+  useEffect(() => {
+    const scroller = document.querySelector<HTMLElement>('.main-content')
+    if (!scroller) return
+
+    lastScrollTop.current = scroller.scrollTop
+    const handleScroll = () => {
+      const current = scroller.scrollTop
+      const delta = current - lastScrollTop.current
+
+      if (current <= 12 || delta < -3) setNavVisible(true)
+      else if (delta > 3) setNavVisible(false)
+
+      lastScrollTop.current = current
+      if (scrollStopTimer.current !== null) window.clearTimeout(scrollStopTimer.current)
+      scrollStopTimer.current = window.setTimeout(() => setNavVisible(true), 180)
+    }
+
+    scroller.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      scroller.removeEventListener('scroll', handleScroll)
+      if (scrollStopTimer.current !== null) window.clearTimeout(scrollStopTimer.current)
+    }
   }, [])
 
   /** 实时持久化：写 IndexedDB 并同步内存状态 */
@@ -61,16 +88,18 @@ export default function DaylogPage() {
 
   return (
     <div className="daylog-page fade-in">
-      <div className="daylog-seg">
-        {VIEWS.map((v) => (
-          <button
-            key={v.id}
-            className={`daylog-seg-btn ${view === v.id ? 'active' : ''}`}
-            onClick={() => setView(v.id)}
-          >
-            {v.label}
-          </button>
-        ))}
+      <div className={`daylog-seg-wrap ${navVisible ? 'is-visible' : 'is-hidden'}`}>
+        <div className="daylog-seg">
+          {VIEWS.map((v) => (
+            <button
+              key={v.id}
+              className={`daylog-seg-btn ${view === v.id ? 'active' : ''}`}
+              onClick={() => setView(v.id)}
+            >
+              {v.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {view === 'today' && (

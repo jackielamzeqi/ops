@@ -12,7 +12,15 @@ export interface LeaderboardModel {
   countryCode: string | null
   /** emoji 国旗 */
   countryFlag: string
+  /** 是否开源权重；null 表示未知 */
+  openWeights: boolean | null
   releaseDate: string | null
+  /** 总参数量（十亿） */
+  totalParams: number | null
+  /** 激活参数量（十亿，MoE） */
+  activeParams: number | null
+  /** 参数量取自同族模型时的来源名（估算标记） */
+  paramsRef?: string | null
   contextWindow: number | null
   /** 上下文取自同族模型时的来源名（估算标记） */
   contextRef?: string | null
@@ -46,7 +54,7 @@ export interface LeaderboardSnapshot {
   fromCache?: boolean
 }
 
-const CACHE_KEY = 'personal-ops-leaderboard-v3'
+const CACHE_KEY = 'personal-ops-leaderboard-v6'
 const DAY_MS = 24 * 60 * 60 * 1000
 const TOP_N = 30
 
@@ -69,7 +77,12 @@ type AaModel = {
     price_1m_input_tokens?: number | null
     price_1m_output_tokens?: number | null
   }
-  capabilities?: { context_window_tokens?: number | null }
+  capabilities?: {
+    context_window_tokens?: number | null
+    total_parameters?: number | null
+    active_parameters?: number | null
+  }
+  open_weights?: { is_open_weights?: boolean | null } | null
 }
 
 type IndexFile = {
@@ -133,6 +146,51 @@ const COUNTRY_LABEL: Record<string, string> = {
   ae: '阿联酋',
   ch: '瑞士',
   es: '西班牙',
+}
+
+/**
+ * AA 镜像滞后时的公开参数量（十亿）与开源标记补丁。
+ * 来源：厂商官网 / 技术博客（如 Kimi K3 = 2.8T 开源权重）。
+ */
+type MetaOverride = {
+  totalParams?: number
+  activeParams?: number | null
+  openWeights?: boolean
+}
+
+const MODEL_META_OVERRIDES: Record<string, MetaOverride> = {
+  // https://www.kimi.com/blog/kimi-k3 — 2.8T，开源权重；激活参官方未给精确 B 数
+  'kimi-k3': { totalParams: 2800, openWeights: true },
+  // https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro
+  'deepseek-v4-pro': { totalParams: 1600, activeParams: 49, openWeights: true },
+  'deepseek-v4-flash': { totalParams: 284, activeParams: 13, openWeights: true },
+}
+
+/** 缺 AA 字段时按厂商默认开/闭源 */
+const BRAND_OPEN_DEFAULT: Partial<Record<string, boolean>> = {
+  anthropic: false,
+  openai: false,
+  google: false,
+  xai: false,
+  meta: true,
+  deepseek: true,
+  moonshot: true,
+  alibaba: true,
+  zhipu: true,
+  minimax: true,
+  mistral: true,
+}
+
+function lookupMetaOverride(slug: string, name?: string): MetaOverride | null {
+  const keys = [normSlug(slug), normSlug(name || ''), stripModelVariant(slug)]
+  for (const key of keys) {
+    if (!key) continue
+    if (MODEL_META_OVERRIDES[key]) return MODEL_META_OVERRIDES[key]
+    for (const [k, v] of Object.entries(MODEL_META_OVERRIDES)) {
+      if (key === k || key.startsWith(`${k}-`)) return v
+    }
+  }
+  return null
 }
 
 export function countryFlagEmoji(code?: string | null): string {
@@ -261,6 +319,24 @@ function toPct(v: unknown): number | null {
   // AA 部分评测为 0–1，部分为 0–100
   const n = v <= 1.5 ? v * 100 : v
   return Math.round(n * 10) / 10
+}
+
+function resolveOpenWeights(
+  aa: AaModel | null | undefined,
+  related: AaModel | null | undefined,
+  slug: string,
+  name: string,
+  creator: string
+): boolean | null {
+  const direct = aa?.open_weights?.is_open_weights
+  if (typeof direct === 'boolean') return direct
+  const fromRelated = related?.open_weights?.is_open_weights
+  if (typeof fromRelated === 'boolean') return fromRelated
+  const override = lookupMetaOverride(slug, name)
+  if (typeof override?.openWeights === 'boolean') return override.openWeights
+  const brand = resolveBrandKey({ creator, slug, name })
+  if (brand && brand in BRAND_OPEN_DEFAULT) return BRAND_OPEN_DEFAULT[brand]!
+  return null
 }
 
 function blendedPrice(p?: AaModel['pricing']): number | null {
@@ -485,12 +561,35 @@ export async function fetchModelLeaderboard(force = false): Promise<LeaderboardS
       null
 
     // 上下文 / 价格：自身缺失时回退同族最新模型，并标记为估算
+    // 参数量只回退紧密相关变体（见下方），避免跨代误用
     const ctxDirect = aa?.capabilities?.context_window_tokens ?? null
     const ctxRef =
       ctxDirect == null
         ? findFamilyAa(s.slug, aaModels, (m) => m.capabilities?.context_window_tokens != null)
         : null
     const contextWindow = ctxDirect ?? ctxRef?.capabilities?.context_window_tokens ?? null
+
+    // 参数量：AA → 紧密相关变体 → 公开披露补丁（避免 K3 误用 K2）
+    const metaOverride = lookupMetaOverride(s.slug, name)
+    const paramsDirect = aa?.capabilities?.total_parameters ?? null
+    const paramsFromRelated =
+      paramsDirect == null && related?.capabilities?.total_parameters != null ? related : null
+    const totalParams =
+      paramsDirect ??
+      paramsFromRelated?.capabilities?.total_parameters ??
+      metaOverride?.totalParams ??
+      null
+    const activeParams =
+      aa?.capabilities?.active_parameters ??
+      paramsFromRelated?.capabilities?.active_parameters ??
+      (metaOverride?.activeParams !== undefined ? metaOverride.activeParams : null) ??
+      null
+    const paramsRef =
+      paramsDirect == null && paramsFromRelated
+        ? paramsFromRelated.short_name || paramsFromRelated.name || null
+        : paramsDirect == null && metaOverride?.totalParams != null
+          ? '公开披露'
+          : null
 
     const priceDirect = blendedPrice(aa?.pricing)
     const priceRef =
@@ -524,7 +623,11 @@ export async function fetchModelLeaderboard(force = false): Promise<LeaderboardS
       creator,
       countryCode,
       countryFlag: countryFlagEmoji(countryCode),
+      openWeights: resolveOpenWeights(aa, related, s.slug, name, creator),
       releaseDate,
+      totalParams,
+      activeParams,
+      paramsRef,
       contextWindow,
       contextRef: ctxRef?.short_name || ctxRef?.name || null,
       priceBlended,
@@ -563,6 +666,39 @@ export function formatContext(n: number | null): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 2)}M`
   if (n >= 1_000) return `${Math.round(n / 1000)}k`
   return String(n)
+}
+
+/** 参数量（十亿）→ 108B / 1T/42B */
+export function formatParams(total: number | null, active?: number | null): string {
+  if (total == null || !Number.isFinite(total)) return '—'
+  const fmt = (n: number) => {
+    if (n >= 1000) {
+      const t = n / 1000
+      return `${Number.isInteger(t) ? t : Math.round(t * 10) / 10}T`
+    }
+    if (n >= 10) return `${Math.round(n)}B`
+    if (n >= 1) return `${Math.round(n * 10) / 10}B`
+    return `${Math.round(n * 100) / 100}B`
+  }
+  if (active != null && Number.isFinite(active) && Math.abs(active - total) > 0.05) {
+    return `${fmt(total)}/${fmt(active)}`
+  }
+  return fmt(total)
+}
+
+/** 缩短模型括号变体：Adaptive Reasoning, Max Effort → AR·Max */
+export function compactModelLabel(raw: string): string {
+  if (!raw) return '—'
+  let s = raw
+  s = s.replace(/Adaptive Reasoning,\s*/gi, 'AR·')
+  s = s.replace(/\s*Effort/gi, '')
+  s = s.replace(/\bMedium\b/gi, 'Med')
+  s = s.replace(/,\s*Opus\s*([\d.]+)\s*Fallback/gi, ' · Opus$1 fb')
+  s = s.replace(/\bwith fallback\b/gi, 'fb')
+  s = s.replace(/\bNon-reasoning\b/gi, 'NR')
+  s = s.replace(/\(\s+/g, '(').replace(/\s+\)/g, ')')
+  s = s.replace(/,\s*,/g, ',').replace(/\s{2,}/g, ' ').trim()
+  return s
 }
 
 export function formatPriceUsd(n: number | null): string {

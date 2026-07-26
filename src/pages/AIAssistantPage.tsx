@@ -17,7 +17,7 @@ import { WORK_ENVS } from '../lib/workEnv'
 import { useTokenMonitor } from '../hooks/useTokenMonitor'
 import { useExchangeRate } from '../hooks/useExchangeRate'
 import { useModelLeaderboard } from '../hooks/useModelLeaderboard'
-import { countryLabel, formatContext, formatScore } from '../lib/modelLeaderboard'
+import { countryLabel, formatContext, formatParams, formatScore, compactModelLabel } from '../lib/modelLeaderboard'
 import { launchLocalTool, type OfficialBilling, type TokenSnapshot } from '../lib/tokenMonitor'
 import { ToolLogo } from '../components/ToolLogo'
 import { CreatorLogo } from '../components/CreatorLogo'
@@ -1898,6 +1898,7 @@ export default function AIAssistantPage() {
                 <th>公司</th>
                 <th>模型</th>
                 <th>发布日期</th>
+                <th style={{ textAlign: 'right' }}>参数量</th>
                 <th style={{ textAlign: 'right' }}>上下文</th>
                 <th style={{ textAlign: 'right' }}>综合价格</th>
                 <th style={{ textAlign: 'right' }}>客观智力</th>
@@ -1912,6 +1913,7 @@ export default function AIAssistantPage() {
                   m.priceBlended != null ? usdToCny(m.priceBlended, fx.rate) : null
                 const flag = m.countryFlag || '🏳️'
                 const nation = countryLabel(m.countryCode)
+                const modelLabel = compactModelLabel(m.shortName || m.name)
                 return (
                   <tr key={m.slug}>
                     <td>
@@ -1936,12 +1938,58 @@ export default function AIAssistantPage() {
                       </div>
                     </td>
                     <td>
-                      <div className="lb-model">
-                        <span className="lb-model-name">{m.shortName || m.name}</span>
+                      <div
+                        className="lb-model"
+                        title={`${m.name || m.shortName}${
+                          m.openWeights === true
+                            ? ' · 开源'
+                            : m.openWeights === false
+                              ? ' · 闭源'
+                              : ''
+                        }`}
+                      >
+                        <span
+                          className={`lb-model-name ${
+                            m.openWeights === true
+                              ? 'lb-open'
+                              : m.openWeights === false
+                                ? 'lb-closed'
+                                : ''
+                          }`}
+                        >
+                          {modelLabel}
+                        </span>
                         <span className="lb-model-creator">{m.creator}</span>
                       </div>
                     </td>
                     <td className="lb-muted">{m.releaseDate || '—'}</td>
+                    <td
+                      style={{ textAlign: 'right' }}
+                      title={
+                        [
+                          m.totalParams != null
+                            ? `总参 ${formatParams(m.totalParams)}${
+                                m.activeParams != null &&
+                                Math.abs(m.activeParams - m.totalParams) > 0.05
+                                  ? ` · 激活 ${formatParams(m.activeParams)}`
+                                  : ''
+                              }`
+                            : null,
+                          m.paramsRef ? (
+                            m.paramsRef === '公开披露'
+                              ? '参数量来自厂商公开披露'
+                              : `AA 暂无该模型参数量，参考同族 ${m.paramsRef}`
+                          ) : null,
+                        ]
+                          .filter(Boolean)
+                          .join('\n') || undefined
+                      }
+                    >
+                      {m.totalParams != null && m.paramsRef && m.paramsRef !== '公开披露'
+                        ? '≈'
+                        : ''}
+                      {formatParams(m.totalParams, m.activeParams)}
+                    </td>
                     <td
                       style={{ textAlign: 'right' }}
                       title={m.contextRef ? `AA 暂无该模型数据，参考同族 ${m.contextRef}` : undefined}
@@ -1989,7 +2037,7 @@ export default function AIAssistantPage() {
               })}
               {!lbLoading && !(leaderboard?.models?.length) && (
                 <tr>
-                  <td colSpan={11} style={{ textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
+                  <td colSpan={12} style={{ textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
                     暂无榜单数据，请点击刷新或检查网络
                   </td>
                 </tr>
@@ -1998,9 +2046,11 @@ export default function AIAssistantPage() {
           </table>
         </div>
         <div className="leaderboard-legend">
+          模型名颜色：<span className="lb-legend-open">开源</span> /
+          <span className="lb-legend-closed"> 闭源</span>；
           客观智力 = AA Intelligence Index；科学推理 = SciCode；代码编程 = AA Coding Index；
-          综合价格 = (输入×3+输出)/4 按实时汇率换算人民币/百万 Token；Arena = 文本榜/代码榜名次；
-          ≈ 表示 AA 暂未收录该模型，取同族最新模型估算
+          参数量 = 总参[/激活参]（十亿）；综合价格 = (输入×3+输出)/4 按实时汇率换算人民币/百万 Token；
+          Arena = 文本榜/代码榜名次；≈ 表示 AA 暂未收录该模型，取同族最新模型估算
         </div>
       </div>
 

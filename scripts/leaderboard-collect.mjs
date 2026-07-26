@@ -9,13 +9,34 @@ import path from 'node:path'
 const TOP_N = 30
 const DAY_MS = 24 * 60 * 60 * 1000
 const CACHE_DIR = path.join(os.homedir(), '.cache', 'personal-ops')
-const CACHE_FILE = path.join(CACHE_DIR, 'leaderboard.json')
+const CACHE_FILE = path.join(CACHE_DIR, 'leaderboard-v6.json')
 
 const AA_MIRROR =
   'https://raw.githubusercontent.com/oolong-tea-2026/artificial-analysis-leaderboards/main'
 const AA_INDEX =
   'https://raw.githubusercontent.com/EvanZhouDev/ai-model-index/main/data'
 const ARENA_API = 'https://api.wulong.dev/arena-ai-leaderboards/v1'
+
+/** 公开披露补丁（AA 滞后时） */
+const MODEL_META_OVERRIDES = {
+  'kimi-k3': { totalParams: 2800, openWeights: true },
+  'deepseek-v4-pro': { totalParams: 1600, activeParams: 49, openWeights: true },
+  'deepseek-v4-flash': { totalParams: 284, activeParams: 13, openWeights: true },
+}
+
+const BRAND_OPEN_DEFAULT = {
+  anthropic: false,
+  openai: false,
+  google: false,
+  xai: false,
+  meta: true,
+  deepseek: true,
+  moonshot: true,
+  alibaba: true,
+  zhipu: true,
+  minimax: true,
+  mistral: true,
+}
 
 function todayKey(d = new Date()) {
   return d.toISOString().slice(0, 10)
@@ -98,6 +119,32 @@ function findArena(slug, name, map) {
     for (const [mk, v] of map) {
       if (mk.includes(k) || k.includes(mk)) return v
     }
+  }
+  return null
+}
+
+function lookupMetaOverride(slug, name) {
+  const keys = [normSlug(slug), normSlug(name || ''), stripModelVariant(slug)]
+  for (const key of keys) {
+    if (!key) continue
+    if (MODEL_META_OVERRIDES[key]) return MODEL_META_OVERRIDES[key]
+    for (const [k, v] of Object.entries(MODEL_META_OVERRIDES)) {
+      if (key === k || key.startsWith(`${k}-`)) return v
+    }
+  }
+  return null
+}
+
+function resolveOpenWeights(aa, related, slug, name, creator) {
+  const direct = aa?.open_weights?.is_open_weights
+  if (typeof direct === 'boolean') return direct
+  const fromRelated = related?.open_weights?.is_open_weights
+  if (typeof fromRelated === 'boolean') return fromRelated
+  const override = lookupMetaOverride(slug, name)
+  if (typeof override?.openWeights === 'boolean') return override.openWeights
+  const brand = inferBrand(slug, name, creator)
+  if (brand && Object.prototype.hasOwnProperty.call(BRAND_OPEN_DEFAULT, brand)) {
+    return BRAND_OPEN_DEFAULT[brand]
   }
   return null
 }
@@ -373,12 +420,32 @@ export async function collectLeaderboard(force = false) {
     const arenaT = findArena(s.slug, name, textMap)
     const arenaC = findArena(s.slug, name, codeMap)
 
-    // 上下文 / 价格：自身缺失时回退同族最新模型，并标记来源
+    // 上下文 / 价格 / 参数量
     const ctxDirect = aa?.capabilities?.context_window_tokens ?? null
     const ctxRef =
       ctxDirect == null
         ? findFamilyAa(s.slug, aaModels, (m) => m.capabilities?.context_window_tokens != null)
         : null
+    const metaOverride = lookupMetaOverride(s.slug, name)
+    const paramsDirect = aa?.capabilities?.total_parameters ?? null
+    const paramsFromRelated =
+      paramsDirect == null && related?.capabilities?.total_parameters != null ? related : null
+    const totalParams =
+      paramsDirect ??
+      paramsFromRelated?.capabilities?.total_parameters ??
+      metaOverride?.totalParams ??
+      null
+    const activeParams =
+      aa?.capabilities?.active_parameters ??
+      paramsFromRelated?.capabilities?.active_parameters ??
+      (metaOverride?.activeParams !== undefined ? metaOverride.activeParams : null) ??
+      null
+    const paramsRef =
+      paramsDirect == null && paramsFromRelated
+        ? paramsFromRelated.short_name || paramsFromRelated.name || null
+        : paramsDirect == null && metaOverride?.totalParams != null
+          ? '公开披露'
+          : null
     const priceDirect = blendedPrice(aa?.pricing)
     const priceRef =
       priceDirect == null
@@ -393,7 +460,11 @@ export async function collectLeaderboard(force = false) {
       creator,
       countryCode,
       countryFlag: countryFlagEmoji(countryCode),
+      openWeights: resolveOpenWeights(aa, related, s.slug, name, creator),
       releaseDate,
+      totalParams,
+      activeParams,
+      paramsRef,
       contextWindow: ctxDirect ?? ctxRef?.capabilities?.context_window_tokens ?? null,
       contextRef: ctxRef?.short_name || ctxRef?.name || null,
       priceBlended: priceDirect ?? blendedPrice(priceRef?.pricing),

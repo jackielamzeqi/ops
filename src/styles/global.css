@@ -1161,8 +1161,13 @@ button.quota-price-chip { cursor: pointer; }
 .daylog-status-light:hover { background: var(--color-surface-3); color: var(--color-text); }
 
 /* 对话进行中 · 快捷回答 chips（CHAT-03） */
-.daylog-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 10px; }
+.daylog-chips {
+  display: flex; flex-wrap: nowrap; gap: 8px; margin: 2px 0 10px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.daylog-chips::-webkit-scrollbar { display: none; }
 .daylog-chip {
+  flex: 0 0 auto;
   padding: 8px 14px; border-radius: 16px; font-size: 0.85rem;
   background: rgba(44, 44, 46, 0.72); color: var(--color-text-secondary);
   border: 0.5px solid var(--color-separator-opaque); transition: all 0.15s;

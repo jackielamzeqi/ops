@@ -6,6 +6,7 @@ import type { DaylogProfile } from './daylogTypes'
  */
 
 const PROFILE_KEY = 'daylog-profile'
+const PROFILE_UPDATED_KEY = 'daylog-profile-updated-at'
 
 export function createDefaultProfile(): DaylogProfile {
   return {
@@ -46,7 +47,14 @@ export function loadProfile(): DaylogProfile {
 export function saveProfile(profile: DaylogProfile): void {
   try {
     localStorage.setItem(PROFILE_KEY, JSON.stringify(profile))
+    localStorage.setItem(PROFILE_UPDATED_KEY, String(Date.now()))
+    window.dispatchEvent(new CustomEvent('daylog-data-changed'))
   } catch {
     /* 存储不可用时静默失败，不阻断使用 */
   }
+}
+
+export function getProfileUpdatedAt(): number {
+  const value = Number(localStorage.getItem(PROFILE_UPDATED_KEY))
+  return Number.isFinite(value) ? value : 0
 }

@@ -71,7 +71,6 @@ export default function TodayView({ entries, upsertEntry, profile, onShowReview,
   const [moodLevel, setMoodLevel] = useState<number | null>(null)
   const [moodWord, setMoodWord] = useState('')
   const [light, setLight] = useState(profile.defaultDuration === 3)
-  const [pendingDirective, setPendingDirective] = useState<string | null>(null)
   const [typing, setTyping] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [draft, setDraft] = useState(() => {
@@ -276,13 +275,10 @@ export default function TodayView({ entries, upsertEntry, profile, onShowReview,
       }
 
       setTyping(true)
-      const directive = pendingDirective
-      setPendingDirective(null)
       const q = await askNextQuestion({
         profile,
         mode: activeMode,
         light,
-        ...(directive ? { directive } : {}),
         messages: next.messages,
       })
       setOfflineHint(q.source === 'local')
@@ -295,52 +291,6 @@ export default function TodayView({ entries, upsertEntry, profile, onShowReview,
     } finally {
       setTyping(false)
       sendingRef.current = false
-    }
-  }
-
-  /** 「换个问题」：重调 askNextQuestion 并替换最后一条正常 AI 消息 */
-  async function changeQuestion() {
-    if (typing || sendingRef.current) return
-    const base = entries.find((e) => e.date === today)
-    if (!base) return
-    let idx = -1
-    for (let i = base.messages.length - 1; i >= 0; i -= 1) {
-      if (base.messages[i].role === 'assistant' && base.messages[i].kind !== 'hint') {
-        idx = i
-        break
-      }
-    }
-    if (idx < 0) return
-    sendingRef.current = true
-    setTyping(true)
-    try {
-      const q = await askNextQuestion({
-        profile,
-        mode: activeMode,
-        light,
-        directive: '请换一个与之前角度不同的问题，不要重复上一问。',
-        messages: base.messages.slice(0, idx),
-      })
-      setOfflineHint(q.source === 'local')
-      const msgs = [...base.messages]
-      msgs[idx] = { ...msgs[idx], text: q.text, ts: Date.now() }
-      await upsertEntry({ ...base, messages: msgs })
-    } finally {
-      setTyping(false)
-      sendingRef.current = false
-    }
-  }
-
-  /** 「先别分析」「给我建议」：一次性指令注入下一轮，并插入本地提示 */
-  async function applyDirective(kind: 'noAnalyze' | 'advise') {
-    if (typing) return
-    const base = entries.find((e) => e.date === today) ?? createEmptyEntry(today)
-    if (kind === 'noAnalyze') {
-      setPendingDirective('用户希望先不要被分析：本轮只做承接与陪伴，不解读、不贴标签、不追问深层原因；可以只问一个很轻的问题，也可以不提问。')
-      await addHint(base, '好，先不分析，我听着。')
-    } else {
-      setPendingDirective('用户明确希望获得建议：先简要复述其目标与限制，再给不超过 3 个可执行方案，并说明取舍。')
-      await addHint(base, '好，接下来我会先确认你的目标，再给几个可选方案。')
     }
   }
 
@@ -586,6 +536,17 @@ export default function TodayView({ entries, upsertEntry, profile, onShowReview,
         <div ref={bottomRef} />
       </div>
 
+      {answerCount >= minAnswers && !entry?.summary && (
+        <button className="daylog-generate-btn" onClick={generate} disabled={generating || typing}>
+          {generating ? '正在生成总结…' : '生成今日总结'}
+        </button>
+      )}
+      {entry?.summary && (
+        <button className="daylog-generate-btn" onClick={onShowReview}>
+          查看今日总结
+        </button>
+      )}
+
       <div className="daylog-chat-dock">
         {/* CHAT-03：快捷回答 chips，始终保留自由输入 */}
         {chips.length > 0 && (
@@ -598,38 +559,7 @@ export default function TodayView({ entries, upsertEntry, profile, onShowReview,
           </div>
         )}
 
-        {answerCount >= minAnswers && !entry?.summary && (
-          <button className="daylog-generate-btn" onClick={generate} disabled={generating || typing}>
-            {generating ? '正在生成总结…' : '生成今日总结'}
-          </button>
-        )}
-        {entry?.summary && (
-          <button className="daylog-generate-btn" onClick={onShowReview}>
-            查看今日总结
-          </button>
-        )}
-
         <div className="daylog-input-area">
-        {/* CHAT-04：模式调节按钮，立即影响下一轮策略 */}
-        <div className="daylog-adjust-row">
-          <button className="daylog-adjust-btn" onClick={() => void applyDirective('noAnalyze')} disabled={typing}>
-            先别分析
-          </button>
-          <button className="daylog-adjust-btn" onClick={() => void applyDirective('advise')} disabled={typing}>
-            给我建议
-          </button>
-          <button className="daylog-adjust-btn" onClick={() => void changeQuestion()} disabled={typing}>
-            换个问题
-          </button>
-          <button
-            className={`daylog-adjust-btn ${light ? 'active' : ''}`}
-            onClick={() => void toggleLight()}
-            disabled={light}
-          >
-            轻量一点
-          </button>
-        </div>
-
         <div className="daylog-composer">
           {pendingImages.length > 0 && (
             <div className="daylog-thumbs">

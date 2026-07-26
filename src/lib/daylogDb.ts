@@ -13,6 +13,10 @@ const STORE_ENTRIES = 'entries'
 const STORE_WEEKLY = 'weeklyReports'
 const STORE_OBSERVATIONS = 'observations'
 
+function notifyChanged(): void {
+  window.dispatchEvent(new CustomEvent('daylog-data-changed'))
+}
+
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION)
@@ -61,7 +65,10 @@ export function getEntry(date: string): Promise<DaylogEntry | undefined> {
 }
 
 export function saveEntry(entry: DaylogEntry): Promise<IDBValidKey> {
-  return withStore(STORE_ENTRIES, 'readwrite', (s) => s.put(entry))
+  return withStore(STORE_ENTRIES, 'readwrite', (s) => s.put(entry)).then((key) => {
+    notifyChanged()
+    return key
+  })
 }
 
 export async function getAllEntries(): Promise<DaylogEntry[]> {
@@ -74,7 +81,10 @@ export async function getAllEntries(): Promise<DaylogEntry[]> {
 }
 
 export function deleteEntry(date: string): Promise<undefined> {
-  return withStore(STORE_ENTRIES, 'readwrite', (s) => s.delete(date))
+  return withStore(STORE_ENTRIES, 'readwrite', (s) => s.delete(date)).then((result) => {
+    notifyChanged()
+    return result
+  })
 }
 
 /* ===== 周报 ===== */
@@ -84,7 +94,18 @@ export function getWeeklyReport(weekStart: string): Promise<DaylogWeeklyReport |
 }
 
 export function saveWeeklyReport(report: DaylogWeeklyReport): Promise<IDBValidKey> {
-  return withStore(STORE_WEEKLY, 'readwrite', (s) => s.put(report))
+  return withStore(STORE_WEEKLY, 'readwrite', (s) => s.put(report)).then((key) => {
+    notifyChanged()
+    return key
+  })
+}
+
+export async function getAllWeeklyReports(): Promise<DaylogWeeklyReport[]> {
+  return withStore(
+    STORE_WEEKLY,
+    'readonly',
+    (s) => s.getAll() as IDBRequest<DaylogWeeklyReport[]>
+  )
 }
 
 /* ===== 个人观察 ===== */
@@ -99,21 +120,33 @@ export async function getAllObservations(): Promise<ProfileObservation[]> {
 }
 
 export function saveObservation(obs: ProfileObservation): Promise<IDBValidKey> {
-  return withStore(STORE_OBSERVATIONS, 'readwrite', (s) => s.put(obs))
+  return withStore(STORE_OBSERVATIONS, 'readwrite', (s) => s.put(obs)).then((key) => {
+    notifyChanged()
+    return key
+  })
 }
 
 export function deleteObservation(id: string): Promise<undefined> {
-  return withStore(STORE_OBSERVATIONS, 'readwrite', (s) => s.delete(id))
+  return withStore(STORE_OBSERVATIONS, 'readwrite', (s) => s.delete(id)).then((result) => {
+    notifyChanged()
+    return result
+  })
 }
 
 /* ===== 数据管理（说明书 12 节，AC-09） ===== */
 
 /** 清空全部会话记录 */
 export function clearEntries(): Promise<undefined> {
-  return withStore(STORE_ENTRIES, 'readwrite', (s) => s.clear())
+  return withStore(STORE_ENTRIES, 'readwrite', (s) => s.clear()).then((result) => {
+    notifyChanged()
+    return result
+  })
 }
 
 /** 清空长期画像（观察） */
 export function clearObservations(): Promise<undefined> {
-  return withStore(STORE_OBSERVATIONS, 'readwrite', (s) => s.clear())
+  return withStore(STORE_OBSERVATIONS, 'readwrite', (s) => s.clear()).then((result) => {
+    notifyChanged()
+    return result
+  })
 }

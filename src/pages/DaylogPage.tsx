@@ -3,6 +3,8 @@ import type { DaylogEntry, DaylogProfile } from '../lib/daylogTypes'
 import { todayStr } from '../lib/daylogStats'
 import { getAllEntries, saveEntry } from '../lib/daylogDb'
 import { createDefaultProfile, loadProfile, saveProfile } from '../lib/daylogProfile'
+import { syncDaylogCloudData } from '../lib/daylogCloudDb'
+import { useAuthStore } from '../store'
 import TodayView from './daylog/TodayView'
 import ReviewView from './daylog/ReviewView'
 import TrendsView from './daylog/TrendsView'
@@ -19,6 +21,7 @@ const VIEWS: { id: DaylogView; label: string }[] = [
 ]
 
 export default function DaylogPage() {
+  const { accessToken, user } = useAuthStore()
   const [view, setView] = useState<DaylogView>('today')
   const [navVisible, setNavVisible] = useState(true)
   const [entries, setEntries] = useState<DaylogEntry[]>([])
@@ -27,12 +30,59 @@ export default function DaylogPage() {
   const [profileEditing, setProfileEditing] = useState(false)
   const scrollStopTimer = useRef<number | null>(null)
   const lastScrollTop = useRef(0)
+  const cloudSyncTimer = useRef<number | null>(null)
+  const cloudSyncing = useRef(false)
 
   useEffect(() => {
-    getAllEntries()
-      .then(setEntries)
-      .catch(() => setEntries([]))
-  }, [])
+    let cancelled = false
+    const load = async () => {
+      try {
+        if (accessToken && user?.username) {
+          cloudSyncing.current = true
+          const merged = await syncDaylogCloudData(accessToken, user.username)
+          if (!cancelled) {
+            setEntries(merged.entries.sort((a, b) => a.date.localeCompare(b.date)))
+            setProfile(merged.profile.value)
+          }
+        } else {
+          const local = await getAllEntries()
+          if (!cancelled) setEntries(local)
+        }
+      } catch {
+        const local = await getAllEntries().catch(() => [])
+        if (!cancelled) setEntries(local)
+      } finally {
+        cloudSyncing.current = false
+      }
+    }
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [accessToken, user?.username])
+
+  useEffect(() => {
+    if (!accessToken || !user?.username) return
+    const sync = () => {
+      if (cloudSyncing.current) return
+      if (cloudSyncTimer.current !== null) window.clearTimeout(cloudSyncTimer.current)
+      cloudSyncTimer.current = window.setTimeout(async () => {
+        cloudSyncing.current = true
+        try {
+          await syncDaylogCloudData(accessToken, user.username)
+        } catch {
+          // 离线时保留本地缓存；下次进入页面自动重试合并。
+        } finally {
+          cloudSyncing.current = false
+        }
+      }, 1500)
+    }
+    window.addEventListener('daylog-data-changed', sync)
+    return () => {
+      window.removeEventListener('daylog-data-changed', sync)
+      if (cloudSyncTimer.current !== null) window.clearTimeout(cloudSyncTimer.current)
+    }
+  }, [accessToken, user?.username])
 
   useEffect(() => {
     const scroller = document.querySelector<HTMLElement>('.main-content')

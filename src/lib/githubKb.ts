@@ -33,10 +33,12 @@ async function githubFetch(url: string, token: string, accept: string): Promise<
     try {
       const res = await fetch(url, {
         headers: {
+          // 注意：不要加 Cache-Control 请求头——GitHub API 的 CORS
+          // 预检不允许它，浏览器会直接抛 Failed to fetch。
+          // 绕过 HTTP 缓存用 cache: 'no-store' 即可。
           Accept: accept,
           Authorization: `Bearer ${token}`,
           'X-GitHub-Api-Version': '2022-11-28',
-          'Cache-Control': 'no-cache',
         },
         cache: 'no-store',
         signal: controller.signal,

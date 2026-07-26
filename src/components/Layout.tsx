@@ -6,6 +6,7 @@ import { WORK_ENVS } from '../lib/workEnv'
 const navItems = [
   { path: '/', label: '知识库', icon: '📚', mobileOnly: false },
   { path: '/ai-assistant', label: 'AI 工具', icon: '🤖', mobileOnly: false },
+  { path: '/daylog', label: '对话', icon: '✨', mobileOnly: false },
   { path: '/settings', label: '设置', icon: '⚙️', mobileOnly: false },
 ]
 

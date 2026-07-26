@@ -16,7 +16,8 @@
     "agent:status": "bash scripts/agent-ctl.sh status",
     "agent:setup": "bash scripts/agent-ctl.sh install",
     "agent:unsetup": "bash scripts/agent-ctl.sh uninstall",
-    "leaderboard": "node scripts/leaderboard-collect.mjs --once"
+    "leaderboard": "node scripts/leaderboard-collect.mjs --once",
+    "daylog-proxy": "node scripts/daylog-ai-proxy.mjs"
   },
   "dependencies": {
     "puppeteer-core": "^25.3.0",

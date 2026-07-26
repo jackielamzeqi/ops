@@ -59,36 +59,10 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/api\.github\.com\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'github-api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 5 // 5 分钟
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/raw\.githubusercontent\.com\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'github-content-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 10 // 10 分钟
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ]
+        // GitHub API 请求不经过 Service Worker：
+        // SW 拦截层异常会表现为 Failed to fetch，且应用内已有缓存 + 重试
+        navigationPreload: false,
+        runtimeCaching: []
       }
     })
   ],
@@ -107,6 +81,12 @@ export default defineConfig({
         target: 'http://127.0.0.1:3847',
         changeOrigin: true,
         rewrite: (p) => p.replace(/^\/token-agent/, ''),
+      },
+      // Daylog AI 代理（npm run daylog-proxy）
+      '/daylog-ai': {
+        target: 'http://127.0.0.1:8790',
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/daylog-ai/, ''),
       },
     },
   },

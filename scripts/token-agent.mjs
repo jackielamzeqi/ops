@@ -14,6 +14,13 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { collectLeaderboard } from './leaderboard-collect.mjs'
 import { fetchOfficialBilling } from './billing-fetch.mjs'
+import {
+  collectOpenCode,
+  findOpenCodeDb,
+  readOpenCodeActiveModel,
+  OPENCODE_CLIENT_ID,
+  OPENCODE_DB_BASE,
+} from './opencode-collect.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(__dirname, '..')
@@ -22,15 +29,18 @@ const PORT = Number(process.env.TOKEN_AGENT_PORT || 3847)
 const HOST = process.env.TOKEN_AGENT_HOST || '127.0.0.1'
 const CACHE_MS = Number(process.env.TOKEN_AGENT_CACHE_MS || 60_000)
 const CLIENTS = ['claude', 'codex', 'kimi', 'cursor']
+// OpenCode 走本地 SQLite，不经 tokscale；单独在 collectSnapshot 内并入快照
+const NON_TOKSCALE_TOOLS = [OPENCODE_CLIENT_ID]
 const TOOL_BIN_DIRS = [
   path.join(os.homedir(), '.local', 'bin'),
   path.join(os.homedir(), '.kimi-code', 'bin'),
+  path.join(os.homedir(), '.opencode', 'bin'),
 ]
 
 const TOOL_DEFS = [
   {
     id: 'claude',
-    name: 'Claude CLI',
+    name: 'Claude Code',
     binaries: ['claude'],
     dataPaths: ['.claude/projects', '.claude'],
     tokscaleClient: 'claude',
@@ -64,6 +74,15 @@ const TOOL_DEFS = [
     appPaths: ['/Applications/Cursor.app'],
     tokscaleClient: 'cursor',
     launch: { kind: 'gui', app: 'Cursor', appPath: '/Applications/Cursor.app' },
+  },
+  {
+    id: 'opencode',
+    name: 'OpenCode',
+    binaries: ['opencode'],
+    dataPaths: [OPENCODE_DB_BASE],
+    // 仅用于本地 DB 采集，没有 tokscale 后端
+    tokscaleClient: null,
+    launch: { kind: 'cli', command: 'opencode' },
   },
 ]
 
@@ -269,6 +288,8 @@ function formatModelShort(raw) {
     'gpt-5.5': 'GPT-5.5',
     'gpt-5.4-mini': 'GPT-5.4 mini',
     'z-ai/glm-5.2': 'GLM 5.2',
+    'glm-5.2': 'GLM 5.2',
+    'opencode-go/glm-5.2': 'GLM 5.2',
     'composer-2.5-fast': 'Composer 2.5',
     'cursor-grok-4.5-high-fast': 'Grok 4.5',
   }
@@ -289,6 +310,15 @@ function readTomlKey(file, key) {
     const re = new RegExp(`^\\s*${key}\\s*=\\s*"([^"]+)"`, 'm')
     const m = txt.match(re)
     return m ? m[1] : null
+  } catch {
+    return null
+  }
+}
+
+function readJsonSafe(file) {
+  try {
+    if (!fs.existsSync(file)) return null
+    return JSON.parse(fs.readFileSync(file, 'utf8'))
   } catch {
     return null
   }
@@ -502,6 +532,18 @@ function detectTools(usageHint = null) {
         displayName: def.name,
       }
     }
+    if (def.id === 'opencode' && installed) {
+      const active = readOpenCodeActiveModel()
+      const label = active ? formatModelShort(active.raw) : null
+      return {
+        ...base,
+        provider: 'OpenCode',
+        configuredModel: label,
+        displayName: def.name,
+        // 暴露数据库名称供 UI 提示「数据来源」使用
+        dataDirs: findOpenCodeDb() ? [...dataDirs, findOpenCodeDb()] : dataDirs,
+      }
+    }
     return base
   })
 }
@@ -624,6 +666,86 @@ function periodFromEntries(payload) {
 }
 
 /** 各工具运行时长（tokscale time-metrics） */
+/** 将同结构 src period 合并进 dst period（叠加数字 + 合并 clients/models map） */
+function mergePeriod(dst, src) {
+  if (!src) return
+  dst.totalTokens += src.totalTokens || 0
+  dst.totalCostUsd = Math.round((dst.totalCostUsd + (src.totalCostUsd || 0)) * 1e6) / 1e6
+  dst.inputTokens += src.inputTokens || 0
+  dst.outputTokens += src.outputTokens || 0
+  dst.cacheReadTokens += src.cacheReadTokens || 0
+  for (const key of [
+    'clients',
+    'clientCosts',
+    'clientActiveMs',
+    'clientCacheRead',
+    'models',
+    'modelCosts',
+    'modelClients',
+    'modelInput',
+    'modelOutput',
+    'modelCacheRead',
+  ]) {
+    const dstMap = dst[key] || {}
+    const srcMap = src[key] || {}
+    for (const [k, v] of Object.entries(srcMap)) {
+      if (key === 'modelClients') {
+        // 单值保留即可
+        if (!dstMap[k]) dstMap[k] = v
+      } else {
+        dstMap[k] = (dstMap[k] || 0) + Number(v || 0)
+      }
+    }
+    dst[key] = dstMap
+  }
+}
+
+/** 把 OpenCode 的按日 history 合并到现有 history 列表（按日期对齐） */
+function mergeHistory(hist, ocHist) {
+  if (!ocHist || !ocHist.length) return
+  const byDate = new Map(hist.map((d) => [d.date, d]))
+  for (const od of ocHist) {
+    let existing = byDate.get(od.date)
+    if (!existing) {
+      existing = {
+        date: od.date,
+        totalTokens: 0,
+        totalCostUsd: 0,
+        messages: 0,
+        activeTimeMs: 0,
+        clients: {},
+        clientCosts: {},
+        models: {},
+        modelCosts: {},
+        modelClients: {},
+      }
+      hist.push(existing)
+      byDate.set(od.date, existing)
+    }
+    existing.totalTokens += od.totalTokens || 0
+    existing.totalCostUsd = Math.round(
+      (existing.totalCostUsd + (od.totalCostUsd || 0)) * 1e6
+    ) / 1e6
+    existing.activeTimeMs = (existing.activeTimeMs || 0) + (od.activeTimeMs || 0)
+    for (const [k, v] of Object.entries(od.clients || {})) {
+      existing.clients[k] = (existing.clients[k] || 0) + Number(v || 0)
+    }
+    for (const [k, v] of Object.entries(od.clientCosts || {})) {
+      existing.clientCosts[k] = (existing.clientCosts[k] || 0) + Number(v || 0)
+    }
+    for (const [k, v] of Object.entries(od.models || {})) {
+      existing.models[k] = (existing.models[k] || 0) + Number(v || 0)
+    }
+    for (const [k, v] of Object.entries(od.modelCosts || {})) {
+      existing.modelCosts[k] = (existing.modelCosts[k] || 0) + Number(v || 0)
+    }
+    for (const [k, v] of Object.entries(od.modelClients || {})) {
+      if (!existing.modelClients[k]) existing.modelClients[k] = v
+    }
+  }
+  hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+}
+
 async function collectClientActiveMs(clients, rangeFlag) {
   const map = {}
   await Promise.all(
@@ -693,7 +815,7 @@ function historyFromGraph(graph) {
 async function collectSnapshot() {
   let detected = detectTools()
   const installedClients = detected
-    .filter((t) => t.installed)
+    .filter((t) => t.installed && t.tokscaleClient)
     .map((t) => t.tokscaleClient)
   const clientCsv = (installedClients.length ? installedClients : CLIENTS).join(',')
   const clients = installedClients.length ? installedClients : [...CLIENTS]
@@ -737,6 +859,28 @@ async function collectSnapshot() {
     }
   } catch (e) {
     warnings.push(`tokscale 采集失败：${e.message || e}`)
+  }
+
+  // OpenCode 数据来自本地 SQLite，独立采集后并入快照
+  try {
+    const oc = collectOpenCode()
+    if (oc.installed) {
+      mergePeriod(today, oc.today)
+      mergePeriod(week, oc.week)
+      mergePeriod(month, oc.month)
+      if (oc.history?.length) {
+        if (!history.length) history = []
+        mergeHistory(history, oc.history)
+      }
+      durations.today[OPENCODE_CLIENT_ID] = oc.activeMs.today
+      durations.week[OPENCODE_CLIENT_ID] = oc.activeMs.week
+      durations.month[OPENCODE_CLIENT_ID] = oc.activeMs.month
+      today.clientActiveMs[OPENCODE_CLIENT_ID] = oc.activeMs.today
+      week.clientActiveMs[OPENCODE_CLIENT_ID] = oc.activeMs.week
+      month.clientActiveMs[OPENCODE_CLIENT_ID] = oc.activeMs.month
+    }
+  } catch (e) {
+    warnings.push(`OpenCode 采集失败：${e.message || e}`)
   }
 
   // 用量出来后再补 Cursor 等模型标签

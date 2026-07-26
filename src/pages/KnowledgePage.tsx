@@ -186,8 +186,9 @@ export default function KnowledgePage() {
             type="button"
             className="kb-banner-retry"
             onClick={() => void ensureDirLoaded('', accessToken, true)}
+            title={rootError}
           >
-            根目录失败，点击重试
+            {rootError} · 点击重试
           </button>
         ) : null}
       </div>

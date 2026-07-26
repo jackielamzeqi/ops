@@ -17,28 +17,68 @@ function readJsonSafe(file) {
   }
 }
 
+const HTTP_RETRY_DELAYS_MS = [500, 1500]
+
 async function httpJson(url, { method = 'GET', headers = {}, body, timeoutMs = 15_000 } = {}) {
-  const ctrl = new AbortController()
-  const timer = setTimeout(() => ctrl.abort(), timeoutMs)
-  try {
-    const res = await fetch(url, {
-      method,
-      headers,
-      body,
-      signal: ctrl.signal,
-    })
-    const text = await res.text()
-    let json = null
-    try {
-      json = text ? JSON.parse(text) : null
-    } catch {
-      /* non-json */
+  let lastErr = null
+  for (let attempt = 0; attempt <= HTTP_RETRY_DELAYS_MS.length; attempt++) {
+    if (attempt > 0) {
+      await new Promise((r) => setTimeout(r, HTTP_RETRY_DELAYS_MS[attempt - 1]))
     }
-    return { ok: res.ok, status: res.status, json, text }
-  } finally {
-    clearTimeout(timer)
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs)
+    try {
+      const res = await fetch(url, {
+        method,
+        headers,
+        body,
+        signal: ctrl.signal,
+      })
+      const text = await res.text()
+      let json = null
+      try {
+        json = text ? JSON.parse(text) : null
+      } catch {
+        /* non-json */
+      }
+      // 5xx 可重试；4xx 直接返回
+      if (res.status >= 500 && attempt < HTTP_RETRY_DELAYS_MS.length) {
+        lastErr = new Error(`HTTP ${res.status}`)
+        continue
+      }
+      return { ok: res.ok, status: res.status, json, text }
+    } catch (e) {
+      lastErr = e
+      if (attempt >= HTTP_RETRY_DELAYS_MS.length) break
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+  throw lastErr || new Error('fetch failed')
+}
+
+/** 各工具上次成功的官方额度，网络抖动时避免整卡掉进本地估算回退 */
+const BILLING_CACHE_FILE = path.join(os.homedir(), '.cache', 'personal-ops', 'billing-last-good.json')
+const lastGoodByTool = Object.create(null)
+
+function loadLastGoodBilling() {
+  const raw = readJsonSafe(BILLING_CACHE_FILE)
+  if (!raw || typeof raw !== 'object') return
+  for (const [id, row] of Object.entries(raw)) {
+    if (row && typeof row === 'object' && row.ok && row.toolId) lastGoodByTool[id] = row
   }
 }
+
+function saveLastGoodBilling() {
+  try {
+    fs.mkdirSync(path.dirname(BILLING_CACHE_FILE), { recursive: true })
+    fs.writeFileSync(BILLING_CACHE_FILE, JSON.stringify(lastGoodByTool, null, 2))
+  } catch {
+    /* ignore */
+  }
+}
+
+loadLastGoodBilling()
 
 function num(v, fallback = 0) {
   const n = typeof v === 'string' ? Number(v) : Number(v)
@@ -67,12 +107,12 @@ export async function fetchOpenRouterCredits() {
   const env = readClaudeEnv()
   const baseUrl = String(env.ANTHROPIC_BASE_URL || '').trim()
   if (baseUrl && !/openrouter/i.test(baseUrl)) {
-    return { ok: false, error: '当前 Claude 未配置 OpenRouter' }
+    return { ok: false, toolId: 'claude', error: '当前 Claude 未配置 OpenRouter' }
   }
   const key = String(
     env.ANTHROPIC_API_KEY || env.ANTHROPIC_AUTH_TOKEN || process.env.OPENROUTER_API_KEY || ''
   ).trim()
-  if (!key) return { ok: false, error: '未找到 OpenRouter API Key' }
+  if (!key) return { ok: false, toolId: 'claude', error: '未找到 OpenRouter API Key' }
 
   const res = await httpJson('https://openrouter.ai/api/v1/credits', {
     headers: {
@@ -81,7 +121,7 @@ export async function fetchOpenRouterCredits() {
     },
   })
   if (!res.ok || !res.json) {
-    return { ok: false, error: `OpenRouter credits HTTP ${res.status}` }
+    return { ok: false, toolId: 'claude', error: `OpenRouter credits HTTP ${res.status}` }
   }
   const data = res.json.data || res.json
   const total = num(data.total_credits)
@@ -133,7 +173,7 @@ function readCursorAccessToken() {
 /** Cursor：Dashboard GetCurrentPeriodUsage（与设置页 Plan & Usage 一致） */
 export async function fetchCursorPlanUsage() {
   const token = readCursorAccessToken()
-  if (!token) return { ok: false, error: '未找到 Cursor 登录凭证' }
+  if (!token) return { ok: false, toolId: 'cursor', error: '未找到 Cursor 登录凭证' }
 
   const res = await httpJson(
     'https://api2.cursor.sh/aiserver.v1.DashboardService/GetCurrentPeriodUsage',
@@ -149,7 +189,7 @@ export async function fetchCursorPlanUsage() {
     }
   )
   if (!res.ok || !res.json) {
-    return { ok: false, error: `Cursor usage HTTP ${res.status}` }
+    return { ok: false, toolId: 'cursor', error: `Cursor usage HTTP ${res.status}` }
   }
 
   let planName = 'Pro'
@@ -240,7 +280,7 @@ function readChatGPTAccountCatalog() {
 /** ChatGPT / Codex：chatgpt.com/backend-api/wham/usage */
 export async function fetchChatGPTUsage() {
   const auth = readCodexAuth()
-  if (!auth?.access) return { ok: false, error: '未找到 Codex/ChatGPT 登录凭证' }
+  if (!auth?.access) return { ok: false, toolId: 'codex', error: '未找到 Codex/ChatGPT 登录凭证' }
 
   const headers = {
     Authorization: `Bearer ${auth.access}`,
@@ -251,7 +291,7 @@ export async function fetchChatGPTUsage() {
 
   const res = await httpJson('https://chatgpt.com/backend-api/wham/usage', { headers })
   if (!res.ok || !res.json) {
-    return { ok: false, error: `ChatGPT usage HTTP ${res.status}` }
+    return { ok: false, toolId: 'codex', error: `ChatGPT usage HTTP ${res.status}` }
   }
 
   const d = res.json
@@ -368,7 +408,7 @@ async function ensureKimiAccessToken() {
  */
 export async function fetchKimiUsage() {
   const token = await ensureKimiAccessToken()
-  if (!token) return { ok: false, error: '未找到 Kimi Code 登录凭证' }
+  if (!token) return { ok: false, toolId: 'kimi', error: '未找到 Kimi Code 登录凭证' }
 
   const base = (process.env.KIMI_CODE_BASE_URL || 'https://api.kimi.com/coding/v1').replace(
     /\/+$/,
@@ -382,7 +422,7 @@ export async function fetchKimiUsage() {
     },
   })
   if (!res.ok || !res.json) {
-    return { ok: false, error: `Kimi usages HTTP ${res.status}` }
+    return { ok: false, toolId: 'kimi', error: `Kimi usages HTTP ${res.status}` }
   }
 
   const d = res.json
@@ -426,11 +466,16 @@ export async function fetchKimiUsage() {
 
   const wallet = d.boosterWallet || {}
   const bal = wallet.balance || {}
-  const amountLeft = num(bal.amountLeft)
-  const balanceCents = amountLeft > 0 ? Math.round(amountLeft / KIMI_FIXED_POINT_CENTS) : 0
-  const balanceCny = balanceCents / 100
+  // boosterWallet.balance.amount 是钱包「充值总额」（定点数，1e6 = 1 分），
+  // 并非可用余额；实际可用余额 = 充值总额 − 本月已用。
+  // 新版字段 amount；保留 amountLeft 兼容旧版响应。
+  const rawAmount = num(bal.amount || bal.amountLeft)
+  const walletTotalCents = rawAmount > 0 ? Math.round(rawAmount / KIMI_FIXED_POINT_CENTS) : 0
+  const walletTotalCny = walletTotalCents / 100
   const monthlyUsedCents = num(wallet.monthlyUsed?.priceInCents)
   const monthlyUsedCny = monthlyUsedCents / 100
+  // 可用余额扣除本月已用；若无法计量则为 0（避免把充值总额误报成余额）
+  const balanceCny = Math.max(walletTotalCny - monthlyUsedCny, 0)
   const membership = d.user?.membership?.level || ''
 
   return {
@@ -455,20 +500,31 @@ export async function fetchKimiUsage() {
   }
 }
 
-/** 并行拉取官方额度（失败不阻断） */
+/** 并行拉取官方额度（失败不阻断；单工具失败时回退上次成功结果） */
 export async function fetchOfficialBilling() {
   const [openrouter, cursor, chatgpt, kimi] = await Promise.all([
-    fetchOpenRouterCredits().catch((e) => ({ ok: false, error: String(e.message || e) })),
-    fetchCursorPlanUsage().catch((e) => ({ ok: false, error: String(e.message || e) })),
-    fetchChatGPTUsage().catch((e) => ({ ok: false, error: String(e.message || e) })),
-    fetchKimiUsage().catch((e) => ({ ok: false, error: String(e.message || e) })),
+    fetchOpenRouterCredits().catch((e) => ({ ok: false, toolId: 'claude', error: String(e.message || e) })),
+    fetchCursorPlanUsage().catch((e) => ({ ok: false, toolId: 'cursor', error: String(e.message || e) })),
+    fetchChatGPTUsage().catch((e) => ({ ok: false, toolId: 'codex', error: String(e.message || e) })),
+    fetchKimiUsage().catch((e) => ({ ok: false, toolId: 'kimi', error: String(e.message || e) })),
   ])
 
   const byTool = {}
   const errors = []
   for (const r of [openrouter, cursor, chatgpt, kimi]) {
-    if (r?.ok && r.toolId) byTool[r.toolId] = r
-    else if (r && !r.ok && r.error) errors.push(r.error)
+    if (r?.ok && r.toolId) {
+      byTool[r.toolId] = r
+      lastGoodByTool[r.toolId] = r
+      continue
+    }
+    const toolId = r?.toolId
+    if (toolId && lastGoodByTool[toolId]) {
+      byTool[toolId] = { ...lastGoodByTool[toolId], stale: true }
+      if (r?.error) errors.push(`${r.error}（已显示上次成功结果）`)
+      continue
+    }
+    if (r && !r.ok && r.error) errors.push(r.error)
   }
+  saveLastGoodBilling()
   return { byTool, errors, updatedAt: new Date().toISOString() }
 }

@@ -13,6 +13,8 @@ const MODEL_LABELS: Record<string, string> = {
   'cursor-grok-4.5-high-fast': 'Grok 4.5',
   'grok-4.5-fast-xhigh': 'Grok 4.5',
   'z-ai/glm-5.2': 'GLM 5.2',
+  'glm-5.2': 'GLM 5.2',
+  'opencode-go/glm-5.2': 'GLM 5.2',
   'gpt-5.5': 'GPT-5.5',
   'gpt-5.4-mini': 'GPT-5.4 mini',
   'gpt-5.6-sol': 'GPT-5.6 Sol',

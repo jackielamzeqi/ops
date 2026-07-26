@@ -197,4 +197,4 @@ export async function launchLocalTool(toolId: string): Promise<{ ok: boolean; er
   return { ok: true, via: data.via }
 }
 
-export const MONITOR_TOOL_IDS = ['claude', 'codex', 'kimi', 'cursor'] as const
+export const MONITOR_TOOL_IDS = ['claude', 'codex', 'kimi', 'cursor', 'opencode'] as const

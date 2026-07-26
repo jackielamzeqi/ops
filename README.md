@@ -17,8 +17,8 @@ project: Personal Ops PWA
 **已实现（4 页）**
 - ✅ GitHub 账号登录（Token / 可选 Device Flow）+ 白名单校验；未登录不可访问知识库
 - ✅ 知识库（默认首页，映射真实目录结构；进入时复验 GitHub 会话）
-- ✅ AI 工具：自动检测本机 Codex / Claude / Kimi / Cursor，图表仅展示已检测工具
-- ✅ Token 自动监测：本机 `npm run agent`（参考 [Javis603/token-monitor](https://github.com/Javis603/token-monitor)，引擎 tokscale）
+- ✅ AI 工具：自动检测本机 Codex / Claude / Kimi / Cursor / OpenCode，图表仅展示已检测工具
+- ✅ Token 自动监测：本机 `npm run agent`（参考 [Javis603/token-monitor](https://github.com/Javis603/token-monitor)，引擎 tokscale；OpenCode 直接读本地 SQLite `~/.local/share/opencode/opencode.db`）
 - ✅ 大模型最新榜单：日更拉取 Artificial Analysis + Arena（发布日期 / 上下文 / 价格 / 智力 / 科学 / 代码）
 - ✅ 工作环境切换 + 计费人民币 ￥（已移除「使用天数」指标）
 - ✅ 设置 / 响应式 / PWA / ErrorBoundary

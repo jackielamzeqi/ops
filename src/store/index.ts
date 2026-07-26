@@ -238,6 +238,10 @@ function listingToNodes(listing: { name: string; path: string; type: 'file' | 'f
   )
 }
 
+/** 目录加载失败后的自动重试（每个目录最多 3 次，退避间隔） */
+const dirAutoRetryCounts: Record<string, number> = {}
+const DIR_AUTO_RETRY_DELAYS_MS = [5_000, 15_000, 30_000]
+
 function fallbackFromIndex(path: string): string {
   const hit = searchIndex.find((i) => i.path === path)
   const title = hit?.title || path.split('/').pop() || path
@@ -343,6 +347,7 @@ export const useKnowledgeStore = create<KnowledgeState>((set, get) => ({
       const node = path ? findTreeNode(get().tree, path) : null
       const localCount = path ? node?.children?.length || 0 : get().tree.length
       // 远程为空且本地仅有 mock 骨架时保留骨架，避免整树空白
+      dirAutoRetryCounts[path] = 0
       if (children.length === 0 && localCount > 0) {
         set({
           loadedDirs: [...get().loadedDirs.filter((p) => p !== path), path],
@@ -362,6 +367,19 @@ export const useKnowledgeStore = create<KnowledgeState>((set, get) => ({
         loadingDirs: get().loadingDirs.filter((p) => p !== path),
         dirErrors: { ...get().dirErrors, [path]: msg },
       })
+      // 网络抖动自愈：退避后自动重试，无需手动点击
+      const attempt = dirAutoRetryCounts[path] || 0
+      if (attempt < DIR_AUTO_RETRY_DELAYS_MS.length) {
+        dirAutoRetryCounts[path] = attempt + 1
+        setTimeout(() => {
+          const token = useAuthStore.getState().accessToken
+          if (!token) return
+          // 仍处于错误态才重试（用户手动重试成功后跳过）
+          if (get().dirErrors[path] != null) {
+            void get().ensureDirLoaded(path, token, true)
+          }
+        }, DIR_AUTO_RETRY_DELAYS_MS[attempt])
+      }
     }
   },
   toggleDir: async (path, accessToken) => {
@@ -553,6 +571,7 @@ const defaultQuotas: QuotaMap = {
   claude: 15_000_000,
   kimi: 15_000_000,
   cursor: 15_000_000,
+  opencode: 15_000_000,
 }
 
 interface SubscriptionState {

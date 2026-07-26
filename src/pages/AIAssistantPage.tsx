@@ -67,6 +67,52 @@ function formatResetDate(raw?: string | number | null): string | null {
   })
 }
 
+/** 距离重置的相对时间，如 3D 12H / 5H 30M */
+function formatResetCountdown(raw?: string | number | null): string | null {
+  const d = parseResetDate(raw)
+  if (!d) return null
+  const ms = d.getTime() - Date.now()
+  if (ms <= 0) return '0H'
+  const totalMinutes = Math.floor(ms / 60_000)
+  const days = Math.floor(totalMinutes / (24 * 60))
+  const hours = Math.floor((totalMinutes % (24 * 60)) / 60)
+  const minutes = totalMinutes % 60
+  if (days > 0) return `${days}D ${hours}H`
+  if (hours > 0) return minutes > 0 ? `${hours}H ${minutes}M` : `${hours}H`
+  return `${Math.max(minutes, 1)}M`
+}
+
+/** 取各工具下一轮重置时间戳（Kimi 取最近一次） */
+function nextResetAt(
+  toolId: string,
+  bill?: OfficialBilling | null,
+  account?: NonNullable<OfficialBilling['accounts']>[number]
+): string | number | null {
+  if (account?.resetAt != null) return account.resetAt
+  if (!bill?.ok) return null
+  if (bill.kind === 'credits') return null
+  if (toolId === 'kimi') {
+    const candidates = [bill.weeklyResetAt, bill.fiveHour?.resetAt]
+      .map((raw) => ({ raw, t: parseResetDate(raw)?.getTime() ?? Infinity }))
+      .filter((x) => Number.isFinite(x.t) && x.t > Date.now())
+      .sort((a, b) => a.t - b.t)
+    return candidates[0]?.raw ?? bill.weeklyResetAt ?? bill.fiveHour?.resetAt ?? null
+  }
+  if (toolId === 'cursor') return bill.billingCycleEnd ?? null
+  return bill.resetAt ?? bill.billingCycleEnd ?? null
+}
+
+/** 右侧：重置时间 3D 12H · 剩余 92% */
+function quotaRemainWithReset(
+  remainText: string,
+  toolId: string,
+  bill?: OfficialBilling | null,
+  account?: NonNullable<OfficialBilling['accounts']>[number]
+): string {
+  const cd = formatResetCountdown(nextResetAt(toolId, bill, account))
+  return cd ? `重置时间 ${cd} · ${remainText}` : remainText
+}
+
 /** 各工具下一轮 Token 重置说明 */
 function tokenResetHint(
   toolId: string,
@@ -78,13 +124,11 @@ function tokenResetHint(
     return t ? `下一轮 Token 重置：${t}` : '暂无官方重置时间'
   }
   if (!bill?.ok) return '暂无官方重置时间'
-  if (bill.kind === 'credits') return '充值余额制 · 无固定重置周期'
+  if (bill.kind === 'credits') return '额度制 · 无固定重置周期'
   if (toolId === 'kimi') {
-    const weekly = formatResetDate(bill.weeklyResetAt)
-    const five = formatResetDate(bill.fiveHour?.resetAt)
-    if (weekly && five) return `下一轮 Token 重置：周额度 ${weekly} · 5h ${five}`
-    if (weekly) return `下一轮 Token 重置：${weekly}`
-    return '暂无官方重置时间'
+    // 只显示最近一次重置时间（周额度 / 5h 取更近者）
+    const t = formatResetDate(nextResetAt(toolId, bill))
+    return t ? `下一轮 Token 重置：${t}` : '暂无官方重置时间'
   }
   if (toolId === 'cursor') {
     const t = formatResetDate(bill.billingCycleEnd)
@@ -281,7 +325,9 @@ export default function AIAssistantPage() {
             ? 'codex'
             : toolId === 'kimi'
               ? 'kimi'
-              : 'Cursor'
+              : toolId === 'opencode'
+                ? 'opencode'
+                : 'Cursor'
       setLaunchMsg(
         toolId === 'cursor'
           ? `已打开 Cursor${r.via ? `（${r.via}）` : ''}`
@@ -756,10 +802,10 @@ export default function AIAssistantPage() {
       const detected = snapshot?.tools.find((t) => t.id === b.toolId)
       const spark = history.map((d) => d.clients[b.toolId] || 0)
       const days = spark.filter((v) => v > 0).length
-      // 使用明细：Claude Code CLI (配置模型)；Cursor 不带括号备注
+      // 使用明细：Claude Code (配置模型)；Cursor 不带括号备注
       const name =
         b.toolId === 'claude'
-          ? 'Claude Code CLI'
+          ? 'Claude Code'
           : tool?.name || getToolName(b.toolId)
       const model =
         b.toolId === 'cursor'
@@ -908,7 +954,9 @@ export default function AIAssistantPage() {
                   ? '打开终端并执行 codex'
                   : id === 'kimi'
                     ? '打开终端并执行 kimi'
-                    : `调起 ${getToolName(id)}`
+                    : id === 'opencode'
+                      ? '打开终端并执行 opencode'
+                      : `调起 ${getToolName(id)}`
           return (
             <button
               key={id}
@@ -1011,7 +1059,7 @@ export default function AIAssistantPage() {
               或终端执行：<code>npm run agent:start</code> / 安装自启{' '}
               <code>npm run agent:setup</code>
             </li>
-            <li>回到本页刷新；将自动检测 Codex / Claude / Kimi / Cursor</li>
+            <li>回到本页刷新；将自动检测 Codex / Claude / Kimi / Cursor / OpenCode</li>
             <li>
               Cursor 若无用量：<code>npx tokscale cursor login</code> 与{' '}
               <code>npx tokscale cursor sync --json</code>（按电脑各登一次）
@@ -1285,7 +1333,7 @@ export default function AIAssistantPage() {
                   <div style={{ minWidth: 0 }}>
                     <div className="detect-detail-name">
                       <ToolLogo toolId={t.id} provider={t.provider} size={18} />
-                      <strong>{t.name}</strong>
+                      <strong>{getToolName(t.id)}</strong>
                     </div>
                     <div className="detect-detail-path">
                       {t.binaries?.[0]?.path || t.dataDirs?.[0] || '—'}
@@ -1506,7 +1554,7 @@ export default function AIAssistantPage() {
           </button>
         </div>
           <div className="quota-fx-hint">
-            OpenRouter 充值 · Cursor/ChatGPT/Kimi 官方用量 · 汇率 1 USD ≈ ￥{fx.rate.toFixed(4)}
+            OpenRouter 额度 · Cursor/ChatGPT/Kimi 官方用量 · 汇率 1 USD ≈ ￥{fx.rate.toFixed(4)}
             {fx.updatedAt ? ` · ${fx.updatedAt.slice(0, 16)}` : ''}
           </div>
           <div className="quota-list">
@@ -1566,8 +1614,8 @@ export default function AIAssistantPage() {
                           <div className="quota-fill" style={{ width: `${pct}%`, background: getToolColor(t.id) }} />
                         </div>
                         <div className="quota-meta">
-                          <span>已用 {pct}%{account.windowSeconds ? ` · ${Math.round(account.windowSeconds / 3600)}h 窗口` : ''} · {tokenResetHint(t.id, bill, account)}</span>
-                          <span>剩余 {remain}%</span>
+                          <span>周额度 {pct}% · {tokenResetHint(t.id, bill, account)}</span>
+                          <span>{quotaRemainWithReset(`剩余 ${remain}%`, t.id, bill, account)}</span>
                         </div>
                       </>
                     ) : (
@@ -1580,13 +1628,14 @@ export default function AIAssistantPage() {
                 )
               }
 
-              // OpenRouter 充值制（CC Switch：remaining = total_credits - total_usage）
+              // OpenRouter 额度制（CC Switch：remaining = total_credits - total_usage）
               if (bill?.ok && bill.kind === 'credits') {
                 const total = Math.max(bill.total || 0, 0)
                 const used = Math.max(bill.used || 0, 0)
                 const remaining = bill.remaining ?? total - used
                 const usedPct =
                   total > 0 ? Math.min(Math.round((used / total) * 100), 100) : used > 0 ? 100 : 0
+                const remainPct = Math.max(100 - usedPct, 0)
                 return (
                   <div key={row.key} className="quota-item">
                     <div className="quota-head">
@@ -1606,7 +1655,7 @@ export default function AIAssistantPage() {
                         })}
                       >
                         <span className="quota-price-cny">
-                          充值 {formatMoneyCny(total, fx.rate)}
+                          额度 {formatMoneyCny(total, fx.rate)}
                         </span>
                         <span className="quota-pct">已用 {usedPct}%</span>
                       </button>
@@ -1619,19 +1668,18 @@ export default function AIAssistantPage() {
                     </div>
                     <div className="quota-meta">
                       <span>已用 {formatMoneyCny(used, fx.rate)} · {tokenResetHint(t.id, bill)}</span>
-                      <span>剩余 {formatMoneyCny(remaining, fx.rate)}</span>
+                      <span>剩余 {formatMoneyCny(remaining, fx.rate)} · 剩余 {remainPct}%</span>
                     </div>
                   </div>
                 )
               }
 
-              // Kimi Code：周额度 + 5h + 余额（人民币）
+              // Kimi Code：周额度 + 5h；蓝芯片显示月套餐费，右侧显示剩余百分比（移除余额显示，因 API 返回不准）
               if (bill?.ok && bill.kind === 'plan_percent' && t.id === 'kimi') {
                 const pct = Math.min(Math.round(bill.usedPercent ?? 0), 100)
                 const remain = Math.max(Math.round(bill.remainingPercent ?? 100 - pct), 0)
                 const fivePct = Math.round(bill.fiveHour?.usedPercent ?? 0)
-                const bal =
-                  bill.balanceCny != null ? formatCost(bill.balanceCny) : null
+                const monthlyUsedCny = bill.monthlyUsedCny || 0
                 return (
                   <div key={row.key} className="quota-item">
                     <div className="quota-head">
@@ -1641,7 +1689,7 @@ export default function AIAssistantPage() {
                       </span>
                       <div
                         className="quota-price-chip"
-                        title="Kimi Code 官方用量（周额度 / 余额）"
+                        title={`Kimi Code 月套餐 · 本月已用 ${formatCost(monthlyUsedCny)}`}
                         role="button"
                         tabIndex={0}
                         onClick={() => setPriceEdit({
@@ -1656,13 +1704,7 @@ export default function AIAssistantPage() {
                           }
                         }}
                       >
-                        <span className="quota-price-cny">
-                          {bill.monthlyUsedCny != null
-                            ? `加购 ${formatCost(bill.monthlyUsedCny)}`
-                            : bal != null
-                              ? `余额 ${bal}`
-                              : `剩余 ${remain}%`}
-                        </span>
+                        <span className="quota-price-cny">{`${formatCost(cny)}/月`}</span>
                         <span className="quota-pct">已用 {pct}%</span>
                       </div>
                     </div>
@@ -1676,12 +1718,11 @@ export default function AIAssistantPage() {
                       <span>
                         周额度 {pct}%
                         {bill.fiveHour ? ` · 5h ${fivePct}%` : ''}
+                        {monthlyUsedCny > 0 ? ` · 本月已用 ${formatCost(monthlyUsedCny)}` : ''}
                         {' · '}
                         {tokenResetHint(t.id, bill)}
                       </span>
-                      <span>
-                        {bal != null ? `余额 ${bal}` : `剩余 ${remain}%`}
-                      </span>
+                      <span>{quotaRemainWithReset(`剩余 ${remain}%`, t.id, bill)}</span>
                     </div>
                   </div>
                 )
@@ -1736,7 +1777,7 @@ export default function AIAssistantPage() {
                       {t.id === 'cursor' ? (
                         <>
                           <span>
-                            总用量 {pct}%
+                            月额度 {pct}%
                             {bill.autoPercentUsed != null
                               ? ` · 第一方 ${Math.round(bill.autoPercentUsed)}%`
                               : ''}
@@ -1746,19 +1787,16 @@ export default function AIAssistantPage() {
                             {' · '}
                             {tokenResetHint(t.id, bill)}
                           </span>
-                          <span>剩余 {remain}%</span>
+                          <span>{quotaRemainWithReset(`剩余 ${remain}%`, t.id, bill)}</span>
                         </>
                       ) : (
                         <>
                           <span>
-                            已用 {pct}%
-                            {bill.windowSeconds
-                              ? ` · ${Math.round(bill.windowSeconds / 3600)}h 窗口`
-                              : ''}
+                            周额度 {pct}%
                             {' · '}
                             {tokenResetHint(t.id, bill)}
                           </span>
-                          <span>剩余 {remain}%</span>
+                          <span>{quotaRemainWithReset(`剩余 ${remain}%`, t.id, bill)}</span>
                         </>
                       )}
                     </div>
@@ -1800,11 +1838,15 @@ export default function AIAssistantPage() {
                   <div className="quota-meta">
                     <span>已用 {formatNumber(usedTokens)} · {tokenResetHint(t.id, bill)}</span>
                     <span>
-                      额度 {formatNumber(tokenQuota)} · 剩余{' '}
-                      {formatNumber(Math.max(tokenQuota - usedTokens, 0))}
-                      {isForeignTool(t.id) && typeof pricesCny[t.id] !== 'number'
-                        ? ` · 默认 $20 ≈ ${formatCost(cny)}/月`
-                        : ''}
+                      {t.id === 'claude'
+                        ? `剩余 ${formatNumber(Math.max(tokenQuota - usedTokens, 0))} · 剩余 ${Math.max(100 - tokenPct, 0)}%`
+                        : <>
+                            额度 {formatNumber(tokenQuota)} · 剩余{' '}
+                            {formatNumber(Math.max(tokenQuota - usedTokens, 0))} · 剩余 {Math.max(100 - tokenPct, 0)}%
+                            {isForeignTool(t.id) && typeof pricesCny[t.id] !== 'number'
+                              ? ` · 默认 $20 ≈ ${formatCost(cny)}/月`
+                              : ''}
+                          </>}
                     </span>
                   </div>
                 </div>
@@ -1900,17 +1942,29 @@ export default function AIAssistantPage() {
                       </div>
                     </td>
                     <td className="lb-muted">{m.releaseDate || '—'}</td>
-                    <td style={{ textAlign: 'right' }}>{formatContext(m.contextWindow)}</td>
+                    <td
+                      style={{ textAlign: 'right' }}
+                      title={m.contextRef ? `AA 暂无该模型数据，参考同族 ${m.contextRef}` : undefined}
+                    >
+                      {m.contextWindow != null && m.contextRef ? '≈' : ''}
+                      {formatContext(m.contextWindow)}
+                    </td>
                     <td
                       style={{ textAlign: 'right' }}
                       title={
-                        m.priceInput != null && m.priceOutput != null
-                          ? `输入 $${m.priceInput}/1M · 输出 $${m.priceOutput}/1M`
-                          : undefined
+                        [
+                          m.priceInput != null && m.priceOutput != null
+                            ? `输入 $${m.priceInput}/1M · 输出 $${m.priceOutput}/1M`
+                            : null,
+                          m.priceRef ? `AA 暂无该模型定价，参考同族 ${m.priceRef}` : null,
+                        ]
+                          .filter(Boolean)
+                          .join('\n') || undefined
                       }
                     >
-                      {priceCny != null ? formatCost(priceCny) : '—'}
-                      <span className="lb-unit">/1M</span>
+                      {priceCny != null
+                        ? `${m.priceRef ? '≈' : ''}${formatCost(priceCny)}`
+                        : '—'}
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <strong>{formatScore(m.intelligence)}</strong>
@@ -1945,7 +1999,8 @@ export default function AIAssistantPage() {
         </div>
         <div className="leaderboard-legend">
           客观智力 = AA Intelligence Index；科学推理 = SciCode；代码编程 = AA Coding Index；
-          综合价格 = (输入×3+输出)/4 按实时汇率换算人民币/百万 Token；Arena = 文本榜/代码榜名次
+          综合价格 = (输入×3+输出)/4 按实时汇率换算人民币/百万 Token；Arena = 文本榜/代码榜名次；
+          ≈ 表示 AA 暂未收录该模型，取同族最新模型估算
         </div>
       </div>
 

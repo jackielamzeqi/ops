@@ -71,6 +71,7 @@ export function getToolColor(toolId: string): string {
     deepseek: '#8b5cf6',
     codex: '#10a37f',
     cursor: '#a3a3a3',
+    opencode: '#5b8def',
   }
   return colors[toolId] || '#888'
 }
@@ -86,6 +87,7 @@ export function getToolName(toolId: string): string {
     deepseek: 'DeepSeek',
     codex: 'ChatGPT',
     cursor: 'Cursor',
+    opencode: 'OpenCode',
   }
   return names[toolId] || toolId
 }
@@ -101,6 +103,7 @@ export function getToolIcon(toolId: string): string {
     deepseek: '🟪',
     codex: '🟢',
     cursor: '⬜',
+    opencode: '🔵',
   }
   return icons[toolId] || '⚪'
 }

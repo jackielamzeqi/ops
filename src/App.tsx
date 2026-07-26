@@ -5,6 +5,7 @@ import Layout from './components/Layout'
 import LoginPage from './pages/LoginPage'
 import KnowledgePage from './pages/KnowledgePage'
 import AIAssistantPage from './pages/AIAssistantPage'
+import DaylogPage from './pages/DaylogPage'
 import SettingsPage from './pages/SettingsPage'
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
       <Routes>
         <Route path="/" element={<KnowledgePage />} />
         <Route path="/ai-assistant" element={<AIAssistantPage />} />
+        <Route path="/daylog" element={<DaylogPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

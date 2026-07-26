@@ -234,20 +234,20 @@ function findRelatedAa(slug, name, bySlug, all) {
   return bestScore >= 8 ? best : null
 }
 
-function findFamilyReleaseDate(slug, all) {
+/** 同族最新且带所需字段的模型；AA 镜像滞后于日更指数时兜底 */
+function findFamilyAa(slug, all, has) {
   const parts = stripModelVariant(slug).split('-').filter(Boolean)
   const minLen = parts[0] && parts[0].length >= 4 ? 1 : 2
   for (let len = Math.min(parts.length, 4); len >= minLen; len--) {
     const prefix = parts.slice(0, len).join('-')
     if (prefix.length < 4) continue
-    const dates = all
-      .map((m) => {
-        const ms = m.slug || ''
-        return ms === prefix || ms.startsWith(`${prefix}-`) ? m.release_date || null : null
-      })
-      .filter(Boolean)
-      .sort()
-    if (dates.length) return dates[dates.length - 1]
+    const candidates = all.filter((m) => {
+      const ms = m.slug || ''
+      return (ms === prefix || ms.startsWith(`${prefix}-`)) && has(m)
+    })
+    if (!candidates.length) continue
+    candidates.sort((a, b) => (b.release_date || '').localeCompare(a.release_date || ''))
+    return candidates[0]
   }
   return null
 }
@@ -366,9 +366,25 @@ export async function collectLeaderboard(force = false) {
       name
     )
     const releaseDate =
-      aa?.release_date || related?.release_date || findFamilyReleaseDate(s.slug, aaModels) || null
+      aa?.release_date ||
+      related?.release_date ||
+      findFamilyAa(s.slug, aaModels, (m) => !!m.release_date)?.release_date ||
+      null
     const arenaT = findArena(s.slug, name, textMap)
     const arenaC = findArena(s.slug, name, codeMap)
+
+    // 上下文 / 价格：自身缺失时回退同族最新模型，并标记来源
+    const ctxDirect = aa?.capabilities?.context_window_tokens ?? null
+    const ctxRef =
+      ctxDirect == null
+        ? findFamilyAa(s.slug, aaModels, (m) => m.capabilities?.context_window_tokens != null)
+        : null
+    const priceDirect = blendedPrice(aa?.pricing)
+    const priceRef =
+      priceDirect == null
+        ? findFamilyAa(s.slug, aaModels, (m) => blendedPrice(m.pricing) != null)
+        : null
+
     return {
       rank: i + 1,
       name,
@@ -378,10 +394,14 @@ export async function collectLeaderboard(force = false) {
       countryCode,
       countryFlag: countryFlagEmoji(countryCode),
       releaseDate,
-      contextWindow: aa?.capabilities?.context_window_tokens ?? null,
-      priceBlended: blendedPrice(aa?.pricing),
-      priceInput: aa?.pricing?.price_1m_input_tokens ?? null,
-      priceOutput: aa?.pricing?.price_1m_output_tokens ?? null,
+      contextWindow: ctxDirect ?? ctxRef?.capabilities?.context_window_tokens ?? null,
+      contextRef: ctxRef?.short_name || ctxRef?.name || null,
+      priceBlended: priceDirect ?? blendedPrice(priceRef?.pricing),
+      priceRef: priceRef?.short_name || priceRef?.name || null,
+      priceInput:
+        aa?.pricing?.price_1m_input_tokens ?? priceRef?.pricing?.price_1m_input_tokens ?? null,
+      priceOutput:
+        aa?.pricing?.price_1m_output_tokens ?? priceRef?.pricing?.price_1m_output_tokens ?? null,
       intelligence:
         o.intelligence ??
         (typeof ev.artificial_analysis_intelligence_index === 'number'

@@ -816,7 +816,6 @@ button.quota-price-chip { cursor: pointer; }
 .lb-model-name { font-weight: 600; font-size: 0.82rem; line-height: 1.3; }
 .lb-model-creator { font-size: 0.68rem; color: var(--color-text-tertiary); }
 .lb-muted { color: var(--color-text-secondary); font-size: 0.78rem; }
-.lb-unit { font-size: 0.65rem; color: var(--color-text-tertiary); margin-left: 2px; }
 .lb-subscore { font-size: 0.65rem; color: var(--color-text-tertiary); font-weight: 400; }
 .leaderboard-legend {
   margin-top: 10px; font-size: 0.68rem; color: var(--color-text-tertiary); line-height: 1.45;
@@ -831,3 +830,480 @@ button.quota-price-chip { cursor: pointer; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ===== Daylog 每日复盘 ===== */
+.daylog-page { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.daylog-seg {
+  display: flex; gap: 2px; padding: 3px;
+  background: var(--color-surface); border-radius: var(--radius-md);
+  position: sticky; top: 0; z-index: 10;
+}
+.daylog-seg-btn {
+  flex: 1; padding: 10px 0; border-radius: 9px;
+  font-size: 0.95rem; color: var(--color-text-secondary); transition: all 0.15s;
+}
+.daylog-seg-btn.active { background: var(--color-surface-3); color: var(--color-text); font-weight: 600; }
+
+/* 今日 · 着陆区 */
+.daylog-hero { text-align: center; padding: 32px 20px 26px; }
+.daylog-date { font-size: 0.85rem; color: var(--color-text-secondary); }
+.daylog-greeting { font-size: 1.55rem; font-weight: 700; letter-spacing: -0.02em; margin: 8px 0 10px; }
+.daylog-streak { font-size: 0.85rem; color: var(--color-text-secondary); }
+.daylog-start-btn {
+  display: block; width: 100%; margin-top: 20px; padding: 18px;
+  font-size: 1.15rem; font-weight: 700; border-radius: var(--radius-lg);
+  background: var(--color-primary); color: #fff; transition: background 0.15s;
+}
+.daylog-start-btn:hover:not(:disabled) { background: var(--color-primary-hover); }
+.daylog-start-btn:disabled { opacity: 0.6; cursor: default; }
+.daylog-dots { display: flex; justify-content: center; gap: 10px; margin-top: 22px; }
+.daylog-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-surface-3); }
+.daylog-dot.done { background: var(--color-success); }
+.daylog-dots-hint { margin-top: 6px; font-size: 0.68rem; color: var(--color-text-tertiary); }
+.daylog-score-line { margin-top: 16px; font-size: 0.85rem; color: var(--color-text-secondary); }
+.daylog-score-line strong { font-size: 1.05rem; color: var(--color-text); }
+.daylog-delta { margin-left: 8px; font-size: 0.8rem; font-weight: 600; }
+.daylog-delta.up { color: var(--color-success); }
+.daylog-delta.down { color: var(--color-danger); }
+.daylog-delta.flat { color: var(--color-text-tertiary); font-weight: 400; }
+.daylog-score-hint { margin-top: 8px; font-size: 0.78rem; color: var(--color-text-tertiary); line-height: 1.55; }
+
+/* 今日 · 对话 */
+.daylog-chat { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 10px; }
+.daylog-msg { display: flex; }
+.daylog-msg.user { justify-content: flex-end; }
+.daylog-msg-inner { max-width: 84%; }
+.daylog-bubble {
+  padding: 12px 16px; border-radius: var(--radius-lg);
+  font-size: 1.05rem; line-height: 1.65;
+  white-space: pre-wrap; word-break: break-word;
+}
+.daylog-msg.assistant .daylog-bubble { background: var(--color-surface); border-bottom-left-radius: 6px; }
+.daylog-msg.user .daylog-bubble { background: var(--color-primary); color: #fff; border-bottom-right-radius: 6px; }
+.daylog-msg-meta { font-size: 0.65rem; color: var(--color-text-tertiary); margin-top: 4px; }
+.daylog-msg-meta.right { text-align: right; }
+.daylog-typing {
+  display: inline-flex; gap: 5px; padding: 15px 16px;
+  background: var(--color-surface); border-radius: var(--radius-lg); border-bottom-left-radius: 6px;
+}
+.daylog-typing span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--color-text-tertiary); animation: daylogBlink 1.2s infinite;
+}
+.daylog-typing span:nth-child(2) { animation-delay: 0.2s; }
+.daylog-typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes daylogBlink { 0%, 60%, 100% { opacity: 0.3; } 30% { opacity: 1; } }
+.daylog-input-area {
+  position: sticky; bottom: 0; padding: 10px 0 4px;
+  background: linear-gradient(transparent, var(--color-bg) 30%);
+}
+/* 气泡内的图片附件缩略图 */
+.daylog-bubble-imgs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.daylog-msg.user .daylog-bubble-imgs { justify-content: flex-end; }
+.daylog-bubble-img {
+  max-width: 180px; max-height: 180px; border-radius: var(--radius-md);
+  object-fit: cover; display: block;
+}
+
+/* 输入区：圆角容器（缩略图条 + 自适应 textarea + 底部按钮行） */
+.daylog-composer {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 10px 12px 8px;
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-separator-opaque);
+  border-radius: var(--radius-lg);
+}
+.daylog-thumbs { display: flex; flex-wrap: wrap; gap: 8px; padding: 2px 0 4px; }
+.daylog-thumb { position: relative; width: 56px; height: 56px; flex-shrink: 0; }
+.daylog-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+  border-radius: var(--radius-sm); display: block;
+}
+.daylog-thumb-remove {
+  position: absolute; top: -6px; right: -6px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--color-surface-3); color: var(--color-text-secondary);
+  font-size: 0.75rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  border: 0.5px solid var(--color-separator-opaque);
+}
+.daylog-thumb-remove:hover { color: var(--color-text); }
+.daylog-composer-textarea {
+  width: 100%; border: none; background: transparent; resize: none;
+  padding: 2px 0; font-size: 1.05rem; line-height: 1.5;
+  color: var(--color-text); outline: none;
+}
+.daylog-composer-textarea::placeholder { color: var(--color-text-tertiary); }
+.daylog-composer-actions { display: flex; align-items: center; gap: 8px; }
+.daylog-composer-spacer { flex: 1; }
+.daylog-action-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: var(--radius-md);
+  background: transparent; color: var(--color-text-secondary);
+  font-size: 0.88rem; transition: background 0.15s, color 0.15s;
+}
+.daylog-action-btn:hover:not(:disabled) { background: var(--color-surface-2); color: var(--color-text); }
+.daylog-action-btn.recording { color: var(--color-danger); }
+.daylog-action-btn.primary { color: var(--color-primary); font-weight: 600; }
+.daylog-action-btn.primary:hover:not(:disabled) { background: var(--color-surface-2); }
+.daylog-action-btn:disabled { color: var(--color-text-tertiary); opacity: 0.5; cursor: default; }
+.daylog-voice-hint, .daylog-local-hint {
+  margin-top: 6px; text-align: center; font-size: 0.72rem; color: var(--color-text-tertiary);
+}
+.daylog-generate-btn {
+  width: 100%; margin: 2px 0 10px; padding: 14px;
+  border-radius: var(--radius-md); border: 0.5px solid var(--color-separator-opaque);
+  background: var(--color-surface-2); font-size: 1rem; font-weight: 600;
+  transition: background 0.15s;
+}
+.daylog-generate-btn:hover:not(:disabled) { background: var(--color-surface-3); }
+.daylog-generate-btn:disabled { opacity: 0.6; cursor: default; }
+
+/* 回顾 */
+.daylog-review-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.daylog-review-date { font-size: 1.1rem; font-weight: 700; }
+.daylog-score-total { display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+.daylog-score-num { font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+.daylog-score-max { font-size: 0.9rem; color: var(--color-text-tertiary); }
+.daylog-feedback-block { margin-top: 16px; padding-top: 14px; border-top: 0.5px solid var(--color-separator-opaque); }
+.daylog-section-label {
+  font-size: 0.75rem; font-weight: 600; color: var(--color-text-secondary);
+  letter-spacing: 0.5px; margin: 10px 0 6px;
+}
+.daylog-feedback { padding-left: 18px; }
+.daylog-feedback li { margin-bottom: 4px; font-size: 0.88rem; color: var(--color-text-secondary); line-height: 1.6; }
+.daylog-field { margin-bottom: 14px; }
+.daylog-field-label { font-size: 0.78rem; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 6px; }
+.daylog-save-row { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 4px; }
+.daylog-saved-hint { font-size: 0.75rem; color: var(--color-success); }
+
+/* 趋势 */
+.daylog-chart { height: 220px; }
+.daylog-chart svg { width: 100%; height: 100%; display: block; }
+.daylog-radar-wrap { display: flex; justify-content: center; padding: 4px 0; }
+.daylog-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; margin-top: 8px; }
+.daylog-legend-item { display: inline-flex; align-items: center; gap: 5px; font-size: 0.75rem; color: var(--color-text-secondary); }
+.daylog-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* 趋势 · 周报 */
+.daylog-weekly-loading { padding: 18px 0; text-align: center; font-size: 0.88rem; color: var(--color-text-tertiary); }
+.daylog-weekly-row { margin-bottom: 12px; }
+.daylog-weekly-label { font-size: 0.78rem; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 3px; }
+.daylog-weekly-text { font-size: 0.9rem; line-height: 1.65; color: var(--color-text); white-space: pre-wrap; }
+.daylog-weekly-foot {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--color-separator-opaque);
+}
+.daylog-source-hint { font-size: 0.72rem; color: var(--color-text-tertiary); }
+
+/* 趋势 · 记录日历 */
+.daylog-cal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.daylog-cal-nav { display: flex; gap: 6px; }
+.daylog-cal-nav button {
+  width: 28px; height: 28px; border-radius: var(--radius-sm);
+  background: var(--color-surface-2); color: var(--color-text-secondary); font-size: 0.95rem;
+  transition: background 0.15s;
+}
+.daylog-cal-nav button:hover:not(:disabled) { background: var(--color-surface-3); color: var(--color-text); }
+.daylog-cal-nav button:disabled { opacity: 0.35; cursor: default; }
+.daylog-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.daylog-cal-week { text-align: center; font-size: 0.7rem; color: var(--color-text-tertiary); padding: 2px 0; }
+.daylog-cal-day {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; border-radius: var(--radius-sm); color: var(--color-text-secondary);
+}
+.daylog-cal-day.future { opacity: 0.35; }
+.daylog-cal-day.done { background: rgba(52, 211, 153, 0.16); color: #34d399; font-weight: 600; cursor: pointer; }
+.daylog-cal-day.done:hover { background: rgba(52, 211, 153, 0.3); }
+.daylog-cal-day.today { outline: 1px solid var(--color-primary); outline-offset: -1px; }
+.daylog-cal-hint { margin-top: 10px; font-size: 0.72rem; color: var(--color-text-tertiary); text-align: center; }
+
+/* 趋势 · 高频情绪词 */
+.daylog-emo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.daylog-emo-word { width: 44px; flex-shrink: 0; text-align: right; font-size: 0.85rem; color: var(--color-text-secondary); }
+.daylog-emo-track { flex: 1; height: 8px; border-radius: 4px; background: var(--color-surface-2); overflow: hidden; }
+.daylog-emo-fill { height: 100%; border-radius: 4px; background: var(--color-primary); }
+.daylog-emo-count { width: 44px; flex-shrink: 0; font-size: 0.78rem; color: var(--color-text-tertiary); }
+
+/* 趋势 · 完成标准步进 */
+.daylog-min-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.daylog-min-hint { margin-top: 3px; font-size: 0.75rem; color: var(--color-text-tertiary); }
+.daylog-stepper { display: flex; align-items: center; gap: 8px; }
+.daylog-stepper button {
+  width: 28px; height: 28px; border-radius: var(--radius-sm);
+  background: var(--color-surface-2); color: var(--color-text); font-size: 1rem;
+  transition: background 0.15s;
+}
+.daylog-stepper button:hover:not(:disabled) { background: var(--color-surface-3); }
+.daylog-stepper button:disabled { opacity: 0.35; cursor: default; }
+.daylog-stepper-val { min-width: 20px; text-align: center; font-size: 1.05rem; font-weight: 700; }
+.daylog-min-unit { font-size: 0.85rem; color: var(--color-text-secondary); }
+
+/* 今日 · 已完成徽章 */
+.daylog-done-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin: 10px auto 2px; padding: 4px 12px; border-radius: 999px;
+  background: rgba(52, 211, 153, 0.15); color: #34d399;
+  font-size: 0.8rem; font-weight: 600;
+}
+
+/* 时间线 */
+.daylog-toolbar { display: flex; gap: 8px; margin-bottom: 6px; }
+.daylog-toolbar .input { flex: 1; }
+.daylog-tl-month { font-size: 0.8rem; font-weight: 600; color: var(--color-text-secondary); margin: 16px 0 6px; }
+.daylog-tl-item {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  background: var(--color-surface); border-radius: var(--radius-md);
+  padding: 13px 14px; margin-bottom: 8px; cursor: pointer; transition: background 0.15s;
+}
+.daylog-tl-item:hover { background: var(--color-surface-2); }
+.daylog-tl-date { font-size: 0.9rem; font-weight: 600; white-space: nowrap; }
+.daylog-tl-quote {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 0.8rem; color: var(--color-text-secondary);
+}
+.daylog-tl-export {
+  flex-shrink: 0; padding: 4px 10px; border-radius: 6px;
+  font-size: 0.72rem; color: var(--color-text-tertiary); transition: all 0.15s;
+}
+.daylog-tl-export:hover { background: var(--color-surface-3); color: var(--color-text); }
+
+/* 今日 · 首页四模式与今日状态（HOME-02/03） */
+.daylog-mode-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px;
+}
+.daylog-mode-card {
+  padding: 12px; border-radius: var(--radius-md); text-align: left;
+  background: var(--color-surface-2); border: 0.5px solid var(--color-separator-opaque);
+  transition: all 0.15s;
+}
+.daylog-mode-card:hover { background: var(--color-surface-3); }
+.daylog-mode-card.active { border-color: var(--color-primary); background: rgba(10, 132, 255, 0.12); }
+.daylog-mode-name { font-size: 0.95rem; font-weight: 600; color: var(--color-text); }
+.daylog-mode-desc { margin-top: 3px; font-size: 0.72rem; color: var(--color-text-tertiary); line-height: 1.45; }
+.daylog-mode-now { margin-top: 18px; font-size: 0.8rem; color: var(--color-text-tertiary); }
+.daylog-mood { margin-top: 16px; }
+.daylog-mood-label { font-size: 0.78rem; color: var(--color-text-secondary); margin-bottom: 8px; }
+.daylog-mood-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.daylog-mood-btn {
+  width: 38px; height: 38px; border-radius: 50%; font-size: 1.1rem;
+  background: var(--color-surface-2); border: 0.5px solid var(--color-separator-opaque);
+  transition: all 0.15s;
+}
+.daylog-mood-btn:hover { background: var(--color-surface-3); }
+.daylog-mood-btn.active { border-color: var(--color-primary); background: rgba(10, 132, 255, 0.15); }
+.daylog-mood-input {
+  flex: 1; min-width: 0; max-width: 130px; padding: 9px 12px;
+  border-radius: var(--radius-md); border: 0.5px solid var(--color-separator-opaque);
+  background: var(--color-surface-2); color: var(--color-text); font-size: 0.85rem; outline: none;
+}
+.daylog-mood-input::placeholder { color: var(--color-text-tertiary); }
+.daylog-hero-links { display: flex; justify-content: center; gap: 18px; margin-top: 22px; }
+.daylog-hero-link {
+  font-size: 0.75rem; color: var(--color-text-tertiary); transition: color 0.15s;
+}
+.daylog-hero-link:hover { color: var(--color-text-secondary); }
+
+/* 对话进行中 · 顶部状态条（CHAT-05） */
+.daylog-status {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; margin-bottom: 8px;
+  background: var(--color-surface); border-radius: var(--radius-md);
+  border: 0.5px solid var(--color-separator-opaque);
+}
+.daylog-status-mode { font-size: 0.85rem; font-weight: 600; color: var(--color-text); }
+.daylog-status-duration { font-size: 0.75rem; color: var(--color-text-tertiary); }
+.daylog-status-light {
+  padding: 4px 10px; border-radius: 6px; font-size: 0.72rem;
+  color: var(--color-text-secondary); transition: all 0.15s;
+}
+.daylog-status-light:hover { background: var(--color-surface-3); color: var(--color-text); }
+
+/* 对话进行中 · 快捷回答 chips（CHAT-03） */
+.daylog-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 10px; }
+.daylog-chip {
+  padding: 8px 14px; border-radius: 16px; font-size: 0.85rem;
+  background: var(--color-surface-2); color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-separator-opaque); transition: all 0.15s;
+}
+.daylog-chip:hover { background: var(--color-surface-3); color: var(--color-text); }
+
+/* 对话进行中 · 模式调节按钮（CHAT-04） */
+.daylog-adjust-row { display: flex; gap: 6px; margin-bottom: 6px; overflow-x: auto; }
+.daylog-adjust-btn {
+  flex-shrink: 0; padding: 5px 12px; border-radius: 14px; font-size: 0.75rem;
+  color: var(--color-text-tertiary); background: var(--color-surface);
+  border: 0.5px solid var(--color-separator-opaque); transition: all 0.15s;
+}
+.daylog-adjust-btn:hover:not(:disabled) { color: var(--color-text); background: var(--color-surface-2); }
+.daylog-adjust-btn.active { color: var(--color-primary); border-color: var(--color-primary); }
+.daylog-adjust-btn:disabled { opacity: 0.45; cursor: default; }
+
+/* 本地弱化提示（不冒充用户消息，不发给 AI） */
+.daylog-hint-line {
+  text-align: center; font-size: 0.75rem; color: var(--color-text-tertiary);
+  padding: 2px 0; line-height: 1.5;
+}
+
+/* 首次设置 / 个人设置（ONB-01~06） */
+.daylog-onboarding {
+  position: fixed; inset: 0; z-index: 100; overflow-y: auto;
+  background: var(--color-bg); padding: 20px 16px 40px;
+}
+.daylog-onb-card { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+.daylog-onb-head { text-align: center; padding-top: 12px; }
+.daylog-onb-title { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
+.daylog-onb-sub { margin-top: 8px; font-size: 0.82rem; color: var(--color-text-secondary); line-height: 1.6; }
+.daylog-onb-section {
+  padding: 14px; border-radius: var(--radius-lg);
+  background: var(--color-surface); border: 0.5px solid var(--color-separator-opaque);
+}
+.daylog-onb-label { font-size: 0.88rem; font-weight: 600; margin-bottom: 8px; }
+.daylog-onb-note { font-size: 0.72rem; color: var(--color-text-tertiary); line-height: 1.5; }
+.daylog-onb-label + .daylog-onb-note { margin-top: -4px; margin-bottom: 8px; }
+.daylog-onb-input {
+  width: 100%; padding: 10px 12px; border-radius: var(--radius-md);
+  border: 0.5px solid var(--color-separator-opaque);
+  background: var(--color-surface-2); color: var(--color-text); font-size: 0.95rem; outline: none;
+}
+.daylog-onb-input::placeholder { color: var(--color-text-tertiary); }
+.daylog-onb-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.daylog-onb-options.compact .daylog-onb-option { padding: 6px 10px; font-size: 0.78rem; }
+.daylog-onb-option {
+  padding: 8px 14px; border-radius: 16px; font-size: 0.85rem;
+  background: var(--color-surface-2); color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-separator-opaque); transition: all 0.15s;
+}
+.daylog-onb-option:hover:not(:disabled) { background: var(--color-surface-3); color: var(--color-text); }
+.daylog-onb-option.active { border-color: var(--color-primary); color: var(--color-primary); background: rgba(10, 132, 255, 0.1); }
+.daylog-onb-option:disabled { opacity: 0.35; cursor: default; }
+.daylog-onb-style-grid { display: flex; flex-direction: column; gap: 10px; }
+.daylog-onb-style-row { display: flex; align-items: center; gap: 10px; }
+.daylog-onb-style-text { flex: 1; min-width: 0; }
+.daylog-onb-style-name { font-size: 0.88rem; font-weight: 600; }
+.daylog-onb-style-btns { display: flex; gap: 6px; }
+.daylog-onb-memory { display: flex; flex-direction: column; gap: 8px; }
+.daylog-onb-memory-item {
+  text-align: left; padding: 12px; border-radius: var(--radius-md);
+  background: var(--color-surface-2); border: 0.5px solid var(--color-separator-opaque);
+  transition: all 0.15s;
+}
+.daylog-onb-memory-item:hover { background: var(--color-surface-3); }
+.daylog-onb-memory-item.active { border-color: var(--color-primary); background: rgba(10, 132, 255, 0.1); }
+.daylog-onb-memory-item .daylog-onb-note { margin-top: 3px; }
+.daylog-onb-footer { display: flex; gap: 10px; padding-top: 4px; }
+.daylog-onb-skip {
+  flex: 1; padding: 15px; border-radius: var(--radius-md);
+  font-size: 0.95rem; color: var(--color-text-secondary);
+  background: var(--color-surface); border: 0.5px solid var(--color-separator-opaque);
+  transition: background 0.15s;
+}
+.daylog-onb-skip:hover { background: var(--color-surface-2); }
+.daylog-onb-start {
+  flex: 2; padding: 15px; border-radius: var(--radius-md);
+  font-size: 1.05rem; font-weight: 700;
+  background: var(--color-primary); color: #fff; transition: background 0.15s;
+}
+.daylog-onb-start:hover { background: var(--color-primary-hover); }
+
+/* ===== 通用小号按钮 ===== */
+.btn-sm { padding: 6px 12px; font-size: 0.82rem; border-radius: var(--radius-sm); }
+
+/* ===== 今日总结页（新结构） ===== */
+.daylog-field-hint { font-weight: 400; color: var(--color-text-tertiary); }
+.daylog-field-count { margin-top: 4px; text-align: right; font-size: 0.68rem; color: var(--color-text-tertiary); }
+.daylog-event-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.daylog-event-row .input { flex: 1; }
+.daylog-event-remove {
+  flex-shrink: 0; width: 32px; border-radius: var(--radius-sm);
+  background: var(--color-surface-2); color: var(--color-text-tertiary);
+  font-size: 1.1rem; line-height: 1; border: 0.5px solid var(--color-separator-opaque);
+}
+.daylog-event-remove:hover { color: var(--color-danger); }
+.daylog-event-add {
+  padding: 7px 14px; border-radius: var(--radius-sm); font-size: 0.82rem;
+  background: transparent; color: var(--color-primary);
+  border: 0.5px dashed var(--color-separator-opaque);
+}
+.daylog-event-add:hover { background: var(--color-surface-2); }
+.daylog-arc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.daylog-arc-full { grid-column: 1 / -1; }
+.daylog-layers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.daylog-layer-item { display: flex; flex-direction: column; gap: 4px; }
+.daylog-layer-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.75rem; font-weight: 600; }
+.daylog-layer-hint { font-weight: 400; color: var(--color-text-tertiary); }
+
+/* 待确认观察卡 */
+.daylog-obs-card {
+  margin: 18px 0; padding: 16px; border-radius: var(--radius-md);
+  background: rgba(10, 132, 255, 0.06); border: 0.5px solid rgba(10, 132, 255, 0.35);
+}
+.daylog-obs-card.obs-status-confirmed { background: rgba(52, 211, 153, 0.08); border-color: rgba(52, 211, 153, 0.4); }
+.daylog-obs-card.obs-status-rejected { background: var(--color-surface-2); border-color: var(--color-separator-opaque); opacity: 0.7; }
+.daylog-obs-label {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.78rem; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 8px;
+}
+.daylog-obs-status {
+  font-size: 0.68rem; padding: 2px 8px; border-radius: 20px;
+  background: rgba(10, 132, 255, 0.18); color: var(--color-primary-hover);
+}
+.daylog-obs-card.obs-status-confirmed .daylog-obs-status { background: rgba(52, 211, 153, 0.2); color: var(--color-success); }
+.daylog-obs-card.obs-status-rejected .daylog-obs-status { background: var(--color-surface-3); color: var(--color-text-tertiary); }
+.daylog-obs-text { font-size: 0.95rem; line-height: 1.6; color: var(--color-text); margin-bottom: 6px; }
+.daylog-obs-meta { font-size: 0.72rem; color: var(--color-text-tertiary); margin-bottom: 10px; }
+.daylog-obs-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* 语言评分详细区 */
+.daylog-score-ver { margin-left: 10px; font-size: 0.7rem; color: var(--color-text-tertiary); font-weight: 400; }
+.daylog-dim-detail { grid-column: 1 / -1; padding: 6px 0 4px; }
+.daylog-dim-evidence { font-size: 0.78rem; color: var(--color-text-secondary); font-style: italic; }
+.daylog-dim-note { font-size: 0.78rem; color: var(--color-text-tertiary); margin-top: 2px; }
+.daylog-score-foot { margin-top: 14px; padding-top: 12px; border-top: 0.5px solid var(--color-separator-opaque); }
+.daylog-toggle-btn {
+  padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.8rem;
+  background: transparent; color: var(--color-text-tertiary);
+  border: 0.5px solid var(--color-separator-opaque);
+}
+.daylog-toggle-btn:hover { color: var(--color-text-secondary); }
+.daylog-toggle-btn.active { color: var(--color-warning); border-color: rgba(255, 159, 10, 0.5); background: rgba(255, 159, 10, 0.08); }
+
+/* ===== 我的观察（长期画像） ===== */
+.daylog-pobs-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.daylog-mem-btn {
+  padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.78rem;
+  border: 0.5px solid var(--color-separator-opaque);
+}
+.daylog-mem-btn.active { color: var(--color-success); border-color: rgba(52, 211, 153, 0.45); background: rgba(52, 211, 153, 0.08); }
+.daylog-mem-btn.paused { color: var(--color-warning); border-color: rgba(255, 159, 10, 0.45); background: rgba(255, 159, 10, 0.08); }
+.daylog-pobs-mem-hint { margin-top: 10px; font-size: 0.76rem; color: var(--color-text-tertiary); line-height: 1.55; }
+.daylog-pobs-empty { padding: 22px 4px; font-size: 0.86rem; color: var(--color-text-tertiary); line-height: 1.6; }
+.daylog-pobs-section-label { margin: 14px 0 8px; font-size: 0.78rem; font-weight: 600; color: var(--color-text-secondary); }
+.daylog-pobs-item {
+  padding: 14px; margin-bottom: 10px; border-radius: var(--radius-md);
+  background: var(--color-surface); border: 0.5px solid var(--color-separator-opaque);
+}
+.daylog-pobs-item.obs-status-pending { border-color: rgba(10, 132, 255, 0.35); background: rgba(10, 132, 255, 0.05); }
+.daylog-pobs-item.obs-status-confirmed { border-color: rgba(52, 211, 153, 0.35); }
+.daylog-pobs-item.obs-status-rejected { opacity: 0.65; }
+.daylog-pobs-text { font-size: 0.92rem; line-height: 1.6; color: var(--color-text); }
+.daylog-pobs-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 8px 0; font-size: 0.72rem; color: var(--color-text-tertiary); }
+.daylog-pobs-status { padding: 2px 8px; border-radius: 20px; }
+.daylog-pobs-status.s-pending { background: rgba(10, 132, 255, 0.18); color: var(--color-primary-hover); }
+.daylog-pobs-status.s-confirmed { background: rgba(52, 211, 153, 0.2); color: var(--color-success); }
+.daylog-pobs-status.s-rejected { background: var(--color-surface-3); color: var(--color-text-tertiary); }
+.daylog-pobs-type {
+  background: var(--color-surface-2); color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-separator-opaque); border-radius: var(--radius-sm);
+  padding: 2px 6px; font-size: 0.72rem;
+}
+.daylog-pobs-dates { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 10px; }
+.daylog-pobs-date {
+  font-size: 0.66rem; padding: 1px 6px; border-radius: 4px;
+  background: var(--color-surface-2); color: var(--color-text-tertiary);
+}
+.daylog-pobs-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.daylog-pobs-actions .btn-ghost.danger:hover { color: var(--color-danger); }
+.daylog-pobs-row { display: flex; gap: 8px; margin-top: 8px; }
+.daylog-pobs-rejected { margin-top: 10px; }
+.daylog-pobs-rejected summary { cursor: pointer; font-size: 0.78rem; color: var(--color-text-tertiary); padding: 4px 0; }

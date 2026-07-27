@@ -2,13 +2,13 @@
   "schemaVersion": 2,
   "account": "jackielamzeqi",
   "workEnv": "office",
-  "savedAt": "2026-07-25T17:33:48.506Z",
+  "savedAt": "2026-07-26T18:01:48.346Z",
   "snapshot": {
     "ok": true,
     "source": "token-agent",
     "reference": "https://github.com/Javis603/token-monitor",
     "engine": "tokscale",
-    "updatedAt": "2026-07-25T17:33:48.503Z",
+    "updatedAt": "2026-07-26T18:01:48.343Z",
     "hostname": "sz-11188601m2",
     "platform": "darwin-arm64",
     "tools": [
@@ -188,8 +188,8 @@
           "billingMode": "prepaid",
           "unit": "USD",
           "total": 5,
-          "used": 1.883221109,
-          "remaining": 3.116778891,
+          "used": 2.39180172,
+          "remaining": 2.60819828,
           "source": "openrouter:/api/v1/credits"
         },
         "cursor": {
@@ -201,17 +201,17 @@
           "planName": "Pro",
           "priceLabel": "$20/mo",
           "unit": "percent",
-          "usedPercent": 3.1855072463768117,
-          "remainingPercent": 96.81449275362318,
-          "autoPercentUsed": 3.663333333333333,
-          "apiPercentUsed": 0,
-          "totalPercentUsed": 3.1855072463768117,
+          "usedPercent": 24.582608695652176,
+          "remainingPercent": 75.41739130434783,
+          "autoPercentUsed": 12.693333333333335,
+          "apiPercentUsed": 100,
+          "totalPercentUsed": 24.582608695652176,
           "limitCents": 2000,
-          "includedSpendCents": 1099,
-          "remainingCents": 901,
+          "includedSpendCents": 2000,
+          "remainingCents": 0,
           "billingCycleStart": "1784945547000",
           "billingCycleEnd": "1787623947000",
-          "displayMessage": "You've used 55% of your included usage",
+          "displayMessage": "You've hit your usage limit",
           "source": "cursor:GetCurrentPeriodUsage"
         },
         "codex": {
@@ -222,16 +222,16 @@
           "billingMode": "subscription",
           "planName": "plus",
           "unit": "percent",
-          "usedPercent": 100,
-          "remainingPercent": 0,
+          "usedPercent": 0,
+          "remainingPercent": 100,
           "windowSeconds": 604800,
-          "resetAt": 1785409987,
-          "resetAfterSeconds": 409162,
+          "resetAt": 1785693706,
+          "resetAfterSeconds": 604800,
           "secondaryUsedPercent": null,
           "creditsBalanceUsd": 0,
           "hasCredits": false,
-          "allowed": false,
-          "limitReached": true,
+          "allowed": true,
+          "limitReached": false,
           "accountEmail": "jackie.lamzeqi@gmail.com",
           "accounts": [
             {
@@ -245,10 +245,10 @@
               "name": "林泽期",
               "planName": "plus",
               "status": "logged_in",
-              "usedPercent": 100,
-              "remainingPercent": 0,
+              "usedPercent": 0,
+              "remainingPercent": 100,
               "windowSeconds": 604800,
-              "resetAt": 1785409987
+              "resetAt": 1785693706
             }
           ],
           "source": "chatgpt:wham/usage"
@@ -261,27 +261,27 @@
           "billingMode": "subscription",
           "planName": "BASIC",
           "unit": "percent",
-          "usedPercent": 0,
-          "remainingPercent": 100,
-          "weeklyUsed": 0,
+          "usedPercent": 63,
+          "remainingPercent": 37,
+          "weeklyUsed": 63,
           "weeklyLimit": 100,
-          "weeklyRemaining": 100,
+          "weeklyRemaining": 37,
           "weeklyResetAt": "2026-07-31T17:42:58.681992Z",
           "fiveHour": {
             "used": 0,
             "limit": 100,
             "remaining": 100,
             "usedPercent": 0,
-            "resetAt": "2026-07-25T20:42:58.681992Z"
+            "resetAt": "2026-07-26T21:42:58.681992Z"
           },
-          "balanceCny": 3.77,
-          "monthlyUsedCny": 21.23,
+          "balanceCny": 0,
+          "monthlyUsedCny": 25,
           "currency": "CNY",
           "source": "kimi:/coding/v1/usages"
         }
       },
       "errors": [],
-      "updatedAt": "2026-07-25T17:33:48.503Z"
+      "updatedAt": "2026-07-26T18:01:48.343Z"
     },
     "warnings": [
       "tokscale 采集失败：tokscale dependency missing; run npm install"

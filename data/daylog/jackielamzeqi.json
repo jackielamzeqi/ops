@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "account": "jackielamzeqi",
+  "savedAt": "2026-07-26T18:03:21.218Z",
+  "profile": {
+    "value": {
+      "nickname": "JK",
+      "mbti": "INTJ",
+      "relationStyle": "焦虑型",
+      "goals": [
+        "relation"
+      ],
+      "feedbackStyle": "gentle",
+      "feedbackStyleSecondary": "direct",
+      "defaultDuration": 10,
+      "memoryLevel": "summary",
+      "onboarded": true
+    },
+    "updatedAt": 0
+  },
+  "entries": [
+    {
+      "date": "2026-07-26",
+      "messages": [
+        {
+          "role": "assistant",
+          "text": "夜深了，聊聊今天吧。今天有什么值得记录的事吗？",
+          "ts": 1785008375457
+        },
+        {
+          "role": "user",
+          "text": "今天在京基中心亲眼目睹深圳版的中央公园。在台风来临的前夕，驱车前往汕头小馆，只为好好品味一晚来自汕头的猪肚鲜汤。我定义自己是一个有行动力敢于执行的人，在行动中获取人生的意义",
+          "inputMode": "text",
+          "ts": 1785008729223
+        },
+        {
+          "role": "assistant",
+          "text": "今天情绪变化最大的瞬间是什么时候？",
+          "ts": 1785008729256
+        },
+        {
+          "role": "user",
+          "text": "今天在京基中心亲眼目睹深圳版的中央公园。在台风来临的前夕，驱车前往汕头小馆，只为好好品味一晚来自汕头的猪肚鲜汤。我对于自己的定义，永远是一个行走在路上敢于去执行的人，在行动中而非一定在结果中获取人生的意义",
+          "inputMode": "text",
+          "ts": 1785041257264
+        },
+        {
+          "role": "assistant",
+          "text": "当时你是怎么想的？又是怎么处理的？",
+          "ts": 1785041257314
+        },
+        {
+          "role": "user",
+          "text": "我同时想要做多件事情的时候，会同时开启多个AI",
+          "inputMode": "text",
+          "source": "typed",
+          "ts": 1785053759447
+        },
+        {
+          "role": "assistant",
+          "text": "JK，同时开启多个AI，似乎是你把“敢于执行”落到具体方法里，用并行推进回应多个目标，对吗？这样做今天给你带来了什么感受？",
+          "ts": 1785053774781
+        }
+      ],
+      "summary": {
+        "oneLiner": "在台风前依然驱车寻味，以主动行动体验过程中的意义",
+        "events": [
+          "在京基中心亲眼看到“深圳版的中央公园”",
+          "台风来临前驱车前往汕头小馆品尝猪肚鲜汤",
+          "想同时推进多件事时开启多个AI并行处理"
+        ],
+        "emotionArc": {
+          "start": "新鲜、惊喜，强度中等",
+          "end": "笃定、充实，强度中等偏高",
+          "reason": "把想体验的事付诸行动，并再次确认自己重视过程而非只看结果"
+        },
+        "layers": {
+          "fact": "在京基中心看到了被称为“深圳版中央公园”的景观；台风前驱车前往汕头小馆；处理多件事时会同时开启多个AI。",
+          "thought": "认为自己是有行动力、敢于执行的人，并相信人生意义可以从行动过程而非结果中获得。",
+          "emotion": "可能有新鲜、期待、满足与笃定，但用户未直接说明。",
+          "need": "体验生活、保持自主行动，并高效推进多个目标。"
+        },
+        "observation": "当多个想法同时出现时，你似乎倾向于立刻调动工具并行推进，用行动保持节奏与意义感。",
+        "insight": "行动本身可以提供意义；同时，也可留意并行推进是否始终服务于真正重要的目标。",
+        "tomorrowAction": "用10分钟列出并行事项，并圈出最重要的一件。",
+        "quote": "我在行动中而非一定在结果中获取人生的意义。"
+      },
+      "languageScore": {
+        "completeness": 63,
+        "structure": 68,
+        "evidence": 70,
+        "emotionPrecision": 42,
+        "reflection": 72,
+        "conciseness": 61,
+        "total": 63,
+        "details": {
+          "completeness": {
+            "evidence": "今天在京基中心亲眼目睹深圳版的中央公园。",
+            "note": "交代了地点和见闻；若补充时间、同行者或影响，事件会更完整。"
+          },
+          "structure": {
+            "evidence": "我对于自己的定义，永远是一个行走在路上敢于去执行的人，在行动中而非一定在结果中获取人生的意义。",
+            "note": "从行动自然上升到自我理解，逻辑清楚；可再明确事件与感受之间的连接。"
+          },
+          "evidence": {
+            "evidence": "在台风来临的前夕，驱车前往汕头小馆，只为好好品味一晚来自汕头的猪肚鲜汤。",
+            "note": "地点、天气背景和具体行动形成了鲜明证据；还可补充一个身体感受或现场细节。"
+          },
+          "emotionPrecision": {
+            "evidence": "我定义自己是一个有行动力敢于执行的人。",
+            "note": "主要表达了自我评价，尚未直接命名情绪；可尝试使用期待、兴奋、满足或紧张等词。"
+          },
+          "reflection": {
+            "evidence": "在行动中而非一定在结果中获取人生的意义。",
+            "note": "能够从当天经历提炼价值判断；下一步可检验这种方式在何种情况下最有效。"
+          },
+          "conciseness": {
+            "evidence": "我同时想要做多件事情的时候，会同时开启多个AI。",
+            "note": "表达直接，但前两次回答内容高度重复；可用新增感受替代重复叙述。"
+          }
+        },
+        "modelVersion": "unknown"
+      },
+      "feedback": {
+        "strengths": [
+          "能用具体场景支撑“敢于执行”的自我理解",
+          "能够从日常行动提炼出重视过程的价值观",
+          "关键句简洁有力量"
+        ],
+        "improvements": [
+          "直接说出情绪及强度，避免用自我定义代替感受",
+          "补充行动带来的实际效果，说明并行使用人工智能是否减轻压力",
+          "减少重复事件描述，把篇幅用于原因、感受和影响"
+        ]
+      },
+      "habit": {
+        "durationMinutes": 757,
+        "answerCount": 3,
+        "inputMode": "text"
+      },
+      "completed": true,
+      "source": "ai",
+      "createdAt": 1785008375457,
+      "updatedAt": 1785055742135,
+      "observation": {
+        "type": "有效方法",
+        "confidence": "中"
+      }
+    }
+  ],
+  "weeklyReports": [],
+  "observations": [
+    {
+      "id": "obs-ms1k2lm5-93kjv9",
+      "text": "当多个想法同时出现时，你似乎倾向于立刻调动工具并行推进，用行动保持节奏与意义感。",
+      "type": "有效方法",
+      "evidenceDates": [
+        "2026-07-26"
+      ],
+      "occurrences": 1,
+      "confidence": "中",
+      "status": "confirmed",
+      "createdAt": 1785055695341,
+      "updatedAt": 1785055724575
+    }
+  ]
+}

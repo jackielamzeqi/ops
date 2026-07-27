@@ -1,9 +1,34 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+import { registerSW } from 'virtual:pwa-register'
 import App from './App'
 import ErrorBoundary from './components/ErrorBoundary'
 import './styles/global.css'
+
+// 主动接管 PWA 更新：打开页面时检查一次，长期开启时每小时复查。
+// 配合 registerType: 'autoUpdate'，新版本就绪后会自动刷新到最新构建。
+registerSW({
+  immediate: true,
+  onRegisteredSW(swUrl, registration) {
+    if (!registration) return
+    window.setInterval(async () => {
+      if (registration.installing || !navigator.onLine) return
+      try {
+        const response = await fetch(swUrl, {
+          cache: 'no-store',
+          headers: {
+            cache: 'no-store',
+            'cache-control': 'no-cache',
+          },
+        })
+        if (response.ok) await registration.update()
+      } catch {
+        // 离线或网络波动时保留当前可用版本，下一轮再检查。
+      }
+    }, 60 * 60 * 1000)
+  },
+})
 
 // 版本升级仅清理可重建的页面缓存；登录凭证和设备环境必须跨版本保留。
 const APP_VERSION = 'v2.4'

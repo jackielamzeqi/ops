@@ -68,7 +68,7 @@ npm run preview      # 预览构建产物（验证线上包）
 
 ### 自动发布（一次性配置）
 
-1. 将本仓库的 `.github/workflows/deploy-pages.yml` 提交并推送到 `main`
+1. 将本仓库的 `.github/workflows/deploy.yml` 提交并推送到 `main`
 2. 打开 https://github.com/jackielamzeqi/ops/settings/pages  
    - **Build and deployment → Source** 选 **GitHub Actions**（不要再选 Deploy from a branch /docs）
 3. 之后每次 `git push origin main`，Actions 会自动构建并更新线上站  

@@ -67,19 +67,19 @@ function formatResetDate(raw?: string | number | null): string | null {
   })
 }
 
-/** 距离重置的相对时间，如 3D 12H / 5H 30M */
+/** 距离重置的相对时间，如 剩余2天22时22分 */
 function formatResetCountdown(raw?: string | number | null): string | null {
   const d = parseResetDate(raw)
   if (!d) return null
   const ms = d.getTime() - Date.now()
-  if (ms <= 0) return '0H'
+  if (ms <= 0) return '剩余0分'
   const totalMinutes = Math.floor(ms / 60_000)
   const days = Math.floor(totalMinutes / (24 * 60))
   const hours = Math.floor((totalMinutes % (24 * 60)) / 60)
   const minutes = totalMinutes % 60
-  if (days > 0) return `${days}D ${hours}H`
-  if (hours > 0) return minutes > 0 ? `${hours}H ${minutes}M` : `${hours}H`
-  return `${Math.max(minutes, 1)}M`
+  if (days > 0) return `剩余${days}天${hours}时${minutes}分`
+  if (hours > 0) return `剩余${hours}时${minutes}分`
+  return `剩余${Math.max(minutes, 1)}分`
 }
 
 /** 取各工具下一轮重置时间戳（Kimi 取最近一次） */
@@ -102,7 +102,7 @@ function nextResetAt(
   return bill.resetAt ?? bill.billingCycleEnd ?? null
 }
 
-/** 右侧：重置时间 3D 12H · 剩余 92% */
+/** 右侧：周/月重置时间 剩余2天22时22分 · 剩余 92% */
 function quotaRemainWithReset(
   remainText: string,
   toolId: string,
@@ -110,10 +110,13 @@ function quotaRemainWithReset(
   account?: NonNullable<OfficialBilling['accounts']>[number]
 ): string {
   const cd = formatResetCountdown(nextResetAt(toolId, bill, account))
-  return cd ? `重置时间 ${cd} · ${remainText}` : remainText
+  if (!cd) return remainText
+  const cycleLabel =
+    toolId === 'cursor' ? '月重置时间' : toolId === 'kimi' || toolId === 'codex' ? '周重置时间' : '重置时间'
+  return `${cycleLabel} ${cd} · ${remainText}`
 }
 
-/** 各工具下一轮 Token 重置说明 */
+/** 各工具重置时间说明（绝对时间戳） */
 function tokenResetHint(
   toolId: string,
   bill?: OfficialBilling | null,
@@ -121,21 +124,21 @@ function tokenResetHint(
 ): string {
   if (account) {
     const t = formatResetDate(account.resetAt)
-    return t ? `下一轮 Token 重置：${t}` : '暂无官方重置时间'
+    return t ? `重置时间：${t}` : '暂无官方重置时间'
   }
   if (!bill?.ok) return '暂无官方重置时间'
   if (bill.kind === 'credits') return '额度制 · 无固定重置周期'
   if (toolId === 'kimi') {
     // 只显示最近一次重置时间（周额度 / 5h 取更近者）
     const t = formatResetDate(nextResetAt(toolId, bill))
-    return t ? `下一轮 Token 重置：${t}` : '暂无官方重置时间'
+    return t ? `重置时间：${t}` : '暂无官方重置时间'
   }
   if (toolId === 'cursor') {
     const t = formatResetDate(bill.billingCycleEnd)
-    return t ? `下一轮 Token 重置：${t}` : '暂无官方重置时间'
+    return t ? `重置时间：${t}` : '暂无官方重置时间'
   }
   const t = formatResetDate(bill.resetAt)
-  return t ? `下一轮 Token 重置：${t}` : '暂无官方重置时间'
+  return t ? `重置时间：${t}` : '暂无官方重置时间'
 }
 
 function remainingFromBill(bill?: OfficialBilling | null): number | null {
@@ -1779,7 +1782,7 @@ export default function AIAssistantPage() {
                           <span>
                             月额度 {pct}%
                             {bill.autoPercentUsed != null
-                              ? ` · 第一方 ${Math.round(bill.autoPercentUsed)}%`
+                              ? ` · Auto ${Math.round(bill.autoPercentUsed)}%`
                               : ''}
                             {bill.apiPercentUsed != null
                               ? ` · API ${Math.round(bill.apiPercentUsed)}%`

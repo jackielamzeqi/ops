@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "VITE_BASE=/ops/ vite build && cp docs/index.html docs/404.html && touch docs/.nojekyll",
+    "build": "vite build && cp docs/index.html docs/404.html && touch docs/.nojekyll",
     "build:pages": "npm run build",
     "preview": "vite preview --host",
     "serve": "vite preview --host --port 3000",

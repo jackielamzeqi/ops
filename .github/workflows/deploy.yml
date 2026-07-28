@@ -1,10 +1,9 @@
-# 推送到 main 后自动构建并发布 GitHub Pages
-# 一次性配置：仓库 Settings → Pages → Build and deployment → Source 选「GitHub Actions」
-name: Deploy Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -20,25 +19,28 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: 22
           cache: npm
 
-      - name: Install
+      - name: Install dependencies
         run: npm ci
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
 
       - name: Build
         run: npm run build
         env:
-          VITE_BASE: /ops/
+          VITE_BASE: /${{ github.event.repository.name }}/
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs
 

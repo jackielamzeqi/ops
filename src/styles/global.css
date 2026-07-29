@@ -605,7 +605,47 @@ textarea.input { resize: vertical; line-height: 1.6; }
 .trend-legend {
   justify-content: center; margin: 0 0 8px; gap: 16px;
 }
-.trend-legend-item { gap: 6px; color: var(--color-text-secondary); }
+.trend-legend-item {
+  gap: 6px;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-size: inherit;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.trend-legend-item:hover {
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+.trend-legend-item.is-dimmed {
+  opacity: 0.35;
+}
+.trend-legend-item.is-selected {
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.1);
+}
+.trend-legend-clear {
+  margin-left: 4px;
+}
+.detail-focus-hint {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  font-size: 0.85em;
+}
+.data-row-selectable {
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.data-row-selectable:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.data-row-selectable.is-selected {
+  background: rgba(10, 132, 255, 0.12);
+}
 
 .line-chart { height: 200px; position: relative; }
 .line-chart.tall { height: 240px; }

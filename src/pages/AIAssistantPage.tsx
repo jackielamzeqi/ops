@@ -309,6 +309,8 @@ export default function AIAssistantPage() {
   } = useModelLeaderboard()
   const { pricesCny, getPriceCny, setPriceCny, getQuota } = useSubscriptionStore()
   const [detailView, setDetailView] = useState<'tool' | 'model'>('tool')
+  /** 图例选中的工具/模型；null 表示显示全部 */
+  const [focusSeriesId, setFocusSeriesId] = useState<string | null>(null)
   const [launchingId, setLaunchingId] = useState<string | null>(null)
   const [launchMsg, setLaunchMsg] = useState<string | null>(null)
 
@@ -530,19 +532,23 @@ export default function AIAssistantPage() {
   }, [history, trendGrain])
 
   const summary = useMemo(() => {
-    if (!usage) {
-      return {
-        totalTokens: 0,
-        totalCost: 0,
-        dailyAvgTokens: 0,
-        dailyAvgCost: 0,
-        toolCount: activeToolIds.length,
-        prevTotalTokens: 0,
-        prevTotalCost: 0,
-        inputTokens: 0,
-        outputTokens: 0,
-      }
+    const empty = {
+      totalTokens: 0,
+      totalCost: 0,
+      dailyAvgTokens: 0,
+      dailyAvgCost: 0,
+      toolCount: activeToolIds.length,
+      prevTotalTokens: 0,
+      prevTotalCost: 0,
+      prevDailyAvgTokens: 0,
+      prevDailyAvgCost: 0,
+      prevToolCount: 0,
+      hasPrevPeriod: false,
+      inputTokens: 0,
+      outputTokens: 0,
     }
+    if (!usage) return empty
+
     // 按选中工具过滤
     let totalTokens = 0
     let totalCostUsd = 0
@@ -556,31 +562,72 @@ export default function AIAssistantPage() {
       totalCostUsd = usage.totalCostUsd
     }
     const days = Math.max(history.length, 1)
-    // 上期：history 前半段估算
-    const half = Math.floor(history.length / 2)
-    const prevRows = history.slice(0, half)
-    const prevTotalTokens = prevRows.reduce((s, d) => {
-      return s + activeToolIds.reduce((ss, id) => ss + (d.clients[id] || 0), 0)
-    }, 0)
-    const prevTotalCost = prevRows.reduce((s, d) => {
-      return s + activeToolIds.reduce((ss, id) => ss + (d.clientCosts[id] || 0), 0)
-    }, 0)
+    const toolCount = activeToolIds.filter(
+      (id) => (usage.clients[id] || 0) > 0 || detectedIds.includes(id)
+    ).length
+
+    // 上个统计周期：等长窗口（近 7 天 → 再往前 7 天；近 30 天 → 再往前 30 天）
+    const allRows = snapshot?.history || []
+    const windowDays =
+      period === '7d' ? 7 : period === '30d' ? 30 : Math.max(Math.floor(allRows.length / 2), 1)
+    const prevRows =
+      allRows.length > windowDays
+        ? allRows.slice(-windowDays * 2, -windowDays)
+        : []
+    const hasPrevPeriod = prevRows.length > 0
+    const prevDays = Math.max(prevRows.length, 1)
+    const sumTokens = (rows: typeof prevRows) =>
+      rows.reduce(
+        (s, d) => s + activeToolIds.reduce((ss, id) => ss + (d.clients[id] || 0), 0),
+        0
+      )
+    const sumCostUsd = (rows: typeof prevRows) =>
+      rows.reduce(
+        (s, d) => s + activeToolIds.reduce((ss, id) => ss + (d.clientCosts[id] || 0), 0),
+        0
+      )
+    const prevTotalTokens = sumTokens(prevRows)
+    const prevTotalCostUsd = sumCostUsd(prevRows)
+    const prevToolCount = activeToolIds.filter((id) =>
+      prevRows.some((d) => (d.clients[id] || 0) > 0)
+    ).length
 
     return {
       totalTokens,
       totalCost: usdToCny(totalCostUsd, fx.rate),
       dailyAvgTokens: Math.round(totalTokens / days),
       dailyAvgCost: usdToCny(totalCostUsd / days, fx.rate),
-      toolCount: activeToolIds.filter((id) => (usage.clients[id] || 0) > 0 || detectedIds.includes(id)).length,
+      toolCount,
       prevTotalTokens,
-      prevTotalCost: usdToCny(prevTotalCost, fx.rate),
+      prevTotalCost: usdToCny(prevTotalCostUsd, fx.rate),
+      prevDailyAvgTokens: Math.round(prevTotalTokens / prevDays),
+      prevDailyAvgCost: usdToCny(prevTotalCostUsd / prevDays, fx.rate),
+      prevToolCount,
+      hasPrevPeriod,
       inputTokens,
       outputTokens,
     }
-  }, [usage, activeToolIds, history, detectedIds, fx.rate])
+  }, [usage, activeToolIds, history, detectedIds, fx.rate, snapshot, period])
 
   const tokenChange = calcChange(summary.totalTokens, summary.prevTotalTokens)
   const costChange = calcChange(summary.totalCost, summary.prevTotalCost)
+  const dailyTokenChange = calcChange(summary.dailyAvgTokens, summary.prevDailyAvgTokens)
+  const dailyCostChange = calcChange(summary.dailyAvgCost, summary.prevDailyAvgCost)
+  const toolCountChange = calcChange(summary.toolCount, summary.prevToolCount)
+
+  const renderMetricDelta = (change: number) => {
+    if (!summary.hasPrevPeriod) {
+      return <div className="metric-delta flat">环比 —</div>
+    }
+    const flat = Math.abs(change) < 0.05
+    const cls = flat ? 'flat' : change >= 0 ? 'up' : 'down'
+    const arrow = flat ? '→' : change >= 0 ? '↑' : '↓'
+    return (
+      <div className={`metric-delta ${cls}`}>
+        环比 {arrow} {Math.abs(change).toFixed(1)}%
+      </div>
+    )
+  }
 
   const metricSparks = useMemo(() => {
     const tokens = history.map((d) =>
@@ -637,16 +684,37 @@ export default function AIAssistantPage() {
   }, [trendHistory, usage, activeToolIds])
 
   const trendSeries = detailView === 'model' ? modelTrendSeries : toolTrendSeries
+  const visibleTrendSeries = useMemo(() => {
+    if (!focusSeriesId) return trendSeries
+    const focused = trendSeries.filter((s) => s.id === focusSeriesId)
+    if (focused.length) return focused
+    // 明细表可选到未进 Top N 图例的项，仍单独画一条
+    return [
+      {
+        id: focusSeriesId,
+        label:
+          detailView === 'model'
+            ? formatModelLabel(focusSeriesId)
+            : getToolName(focusSeriesId),
+        color:
+          detailView === 'model' ? MODEL_BAR_COLORS[0] : getToolColor(focusSeriesId),
+        toolId:
+          detailView === 'model'
+            ? usage?.modelClients?.[focusSeriesId] || ''
+            : focusSeriesId,
+      },
+    ]
+  }, [trendSeries, focusSeriesId, detailView, usage])
 
   const chartPaths = useMemo(() => {
-    if (trendHistory.length === 0 || trendSeries.length === 0) return null
+    if (trendHistory.length === 0 || visibleTrendSeries.length === 0) return null
     const valueAt = (d: (typeof trendHistory)[0], id: string) =>
       detailView === 'model' ? d.models[id] || 0 : d.clients[id] || 0
     const costAt = (d: (typeof trendHistory)[0], id: string) =>
       detailView === 'model' ? d.modelCosts[id] || 0 : d.clientCosts[id] || 0
     const rawMax = Math.max(
       1,
-      ...trendHistory.flatMap((d) => trendSeries.map((s) => valueAt(d, s.id)))
+      ...trendHistory.flatMap((d) => visibleTrendSeries.map((s) => valueAt(d, s.id)))
     )
     // 向上取整到好看的刻度（对齐参考图 200K 步进感）
     const niceMax = (() => {
@@ -680,7 +748,7 @@ export default function AIAssistantPage() {
             Math.round((i * (n - 1)) / (xTickCount - 1))
           )
 
-    const series = trendSeries.map((s) => {
+    const series = visibleTrendSeries.map((s) => {
       const pts = trendHistory.map((d, i) => {
         const v = valueAt(d, s.id)
         return { x: xAt(i), y: yAt(v), v, costUsd: costAt(d, s.id) }
@@ -712,7 +780,7 @@ export default function AIAssistantPage() {
       series,
       pointCount: n,
     }
-  }, [trendHistory, trendSeries, detailView])
+  }, [trendHistory, visibleTrendSeries, detailView])
 
   const [hoverIdx, setHoverIdx] = useState<number | null>(null)
   const chartRef = useRef<HTMLDivElement>(null)
@@ -762,7 +830,12 @@ export default function AIAssistantPage() {
 
   useEffect(() => {
     setHoverIdx(null)
+    setFocusSeriesId(null)
   }, [detailView, trendGrain, period])
+
+  useEffect(() => {
+    setHoverIdx(null)
+  }, [focusSeriesId])
 
   const breakdown = useMemo(() => {
     if (!usage) return []
@@ -872,17 +945,37 @@ export default function AIAssistantPage() {
       .sort((a, b) => b.tokens - a.tokens)
   }, [usage, history, fx.rate])
 
+  const visibleTableRows = useMemo(() => {
+    if (detailView !== 'tool' || !focusSeriesId) return tableRows
+    return tableRows.filter((r) => r.toolId === focusSeriesId)
+  }, [tableRows, detailView, focusSeriesId])
+
+  const visibleModelRows = useMemo(() => {
+    if (detailView !== 'model' || !focusSeriesId) return modelRows
+    return modelRows.filter((r) => r.modelId === focusSeriesId)
+  }, [modelRows, detailView, focusSeriesId])
+
+  const focusSeriesLabel = useMemo(() => {
+    if (!focusSeriesId) return null
+    const fromSeries = trendSeries.find((s) => s.id === focusSeriesId)?.label
+    if (fromSeries) return fromSeries
+    if (detailView === 'model') {
+      return modelRows.find((r) => r.modelId === focusSeriesId)?.label || formatModelLabel(focusSeriesId)
+    }
+    return tableRows.find((r) => r.toolId === focusSeriesId)?.name || getToolName(focusSeriesId)
+  }, [focusSeriesId, trendSeries, detailView, modelRows, tableRows])
+
   const totals = useMemo(
     () => ({
-      tokens: tableRows.reduce((s, r) => s + r.tokens, 0),
-      inputT: tableRows.reduce((s, r) => s + r.inputT, 0),
-      outputT: tableRows.reduce((s, r) => s + r.outputT, 0),
-      cacheT: tableRows.reduce((s, r) => s + r.cacheT, 0),
-      cost: tableRows.reduce((s, r) => s + r.cost, 0),
-      activeMs: tableRows.reduce((s, r) => s + (r.activeMs || 0), 0),
+      tokens: visibleTableRows.reduce((s, r) => s + r.tokens, 0),
+      inputT: visibleTableRows.reduce((s, r) => s + r.inputT, 0),
+      outputT: visibleTableRows.reduce((s, r) => s + r.outputT, 0),
+      cacheT: visibleTableRows.reduce((s, r) => s + r.cacheT, 0),
+      cost: visibleTableRows.reduce((s, r) => s + r.cost, 0),
+      activeMs: visibleTableRows.reduce((s, r) => s + (r.activeMs || 0), 0),
       avgDaily: summary.dailyAvgTokens,
     }),
-    [tableRows, summary]
+    [visibleTableRows, summary]
   )
 
   const catalog = useMemo(() => {
@@ -1006,9 +1099,7 @@ export default function AIAssistantPage() {
             <div>
               <div className="metric-label">总 Token 消耗</div>
               <div className="metric-value">{formatNumber(summary.totalTokens)}</div>
-              <div className={`metric-delta ${tokenChange >= 0 ? 'up' : 'down'}`}>
-                {tokenChange >= 0 ? '↑' : '↓'} {Math.abs(tokenChange).toFixed(1)}%
-              </div>
+              {renderMetricDelta(tokenChange)}
             </div>
             <MiniSpark values={metricSparks.tokens} color="#a78bfa" />
           </div>
@@ -1018,9 +1109,7 @@ export default function AIAssistantPage() {
             <div>
               <div className="metric-label">总费用（估算）</div>
               <div className="metric-value">{formatCost(summary.totalCost)}</div>
-              <div className={`metric-delta ${costChange >= 0 ? 'up' : 'down'}`}>
-                {costChange >= 0 ? '↑' : '↓'} {Math.abs(costChange).toFixed(1)}%
-              </div>
+              {renderMetricDelta(costChange)}
             </div>
             <MiniSpark values={metricSparks.cost} color="#60a5fa" />
           </div>
@@ -1028,10 +1117,12 @@ export default function AIAssistantPage() {
         <div className="metric-card accent-green">
           <div className="metric-label">日均 Token 消耗</div>
           <div className="metric-value">{formatNumber(summary.dailyAvgTokens)}</div>
+          {renderMetricDelta(dailyTokenChange)}
         </div>
         <div className="metric-card accent-orange">
           <div className="metric-label">日均费用</div>
           <div className="metric-value">{formatCost(summary.dailyAvgCost)}</div>
+          {renderMetricDelta(dailyCostChange)}
         </div>
         <div className="metric-card accent-pink">
           <div className="metric-label">已检测工具</div>
@@ -1039,6 +1130,7 @@ export default function AIAssistantPage() {
             {detectedIds.length || summary.toolCount}{' '}
             <span className="metric-unit">个</span>
           </div>
+          {renderMetricDelta(toolCountChange)}
         </div>
       </div>
 
@@ -1097,7 +1189,12 @@ export default function AIAssistantPage() {
       <div className="dash-main-grid">
         <div className="chart-card token-trend-card">
           <div className="chart-header">
-            <div className="chart-title">Token消耗</div>
+            <div className="chart-title">
+              Token消耗
+              {focusSeriesLabel ? (
+                <span className="detail-focus-hint"> · {focusSeriesLabel}</span>
+              ) : null}
+            </div>
             <div className="chart-header-controls">
               <div className="detail-view-switch" role="tablist" aria-label="统计维度">
                 <button
@@ -1139,16 +1236,36 @@ export default function AIAssistantPage() {
               </div>
             </div>
           </div>
-          <div className="chart-legend trend-legend">
-            {trendSeries.map((s) => (
-              <div key={s.id} className="chart-legend-item trend-legend-item" title={s.id}>
-                <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden>
-                  <line x1="1" y1="5" x2="21" y2="5" stroke={s.color} strokeWidth="2" />
-                  <circle cx="11" cy="5" r="3" fill={s.color} />
-                </svg>
-                {s.label}
-              </div>
-            ))}
+          <div className="chart-legend trend-legend" role="group" aria-label={detailView === 'model' ? '按模型筛选' : '按工具筛选'}>
+            {trendSeries.map((s) => {
+              const active = !focusSeriesId || focusSeriesId === s.id
+              const selected = focusSeriesId === s.id
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  className={`chart-legend-item trend-legend-item${selected ? ' is-selected' : ''}${!active ? ' is-dimmed' : ''}`}
+                  title={selected ? `取消筛选，显示全部` : `只看 ${s.label}`}
+                  aria-pressed={selected}
+                  onClick={() => setFocusSeriesId((prev) => (prev === s.id ? null : s.id))}
+                >
+                  <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden>
+                    <line x1="1" y1="5" x2="21" y2="5" stroke={s.color} strokeWidth="2" />
+                    <circle cx="11" cy="5" r="3" fill={s.color} />
+                  </svg>
+                  {s.label}
+                </button>
+              )
+            })}
+            {focusSeriesId && (
+              <button
+                type="button"
+                className="filter-btn trend-legend-clear"
+                onClick={() => setFocusSeriesId(null)}
+              >
+                显示全部
+              </button>
+            )}
           </div>
           <div
             className="line-chart tall trend-chart"
@@ -1371,26 +1488,42 @@ export default function AIAssistantPage() {
       {/* 消耗明细表：按工具 / 按模型 */}
       <div className="chart-card dash-section">
         <div className="chart-header">
-          <div className="chart-title">消耗明细</div>
-          <div className="detail-view-switch" role="tablist" aria-label="明细维度">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={detailView === 'tool'}
-              className={`filter-btn ${detailView === 'tool' ? 'active' : ''}`}
-              onClick={() => setDetailView('tool')}
-            >
-              按工具
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={detailView === 'model'}
-              className={`filter-btn ${detailView === 'model' ? 'active' : ''}`}
-              onClick={() => setDetailView('model')}
-            >
-              按模型
-            </button>
+          <div className="chart-title">
+            消耗明细
+            {focusSeriesLabel ? (
+              <span className="detail-focus-hint"> · {focusSeriesLabel}</span>
+            ) : null}
+          </div>
+          <div className="chart-header-controls">
+            {focusSeriesId && (
+              <button
+                type="button"
+                className="filter-btn"
+                onClick={() => setFocusSeriesId(null)}
+              >
+                显示全部
+              </button>
+            )}
+            <div className="detail-view-switch" role="tablist" aria-label="明细维度">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={detailView === 'tool'}
+                className={`filter-btn ${detailView === 'tool' ? 'active' : ''}`}
+                onClick={() => setDetailView('tool')}
+              >
+                按工具
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={detailView === 'model'}
+                className={`filter-btn ${detailView === 'model' ? 'active' : ''}`}
+                onClick={() => setDetailView('model')}
+              >
+                按模型
+              </button>
+            </div>
           </div>
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -1409,8 +1542,15 @@ export default function AIAssistantPage() {
               </tr>
             </thead>
             <tbody>
-              {modelRows.map((r) => (
-                <tr key={r.modelId}>
+              {visibleModelRows.map((r) => (
+                <tr
+                  key={r.modelId}
+                  className={`data-row-selectable${focusSeriesId === r.modelId ? ' is-selected' : ''}`}
+                  onClick={() =>
+                    setFocusSeriesId((prev) => (prev === r.modelId ? null : r.modelId))
+                  }
+                  title={focusSeriesId === r.modelId ? '取消筛选' : `只看 ${r.label}`}
+                >
                   <td>
                     <span className="tool-cell">
                       <strong>{r.label}</strong>
@@ -1432,7 +1572,7 @@ export default function AIAssistantPage() {
                   <td style={{ textAlign: 'right' }}>{formatNumber(r.avgDaily)}</td>
                 </tr>
               ))}
-              {modelRows.length === 0 && (
+              {visibleModelRows.length === 0 && (
                 <tr>
                   <td colSpan={8} style={{ textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
                     当前窗口暂无按模型用量
@@ -1440,25 +1580,25 @@ export default function AIAssistantPage() {
                 </tr>
               )}
             </tbody>
-            {modelRows.length > 0 && (
+            {visibleModelRows.length > 0 && (
               <tfoot>
                 <tr>
                   <td>合计</td>
                   <td />
                   <td style={{ textAlign: 'right' }}>
-                    {formatNumber(modelRows.reduce((s, r) => s + r.tokens, 0))}
+                    {formatNumber(visibleModelRows.reduce((s, r) => s + r.tokens, 0))}
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    {formatNumber(modelRows.reduce((s, r) => s + r.inputT, 0))}
+                    {formatNumber(visibleModelRows.reduce((s, r) => s + r.inputT, 0))}
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    {formatNumber(modelRows.reduce((s, r) => s + r.outputT, 0))}
+                    {formatNumber(visibleModelRows.reduce((s, r) => s + r.outputT, 0))}
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    {formatNumber(modelRows.reduce((s, r) => s + r.cacheT, 0))}
+                    {formatNumber(visibleModelRows.reduce((s, r) => s + r.cacheT, 0))}
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    {formatCost(modelRows.reduce((s, r) => s + r.cost, 0))}
+                    {formatCost(visibleModelRows.reduce((s, r) => s + r.cost, 0))}
                   </td>
                   <td />
                 </tr>
@@ -1481,8 +1621,15 @@ export default function AIAssistantPage() {
               </tr>
             </thead>
             <tbody>
-              {tableRows.map((r) => (
-                <tr key={r.toolId}>
+              {visibleTableRows.map((r) => (
+                <tr
+                  key={r.toolId}
+                  className={`data-row-selectable${focusSeriesId === r.toolId ? ' is-selected' : ''}`}
+                  onClick={() =>
+                    setFocusSeriesId((prev) => (prev === r.toolId ? null : r.toolId))
+                  }
+                  title={focusSeriesId === r.toolId ? '取消筛选' : `只看 ${r.name}`}
+                >
                   <td>
                     <span className="tool-cell">
                       <ToolLogo
@@ -1512,17 +1659,19 @@ export default function AIAssistantPage() {
                   </td>
                 </tr>
               ))}
-              {tableRows.length === 0 && (
+              {visibleTableRows.length === 0 && (
                 <tr>
                   <td colSpan={9} style={{ textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
-                    {catalog.length
-                      ? '已检测到工具，但当前窗口暂无用量'
-                      : '尚未检测到本机 AI 工具'}
+                    {focusSeriesId
+                      ? '当前筛选下暂无用量'
+                      : catalog.length
+                        ? '已检测到工具，但当前窗口暂无用量'
+                        : '尚未检测到本机 AI 工具'}
                   </td>
                 </tr>
               )}
             </tbody>
-            {tableRows.length > 0 && (
+            {visibleTableRows.length > 0 && (
               <tfoot>
                 <tr>
                   <td>合计</td>

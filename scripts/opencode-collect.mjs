@@ -81,12 +81,16 @@ function emptyPeriod() {
     clientCosts: {},
     clientActiveMs: {},
     clientCacheRead: {},
+    clientSessions: {},
+    clientMessages: {},
     models: {},
     modelCosts: {},
     modelClients: {},
     modelInput: {},
     modelOutput: {},
     modelCacheRead: {},
+    modelSessions: {},
+    modelMessages: {},
   }
 }
 
@@ -100,6 +104,8 @@ function addRowToPeriod(period, row) {
   const tokens = input + output + reasoning + cacheRead + cacheWrite
   const cost = Number(row.cost || 0)
   const modelId = parseModelId(row.model_raw)
+  const sessionId = row.session_id ? String(row.session_id) : ''
+  const userMsgs = Number(row.user_msgs || 0)
 
   period.inputTokens += input
   period.outputTokens += output
@@ -112,6 +118,14 @@ function addRowToPeriod(period, row) {
     (period.clientCosts[OPENCODE_CLIENT_ID] || 0) + cost
   period.clientCacheRead[OPENCODE_CLIENT_ID] =
     (period.clientCacheRead[OPENCODE_CLIENT_ID] || 0) + cacheRead
+  if (sessionId) {
+    period.clientSessions[OPENCODE_CLIENT_ID] =
+      (period.clientSessions[OPENCODE_CLIENT_ID] || 0) + 1
+  }
+  if (userMsgs > 0) {
+    period.clientMessages[OPENCODE_CLIENT_ID] =
+      (period.clientMessages[OPENCODE_CLIENT_ID] || 0) + userMsgs
+  }
   const activeMs = Number(row.active_ms || 0)
   if (activeMs > 0) {
     period.clientActiveMs[OPENCODE_CLIENT_ID] =
@@ -126,6 +140,12 @@ function addRowToPeriod(period, row) {
       (period.modelOutput[modelId] || 0) + output + reasoning
     period.modelCacheRead[modelId] =
       (period.modelCacheRead[modelId] || 0) + cacheRead
+    if (sessionId) {
+      period.modelSessions[modelId] = (period.modelSessions[modelId] || 0) + 1
+    }
+    if (userMsgs > 0) {
+      period.modelMessages[modelId] = (period.modelMessages[modelId] || 0) + userMsgs
+    }
   }
 }
 
@@ -147,21 +167,28 @@ function queryRows(dbPath, sinceMs) {
   const since = Math.floor(sinceMs)
   const sql = `
     SELECT
-      time_updated AS ts,
-      strftime('%Y-%m-%d', time_updated/1000, 'unixepoch', 'localtime') AS day,
-      model               AS model_raw,
-      agent,
-      tokens_input        AS input,
-      tokens_output       AS output,
-      tokens_reasoning    AS reasoning,
-      tokens_cache_read   AS cache_read,
-      tokens_cache_write  AS cache_write,
-      cost,
-      (time_updated - time_created) AS active_ms
-    FROM session
-    WHERE time_updated >= ${since}
-      AND time_archived IS NULL
-    ORDER BY time_updated ASC
+      s.id                  AS session_id,
+      s.time_updated        AS ts,
+      strftime('%Y-%m-%d', s.time_updated/1000, 'unixepoch', 'localtime') AS day,
+      s.model               AS model_raw,
+      s.agent,
+      s.tokens_input        AS input,
+      s.tokens_output       AS output,
+      s.tokens_reasoning    AS reasoning,
+      s.tokens_cache_read   AS cache_read,
+      s.tokens_cache_write  AS cache_write,
+      s.cost,
+      (s.time_updated - s.time_created) AS active_ms,
+      (
+        SELECT COUNT(*)
+        FROM message m
+        WHERE m.session_id = s.id
+          AND json_extract(m.data, '$.role') = 'user'
+      ) AS user_msgs
+    FROM session s
+    WHERE s.time_updated >= ${since}
+      AND s.time_archived IS NULL
+    ORDER BY s.time_updated ASC
   `
   let raw
   try {

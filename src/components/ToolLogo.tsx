@@ -6,6 +6,7 @@ const LOGO: Record<string, string> = {
   kimi: 'kimi.svg',
   cursor: 'cursor.svg',
   opencode: 'opencode.svg',
+  qoder: 'qoder.svg',
 }
 
 /** Claude 走 OpenRouter 时显示 OpenRouter 品牌标 */

@@ -72,6 +72,7 @@ export function getToolColor(toolId: string): string {
     codex: '#10a37f',
     cursor: '#a3a3a3',
     opencode: '#5b8def',
+    qoder: '#0d9488',
   }
   return colors[toolId] || '#888'
 }
@@ -88,6 +89,7 @@ export function getToolName(toolId: string): string {
     codex: 'ChatGPT',
     cursor: 'Cursor',
     opencode: 'OpenCode',
+    qoder: 'Qoder',
   }
   return names[toolId] || toolId
 }
@@ -104,6 +106,7 @@ export function getToolIcon(toolId: string): string {
     codex: '🟢',
     cursor: '⬜',
     opencode: '🔵',
+    qoder: '🟩',
   }
   return icons[toolId] || '⚪'
 }

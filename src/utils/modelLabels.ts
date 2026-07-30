@@ -21,6 +21,10 @@ const MODEL_LABELS: Record<string, string> = {
   'gpt-5.6-terra': 'GPT-5.6 Terra',
   'gpt-5.6-luna': 'GPT-5.6 Luna',
   'claude-fable-5-thinking-high': 'Claude Fable 5',
+  ultimate: 'Ultimate',
+  performance: 'Performance',
+  efficient: 'Efficient',
+  lite: 'Lite',
 }
 
 export function formatModelLabel(raw: string): string {

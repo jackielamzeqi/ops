@@ -18,7 +18,13 @@ import { useTokenMonitor } from '../hooks/useTokenMonitor'
 import { useExchangeRate } from '../hooks/useExchangeRate'
 import { useModelLeaderboard } from '../hooks/useModelLeaderboard'
 import { countryLabel, formatContext, formatParams, formatScore, compactModelLabel } from '../lib/modelLeaderboard'
-import { launchLocalTool, type OfficialBilling, type TokenSnapshot } from '../lib/tokenMonitor'
+import {
+  launchLocalTool,
+  normalizeCursorSubscriptionCosts,
+  cacheHitPct,
+  type OfficialBilling,
+  type TokenSnapshot,
+} from '../lib/tokenMonitor'
 import { ToolLogo } from '../components/ToolLogo'
 import { CreatorLogo } from '../components/CreatorLogo'
 import { formatModelLabel } from '../utils/modelLabels'
@@ -299,7 +305,16 @@ export default function AIAssistantPage() {
     getDateRangeLabel,
   } = useAIAssistantStore()
 
-  const { status, snapshot, error, refresh } = useTokenMonitor(workEnv, account, accessToken)
+  const { status, snapshot: rawSnapshot, error, refresh } = useTokenMonitor(
+    workEnv,
+    account,
+    accessToken
+  )
+  /** Cursor Pro 订阅费用纠正（含旧缓存快照） */
+  const snapshot = useMemo(
+    () => (rawSnapshot ? normalizeCursorSubscriptionCosts(rawSnapshot) : null),
+    [rawSnapshot]
+  )
   const fx = useExchangeRate()
   const {
     data: leaderboard,
@@ -311,6 +326,8 @@ export default function AIAssistantPage() {
   const [detailView, setDetailView] = useState<'tool' | 'model'>('tool')
   /** 图例选中的工具/模型；null 表示显示全部 */
   const [focusSeriesId, setFocusSeriesId] = useState<string | null>(null)
+  /** 消耗明细表排序：默认按输入 Token 从大到小 */
+  const [detailSortKey, setDetailSortKey] = useState<string>('inputT')
   const [launchingId, setLaunchingId] = useState<string | null>(null)
   const [launchMsg, setLaunchMsg] = useState<string | null>(null)
 
@@ -332,7 +349,9 @@ export default function AIAssistantPage() {
               ? 'kimi'
               : toolId === 'opencode'
                 ? 'opencode'
-                : 'Cursor'
+                : toolId === 'qoder'
+                  ? 'qodercli'
+                  : 'Cursor'
       setLaunchMsg(
         toolId === 'cursor'
           ? `已打开 Cursor${r.via ? `（${r.via}）` : ''}`
@@ -869,10 +888,12 @@ export default function AIAssistantPage() {
   }, [breakdown])
 
   const tableRows = useMemo(() => {
-    const durBag =
+    const durMap =
       (period === '7d'
         ? snapshot?.durations?.week || usage?.clientActiveMs
         : snapshot?.durations?.month || usage?.clientActiveMs) || {}
+    const sessionsMap = usage?.clientSessions || {}
+    const messagesMap = usage?.clientMessages || {}
     return breakdown.map((b) => {
       const tool = aiTools.find((t) => t.id === b.toolId)
       const detected = snapshot?.tools.find((t) => t.id === b.toolId)
@@ -889,26 +910,30 @@ export default function AIAssistantPage() {
           : b.toolId === 'claude'
             ? detected?.configuredModel || ''
             : tool?.models[0] || ''
+      const inputT = summary.totalTokens
+        ? Math.round(b.tokens * (summary.inputTokens / Math.max(summary.totalTokens, 1)))
+        : 0
+      const outputT = summary.totalTokens
+        ? Math.round(b.tokens * (summary.outputTokens / Math.max(summary.totalTokens, 1)))
+        : 0
+      const cacheT =
+        typeof (usage?.clientCacheRead || {})[b.toolId] === 'number'
+          ? (usage?.clientCacheRead || {})[b.toolId]
+          : summary.totalTokens && usage?.cacheReadTokens
+            ? Math.round(b.tokens * (usage.cacheReadTokens / Math.max(summary.totalTokens, 1)))
+            : 0
       return {
         toolId: b.toolId,
         name,
         model,
         tokens: b.tokens,
-        // 输入/输出粗分：用全局比例估算
-        inputT: summary.totalTokens
-          ? Math.round(b.tokens * (summary.inputTokens / Math.max(summary.totalTokens, 1)))
-          : 0,
-        outputT: summary.totalTokens
-          ? Math.round(b.tokens * (summary.outputTokens / Math.max(summary.totalTokens, 1)))
-          : 0,
-        cacheT:
-          typeof (usage?.clientCacheRead || {})[b.toolId] === 'number'
-            ? (usage?.clientCacheRead || {})[b.toolId]
-            : summary.totalTokens && usage?.cacheReadTokens
-              ? Math.round(b.tokens * (usage.cacheReadTokens / Math.max(summary.totalTokens, 1)))
-              : 0,
+        inputT,
+        outputT,
+        cacheT,
+        sessions: sessionsMap[b.toolId] || 0,
+        questions: messagesMap[b.toolId] || 0,
         cost: b.cost,
-        activeMs: durBag[b.toolId] || 0,
+        activeMs: durMap[b.toolId] || 0,
         avgDaily: days ? Math.round(b.tokens / days) : 0,
         spark,
         status: detected?.status,
@@ -924,6 +949,8 @@ export default function AIAssistantPage() {
     const inputs = usage.modelInput || {}
     const outputs = usage.modelOutput || {}
     const caches = usage.modelCacheRead || {}
+    const sessions = usage.modelSessions || {}
+    const messages = usage.modelMessages || {}
     const days = Math.max(history.filter((d) => d.totalTokens > 0).length, 1)
     return Object.entries(usage.models)
       .filter(([id, tokens]) => id !== '<synthetic>' && tokens > 0)
@@ -933,11 +960,13 @@ export default function AIAssistantPage() {
           modelId: id,
           label: formatModelLabel(id),
           toolId,
-          toolName: toolId ? getToolName(toolId) : '—',
+          toolName: toolId ? getToolName(toolId) : '\u2014',
           tokens,
           inputT: inputs[id] || 0,
           outputT: outputs[id] || 0,
           cacheT: caches[id] || 0,
+          sessions: sessions[id] || 0,
+          questions: messages[id] || 0,
           cost: usdToCny(costs[id] || 0, fx.rate),
           avgDaily: Math.round(tokens / days),
         }
@@ -946,14 +975,91 @@ export default function AIAssistantPage() {
   }, [usage, history, fx.rate])
 
   const visibleTableRows = useMemo(() => {
-    if (detailView !== 'tool' || !focusSeriesId) return tableRows
-    return tableRows.filter((r) => r.toolId === focusSeriesId)
-  }, [tableRows, detailView, focusSeriesId])
+    const rows =
+      detailView !== 'tool' || !focusSeriesId
+        ? tableRows
+        : tableRows.filter((r) => r.toolId === focusSeriesId)
+    const key = detailSortKey
+    const valueOf = (r: (typeof tableRows)[0]): number | string => {
+      if (key === 'name') return r.name
+      if (key === 'cachePct') return cacheHitPct(r.cacheT, r.inputT)
+      if (key === 'inputT') return r.inputT
+      if (key === 'outputT') return r.outputT
+      if (key === 'sessions') return r.sessions || 0
+      if (key === 'questions') return r.questions || 0
+      if (key === 'activeMs') return r.activeMs || 0
+      if (key === 'cost') return r.cost
+      if (key === 'avgDaily') return r.avgDaily
+      return r.tokens
+    }
+    return [...rows].sort((a, b) => {
+      const va = valueOf(a)
+      const vb = valueOf(b)
+      if (typeof va === 'string' && typeof vb === 'string') {
+        return vb.localeCompare(va, 'zh-CN')
+      }
+      return Number(vb) - Number(va)
+    })
+  }, [tableRows, detailView, focusSeriesId, detailSortKey])
 
   const visibleModelRows = useMemo(() => {
-    if (detailView !== 'model' || !focusSeriesId) return modelRows
-    return modelRows.filter((r) => r.modelId === focusSeriesId)
-  }, [modelRows, detailView, focusSeriesId])
+    const rows =
+      detailView !== 'model' || !focusSeriesId
+        ? modelRows
+        : modelRows.filter((r) => r.modelId === focusSeriesId)
+    const key = detailSortKey
+    const valueOf = (r: (typeof modelRows)[0]): number | string => {
+      if (key === 'name' || key === 'label') return r.label
+      if (key === 'toolName') return r.toolName
+      if (key === 'cachePct') return cacheHitPct(r.cacheT, r.inputT)
+      if (key === 'inputT') return r.inputT
+      if (key === 'outputT') return r.outputT
+      if (key === 'sessions') return r.sessions || 0
+      if (key === 'questions') return r.questions || 0
+      if (key === 'cost') return r.cost
+      if (key === 'avgDaily') return r.avgDaily
+      return r.tokens
+    }
+    return [...rows].sort((a, b) => {
+      const va = valueOf(a)
+      const vb = valueOf(b)
+      if (typeof va === 'string' && typeof vb === 'string') {
+        return vb.localeCompare(va, 'zh-CN')
+      }
+      return Number(vb) - Number(va)
+    })
+  }, [modelRows, detailView, focusSeriesId, detailSortKey])
+
+  useEffect(() => {
+    setDetailSortKey('inputT')
+  }, [detailView])
+
+  const renderSortTh = (
+    label: string,
+    key: string,
+    align: 'left' | 'right' = 'left',
+    sortable = true
+  ) => {
+    if (!sortable) {
+      return <th style={{ textAlign: align }}>{label}</th>
+    }
+    const active = detailSortKey === key
+    return (
+      <th style={{ textAlign: align }}>
+        <button
+          type="button"
+          className={`th-sort${align === 'right' ? ' is-right' : ''}${active ? ' is-active' : ''}`}
+          onClick={() => setDetailSortKey(key)}
+          title={`按${label}从大到小排序`}
+        >
+          <span className="th-sort-label">{label}</span>
+          <span className="th-sort-mark" aria-hidden>
+            {active ? '↓' : ''}
+          </span>
+        </button>
+      </th>
+    )
+  }
 
   const focusSeriesLabel = useMemo(() => {
     if (!focusSeriesId) return null
@@ -971,12 +1077,21 @@ export default function AIAssistantPage() {
       inputT: visibleTableRows.reduce((s, r) => s + r.inputT, 0),
       outputT: visibleTableRows.reduce((s, r) => s + r.outputT, 0),
       cacheT: visibleTableRows.reduce((s, r) => s + r.cacheT, 0),
+      sessions: visibleTableRows.reduce((s, r) => s + (r.sessions || 0), 0),
+      questions: visibleTableRows.reduce((s, r) => s + (r.questions || 0), 0),
       cost: visibleTableRows.reduce((s, r) => s + r.cost, 0),
       activeMs: visibleTableRows.reduce((s, r) => s + (r.activeMs || 0), 0),
       avgDaily: summary.dailyAvgTokens,
     }),
     [visibleTableRows, summary]
   )
+
+  const formatCacheCell = (cacheT: number, inputT: number) => {
+    if (!(cacheT > 0) && !(inputT > 0)) return '—'
+    return formatPct(cacheHitPct(cacheT, inputT))
+  }
+
+  const detailPeriodLabel = getDateRangeLabel()
 
   const catalog = useMemo(() => {
     if (snapshot?.tools?.length) {
@@ -1052,7 +1167,9 @@ export default function AIAssistantPage() {
                     ? '打开终端并执行 kimi'
                     : id === 'opencode'
                       ? '打开终端并执行 opencode'
-                      : `调起 ${getToolName(id)}`
+                      : id === 'qoder'
+                        ? '打开终端并执行 qodercli'
+                        : `调起 ${getToolName(id)}`
           return (
             <button
               key={id}
@@ -1490,6 +1607,7 @@ export default function AIAssistantPage() {
         <div className="chart-header">
           <div className="chart-title">
             消耗明细
+            <span className="detail-period-hint"> · {detailPeriodLabel}</span>
             {focusSeriesLabel ? (
               <span className="detail-focus-hint"> · {focusSeriesLabel}</span>
             ) : null}
@@ -1531,14 +1649,15 @@ export default function AIAssistantPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>模型</th>
-                <th>所属工具</th>
-                <th style={{ textAlign: 'right' }}>总 Token</th>
-                <th style={{ textAlign: 'right' }}>输入 Token</th>
-                <th style={{ textAlign: 'right' }}>输出 Token</th>
-                <th style={{ textAlign: 'right' }}>命中缓存</th>
-                <th style={{ textAlign: 'right' }}>费用（估算）</th>
-                <th style={{ textAlign: 'right' }}>日均 Token</th>
+                {renderSortTh('模型', 'label')}
+                {renderSortTh('所属工具', 'toolName')}
+                {renderSortTh('输入', 'inputT', 'right')}
+                {renderSortTh('输出', 'outputT', 'right')}
+                {renderSortTh('命中缓存', 'cachePct', 'right')}
+                {renderSortTh('会话数', 'sessions', 'right')}
+                {renderSortTh('提问次数', 'questions', 'right')}
+                {renderSortTh('预估费用', 'cost', 'right')}
+                {renderSortTh('日均 Token', 'avgDaily', 'right')}
               </tr>
             </thead>
             <tbody>
@@ -1552,13 +1671,9 @@ export default function AIAssistantPage() {
                   title={focusSeriesId === r.modelId ? '取消筛选' : `只看 ${r.label}`}
                 >
                   <td>
-                    <span className="tool-cell">
-                      <strong>{r.label}</strong>
-                      <span className="tool-model">{r.modelId}</span>
-                    </span>
+                    <strong>{r.label}</strong>
                   </td>
                   <td>{r.toolName}</td>
-                  <td style={{ textAlign: 'right' }}>{formatNumber(r.tokens)}</td>
                   <td style={{ textAlign: 'right', color: 'var(--color-text-secondary)' }}>
                     {formatNumber(r.inputT)}
                   </td>
@@ -1566,15 +1681,17 @@ export default function AIAssistantPage() {
                     {formatNumber(r.outputT)}
                   </td>
                   <td style={{ textAlign: 'right', color: 'var(--color-text-secondary)' }}>
-                    {formatNumber(r.cacheT)}
+                    {formatCacheCell(r.cacheT, r.inputT)}
                   </td>
+                  <td style={{ textAlign: 'right' }}>{formatNumber(r.sessions)}</td>
+                  <td style={{ textAlign: 'right' }}>{formatNumber(r.questions)}</td>
                   <td style={{ textAlign: 'right' }}>{formatCost(r.cost)}</td>
                   <td style={{ textAlign: 'right' }}>{formatNumber(r.avgDaily)}</td>
                 </tr>
               ))}
               {visibleModelRows.length === 0 && (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
+                  <td colSpan={9} style={{ textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
                     当前窗口暂无按模型用量
                   </td>
                 </tr>
@@ -1586,16 +1703,22 @@ export default function AIAssistantPage() {
                   <td>合计</td>
                   <td />
                   <td style={{ textAlign: 'right' }}>
-                    {formatNumber(visibleModelRows.reduce((s, r) => s + r.tokens, 0))}
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
                     {formatNumber(visibleModelRows.reduce((s, r) => s + r.inputT, 0))}
                   </td>
                   <td style={{ textAlign: 'right' }}>
                     {formatNumber(visibleModelRows.reduce((s, r) => s + r.outputT, 0))}
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    {formatNumber(visibleModelRows.reduce((s, r) => s + r.cacheT, 0))}
+                    {formatCacheCell(
+                      visibleModelRows.reduce((s, r) => s + r.cacheT, 0),
+                      visibleModelRows.reduce((s, r) => s + r.inputT, 0)
+                    )}
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
+                    {formatNumber(visibleModelRows.reduce((s, r) => s + r.sessions, 0))}
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
+                    {formatNumber(visibleModelRows.reduce((s, r) => s + r.questions, 0))}
                   </td>
                   <td style={{ textAlign: 'right' }}>
                     {formatCost(visibleModelRows.reduce((s, r) => s + r.cost, 0))}
@@ -1609,15 +1732,16 @@ export default function AIAssistantPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>工具名称</th>
-                <th style={{ textAlign: 'right' }}>总 Token</th>
-                <th style={{ textAlign: 'right' }}>输入 Token</th>
-                <th style={{ textAlign: 'right' }}>输出 Token</th>
-                <th style={{ textAlign: 'right' }}>命中缓存</th>
-                <th style={{ textAlign: 'right' }}>运行时长</th>
-                <th style={{ textAlign: 'right' }}>费用（估算）</th>
-                <th style={{ textAlign: 'right' }}>日均 Token</th>
-                <th>趋势</th>
+                {renderSortTh('工具名称', 'name')}
+                {renderSortTh('输入', 'inputT', 'right')}
+                {renderSortTh('输出', 'outputT', 'right')}
+                {renderSortTh('命中缓存', 'cachePct', 'right')}
+                {renderSortTh('会话数', 'sessions', 'right')}
+                {renderSortTh('提问次数', 'questions', 'right')}
+                {renderSortTh('运行时长', 'activeMs', 'right')}
+                {renderSortTh('预估费用', 'cost', 'right')}
+                {renderSortTh('日均 Token', 'avgDaily', 'right')}
+                {renderSortTh('趋势', 'tokens', 'left', false)}
               </tr>
             </thead>
             <tbody>
@@ -1638,10 +1762,8 @@ export default function AIAssistantPage() {
                         size={16}
                       />
                       {r.name}
-                      {r.model ? <span className="tool-model">({r.model})</span> : null}
                     </span>
                   </td>
-                  <td style={{ textAlign: 'right' }}>{formatNumber(r.tokens)}</td>
                   <td style={{ textAlign: 'right', color: 'var(--color-text-secondary)' }}>
                     {formatNumber(r.inputT)}
                   </td>
@@ -1649,8 +1771,10 @@ export default function AIAssistantPage() {
                     {formatNumber(r.outputT)}
                   </td>
                   <td style={{ textAlign: 'right', color: 'var(--color-text-secondary)' }}>
-                    {formatNumber(r.cacheT)}
+                    {formatCacheCell(r.cacheT, r.inputT)}
                   </td>
+                  <td style={{ textAlign: 'right' }}>{formatNumber(r.sessions)}</td>
+                  <td style={{ textAlign: 'right' }}>{formatNumber(r.questions)}</td>
                   <td style={{ textAlign: 'right' }}>{formatDuration(r.activeMs)}</td>
                   <td style={{ textAlign: 'right' }}>{formatCost(r.cost)}</td>
                   <td style={{ textAlign: 'right' }}>{formatNumber(r.avgDaily)}</td>
@@ -1661,7 +1785,7 @@ export default function AIAssistantPage() {
               ))}
               {visibleTableRows.length === 0 && (
                 <tr>
-                  <td colSpan={9} style={{ textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
+                  <td colSpan={10} style={{ textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
                     {focusSeriesId
                       ? '当前筛选下暂无用量'
                       : catalog.length
@@ -1675,10 +1799,13 @@ export default function AIAssistantPage() {
               <tfoot>
                 <tr>
                   <td>合计</td>
-                  <td style={{ textAlign: 'right' }}>{formatNumber(totals.tokens)}</td>
                   <td style={{ textAlign: 'right' }}>{formatNumber(totals.inputT)}</td>
                   <td style={{ textAlign: 'right' }}>{formatNumber(totals.outputT)}</td>
-                  <td style={{ textAlign: 'right' }}>{formatNumber(totals.cacheT)}</td>
+                  <td style={{ textAlign: 'right' }}>
+                    {formatCacheCell(totals.cacheT, totals.inputT)}
+                  </td>
+                  <td style={{ textAlign: 'right' }}>{formatNumber(totals.sessions)}</td>
+                  <td style={{ textAlign: 'right' }}>{formatNumber(totals.questions)}</td>
                   <td style={{ textAlign: 'right' }}>{formatDuration(totals.activeMs)}</td>
                   <td style={{ textAlign: 'right' }}>{formatCost(totals.cost)}</td>
                   <td style={{ textAlign: 'right' }}>{formatNumber(totals.avgDaily)}</td>

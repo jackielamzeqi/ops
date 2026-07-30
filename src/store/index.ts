@@ -572,6 +572,7 @@ const defaultQuotas: QuotaMap = {
   kimi: 15_000_000,
   cursor: 15_000_000,
   opencode: 15_000_000,
+  qoder: 15_000_000,
 }
 
 interface SubscriptionState {

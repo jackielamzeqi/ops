@@ -21,6 +21,18 @@ import {
   OPENCODE_CLIENT_ID,
   OPENCODE_DB_BASE,
 } from './opencode-collect.mjs'
+import {
+  collectQoder,
+  findQoderDataDir,
+  readQoderActiveModel,
+  QODER_CLIENT_ID,
+  QODER_DATA_BASE,
+} from './qoder-collect.mjs'
+import {
+  collectLocalSessionStats,
+  applyLocalSessionStats,
+  collectCursorActiveMs,
+} from './session-stats-collect.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(__dirname, '..')
@@ -29,12 +41,13 @@ const PORT = Number(process.env.TOKEN_AGENT_PORT || 3847)
 const HOST = process.env.TOKEN_AGENT_HOST || '127.0.0.1'
 const CACHE_MS = Number(process.env.TOKEN_AGENT_CACHE_MS || 60_000)
 const CLIENTS = ['claude', 'codex', 'kimi', 'cursor']
-// OpenCode 走本地 SQLite，不经 tokscale；单独在 collectSnapshot 内并入快照
-const NON_TOKSCALE_TOOLS = [OPENCODE_CLIENT_ID]
+// OpenCode / Qoder 走本地文件，不经 tokscale；单独在 collectSnapshot 内并入快照
+const NON_TOKSCALE_TOOLS = [OPENCODE_CLIENT_ID, QODER_CLIENT_ID]
 const TOOL_BIN_DIRS = [
   path.join(os.homedir(), '.local', 'bin'),
   path.join(os.homedir(), '.kimi-code', 'bin'),
   path.join(os.homedir(), '.opencode', 'bin'),
+  path.join(os.homedir(), '.qoder', 'bin'),
 ]
 
 const TOOL_DEFS = [
@@ -83,6 +96,14 @@ const TOOL_DEFS = [
     // 仅用于本地 DB 采集，没有 tokscale 后端
     tokscaleClient: null,
     launch: { kind: 'cli', command: 'opencode' },
+  },
+  {
+    id: 'qoder',
+    name: 'Qoder',
+    binaries: ['qodercli', 'qoder'],
+    dataPaths: [QODER_DATA_BASE, '.qoder/projects', '.qoder/logs'],
+    tokscaleClient: null,
+    launch: { kind: 'cli', command: 'qodercli' },
   },
 ]
 
@@ -292,6 +313,11 @@ function formatModelShort(raw) {
     'opencode-go/glm-5.2': 'GLM 5.2',
     'composer-2.5-fast': 'Composer 2.5',
     'cursor-grok-4.5-high-fast': 'Grok 4.5',
+    ultimate: 'Ultimate',
+    auto: 'Auto',
+    performance: 'Performance',
+    efficient: 'Efficient',
+    lite: 'Lite',
   }
   if (labels[key]) return labels[key]
   const slug = key.includes('/') ? key.split('/').pop() : key
@@ -544,6 +570,18 @@ function detectTools(usageHint = null) {
         dataDirs: findOpenCodeDb() ? [...dataDirs, findOpenCodeDb()] : dataDirs,
       }
     }
+    if (def.id === 'qoder' && installed) {
+      const active = readQoderActiveModel()
+      const label = active ? formatModelShort(active.raw) : null
+      const qd = findQoderDataDir()
+      return {
+        ...base,
+        provider: 'Qoder',
+        configuredModel: label,
+        displayName: def.name,
+        dataDirs: qd ? [...new Set([...dataDirs, qd])] : dataDirs,
+      }
+    }
     return base
   })
 }
@@ -609,12 +647,18 @@ function emptyPeriod() {
     clientCosts: {},
     clientActiveMs: {},
     clientCacheRead: {},
+    /** 唯一 sessionId 数量 */
+    clientSessions: {},
+    /** 提问次数（tokscale messageCount；近似 role=user） */
+    clientMessages: {},
     models: {},
     modelCosts: {},
     modelClients: {},
     modelInput: {},
     modelOutput: {},
     modelCacheRead: {},
+    modelSessions: {},
+    modelMessages: {},
   }
 }
 
@@ -632,11 +676,15 @@ function entryBillableTokens(e) {
 function periodFromEntries(payload) {
   const period = emptyPeriod()
   const entries = payload?.entries || []
+  const clientSessionSets = {}
+  const modelSessionSets = {}
   for (const e of entries) {
     const tokens = entryBillableTokens(e)
     const cost = Number(e.cost || 0)
     const client = e.client || 'unknown'
     const cacheRead = e.cacheRead || 0
+    const msgs = Number(e.messageCount || 0)
+    const sessionId = e.sessionId ? String(e.sessionId) : ''
     period.inputTokens += e.input || 0
     period.outputTokens += e.output || 0
     period.cacheReadTokens += cacheRead
@@ -645,6 +693,11 @@ function periodFromEntries(payload) {
     period.clients[client] = (period.clients[client] || 0) + tokens
     period.clientCosts[client] = (period.clientCosts[client] || 0) + cost
     period.clientCacheRead[client] = (period.clientCacheRead[client] || 0) + cacheRead
+    period.clientMessages[client] = (period.clientMessages[client] || 0) + msgs
+    if (sessionId) {
+      if (!clientSessionSets[client]) clientSessionSets[client] = new Set()
+      clientSessionSets[client].add(sessionId)
+    }
     // 部分客户端在 performance.totalDurationMs 有时长
     const dur = Number(e.performance?.totalDurationMs || 0)
     if (dur > 0) {
@@ -659,10 +712,97 @@ function periodFromEntries(payload) {
       period.modelOutput[model] =
         (period.modelOutput[model] || 0) + (e.output || 0) + (e.reasoning || 0)
       period.modelCacheRead[model] = (period.modelCacheRead[model] || 0) + cacheRead
+      period.modelMessages[model] = (period.modelMessages[model] || 0) + msgs
+      if (sessionId) {
+        if (!modelSessionSets[model]) modelSessionSets[model] = new Set()
+        modelSessionSets[model].add(sessionId)
+      }
     }
+  }
+  for (const [client, set] of Object.entries(clientSessionSets)) {
+    period.clientSessions[client] = set.size
+  }
+  for (const [model, set] of Object.entries(modelSessionSets)) {
+    period.modelSessions[model] = set.size
   }
   period.totalCostUsd = Math.round(period.totalCostUsd * 1e6) / 1e6
   return period
+}
+
+/** 解析 Cursor Pro 等订阅的月费上限（美元），默认 $20 */
+function cursorPlanUsdFromBilling(bill) {
+  if (!bill?.ok) return null
+  if (bill.billingMode !== 'subscription' && bill.kind !== 'plan_percent') return null
+  if (typeof bill.limitCents === 'number' && bill.limitCents > 0) {
+    return bill.limitCents / 100
+  }
+  const m = String(bill.priceLabel || '').match(/\$?\s*([\d.]+)/)
+  if (m) return Number(m[1])
+  if (String(bill.planName || '').toLowerCase().includes('pro')) return 20
+  return 20
+}
+
+/**
+ * Cursor 订阅套餐按「官方用量占比 × 月费」计费，且不超过月费上限。
+ * tokscale 会按 API 标价估出几百美元，对 Pro 订阅不成立。
+ */
+function rescaleClientCost(period, client, nextCost) {
+  if (!period?.clientCosts) return
+  const old = Number(period.clientCosts[client] || 0)
+  const next = Math.round(Math.max(0, nextCost) * 1e6) / 1e6
+  if (!(old > 0) || Math.abs(old - next) < 1e-9) {
+    period.clientCosts[client] = next
+    return
+  }
+  const ratio = next / old
+  period.clientCosts[client] = next
+  period.totalCostUsd = Math.round((Number(period.totalCostUsd || 0) - old + next) * 1e6) / 1e6
+  for (const [mid, tool] of Object.entries(period.modelClients || {})) {
+    if (tool !== client || !period.modelCosts?.[mid]) continue
+    period.modelCosts[mid] = Math.round(period.modelCosts[mid] * ratio * 1e6) / 1e6
+  }
+}
+
+function applyCursorSubscriptionCosts(snap) {
+  const bill = snap?.billing?.byTool?.cursor
+  const planUsd = cursorPlanUsdFromBilling(bill)
+  if (planUsd == null || !(planUsd > 0)) return
+
+  const monthTarget =
+    typeof bill.usedPercent === 'number'
+      ? Math.min(planUsd, (Math.max(0, bill.usedPercent) / 100) * planUsd)
+      : Math.min(Number(snap.month?.clientCosts?.cursor || 0), planUsd)
+
+  const weekCap = (planUsd * 7) / 31
+  const dayCap = planUsd / 31
+
+  if (snap.month) {
+    rescaleClientCost(
+      snap.month,
+      'cursor',
+      Math.min(Number(snap.month.clientCosts?.cursor || 0), monthTarget, planUsd)
+    )
+  }
+  if (snap.week) {
+    rescaleClientCost(
+      snap.week,
+      'cursor',
+      Math.min(Number(snap.week.clientCosts?.cursor || 0), weekCap)
+    )
+  }
+  if (snap.today) {
+    rescaleClientCost(
+      snap.today,
+      'cursor',
+      Math.min(Number(snap.today.clientCosts?.cursor || 0), dayCap)
+    )
+  }
+  for (const d of snap.history || []) {
+    rescaleClientCost(d, 'cursor', Math.min(Number(d.clientCosts?.cursor || 0), dayCap))
+  }
+  for (const t of snap.tools || []) {
+    if (t.id === 'cursor') t.monthCostUsd = snap.month?.clientCosts?.cursor || 0
+  }
 }
 
 /** 各工具运行时长（tokscale time-metrics） */
@@ -679,12 +819,16 @@ function mergePeriod(dst, src) {
     'clientCosts',
     'clientActiveMs',
     'clientCacheRead',
+    'clientSessions',
+    'clientMessages',
     'models',
     'modelCosts',
     'modelClients',
     'modelInput',
     'modelOutput',
     'modelCacheRead',
+    'modelSessions',
+    'modelMessages',
   ]) {
     const dstMap = dst[key] || {}
     const srcMap = src[key] || {}
@@ -830,9 +974,30 @@ async function collectSnapshot() {
   try {
     const [todayRaw, weekRaw, monthRaw, graphRaw, durToday, durWeek, durMonth] =
       await Promise.all([
-        runTokscale(['--json', '--client', clientCsv, '--group-by', 'client,model', '--today']),
-        runTokscale(['--json', '--client', clientCsv, '--group-by', 'client,model', '--week']),
-        runTokscale(['--json', '--client', clientCsv, '--group-by', 'client,model', '--month']),
+        runTokscale([
+          '--json',
+          '--client',
+          clientCsv,
+          '--group-by',
+          'client,session,model',
+          '--today',
+        ]),
+        runTokscale([
+          '--json',
+          '--client',
+          clientCsv,
+          '--group-by',
+          'client,session,model',
+          '--week',
+        ]),
+        runTokscale([
+          '--json',
+          '--client',
+          clientCsv,
+          '--group-by',
+          'client,session,model',
+          '--month',
+        ]),
         runTokscale(['graph', '--client', clientCsv, '--no-spinner']),
         collectClientActiveMs(clients, '--today'),
         collectClientActiveMs(clients, '--week'),
@@ -861,6 +1026,27 @@ async function collectSnapshot() {
     warnings.push(`tokscale 采集失败：${e.message || e}`)
   }
 
+  // Cursor：tokscale time-metrics 无时长，用 usage.csv 事件间隔估算
+  try {
+    const cursorDur = collectCursorActiveMs()
+    for (const range of ['today', 'week', 'month']) {
+      const ms = Number(cursorDur[range] || 0)
+      if (!(ms > 0)) continue
+      // tokscale 对 cursor 恒为 0，直接写入；若将来有官方值则仅在为 0 时回退
+      const cur = Number(durations[range]?.cursor || 0)
+      if (cur > 0) continue
+      if (!durations[range]) durations[range] = {}
+      durations[range].cursor = ms
+      const period = range === 'today' ? today : range === 'week' ? week : month
+      if (period) {
+        period.clientActiveMs = period.clientActiveMs || {}
+        period.clientActiveMs.cursor = ms
+      }
+    }
+  } catch (e) {
+    warnings.push(`Cursor 运行时长估算失败：${e.message || e}`)
+  }
+
   // OpenCode 数据来自本地 SQLite，独立采集后并入快照
   try {
     const oc = collectOpenCode()
@@ -881,6 +1067,41 @@ async function collectSnapshot() {
     }
   } catch (e) {
     warnings.push(`OpenCode 采集失败：${e.message || e}`)
+  }
+
+  // Qoder CLI：本地 session 日志 / transcript，独立采集后并入快照
+  try {
+    const qd = collectQoder()
+    if (qd.installed) {
+      mergePeriod(today, qd.today)
+      mergePeriod(week, qd.week)
+      mergePeriod(month, qd.month)
+      if (qd.history?.length) {
+        if (!history.length) history = []
+        mergeHistory(history, qd.history)
+      }
+      durations.today[QODER_CLIENT_ID] = qd.activeMs.today
+      durations.week[QODER_CLIENT_ID] = qd.activeMs.week
+      durations.month[QODER_CLIENT_ID] = qd.activeMs.month
+      today.clientActiveMs[QODER_CLIENT_ID] = qd.activeMs.today
+      week.clientActiveMs[QODER_CLIENT_ID] = qd.activeMs.week
+      month.clientActiveMs[QODER_CLIENT_ID] = qd.activeMs.month
+      if (qd.estimated) {
+        warnings.push('Qoder 日志未暴露精确 token，已按会话正文粗估')
+      }
+    }
+  } catch (e) {
+    warnings.push(`Qoder 采集失败：${e.message || e}`)
+  }
+
+  // 本机会话文件：纠正 Cursor 等工具的会话数 / 用户提问次数
+  try {
+    const localSessions = collectLocalSessionStats()
+    applyLocalSessionStats(today, localSessions.today)
+    applyLocalSessionStats(week, localSessions.week)
+    applyLocalSessionStats(month, localSessions.month)
+  } catch (e) {
+    warnings.push(`会话统计采集失败：${e.message || e}`)
   }
 
   // 用量出来后再补 Cursor 等模型标签
@@ -906,7 +1127,7 @@ async function collectSnapshot() {
     warnings.push(`官方额度查询失败：${e.message || e}`)
   }
 
-  return {
+  const snap = {
     ok: true,
     source: 'token-agent',
     reference: 'https://github.com/Javis603/token-monitor',
@@ -924,6 +1145,9 @@ async function collectSnapshot() {
     billing,
     warnings,
   }
+  // Cursor Pro 等订阅：费用不超过月套餐价（默认 $20）
+  applyCursorSubscriptionCosts(snap)
+  return snap
 }
 
 async function getSnapshot(force = false) {

@@ -30,6 +30,10 @@ export interface UsagePeriod {
   clientActiveMs?: Record<string, number>
   /** 各工具命中缓存 Token */
   clientCacheRead?: Record<string, number>
+  /** 各工具唯一 sessionId 数量 */
+  clientSessions?: Record<string, number>
+  /** 各工具提问次数（role=user / messageCount） */
+  clientMessages?: Record<string, number>
   models: Record<string, number>
   modelCosts?: Record<string, number>
   modelClients?: Record<string, string>
@@ -37,6 +41,8 @@ export interface UsagePeriod {
   modelOutput?: Record<string, number>
   /** 各模型命中缓存 Token */
   modelCacheRead?: Record<string, number>
+  modelSessions?: Record<string, number>
+  modelMessages?: Record<string, number>
 }
 
 export interface HistoryDay {
@@ -197,4 +203,111 @@ export async function launchLocalTool(toolId: string): Promise<{ ok: boolean; er
   return { ok: true, via: data.via }
 }
 
-export const MONITOR_TOOL_IDS = ['claude', 'codex', 'kimi', 'cursor', 'opencode'] as const
+export const MONITOR_TOOL_IDS = ['claude', 'codex', 'kimi', 'cursor', 'opencode', 'qoder'] as const
+
+/** Cursor Pro 等订阅月费上限（美元） */
+export function cursorPlanUsd(bill?: OfficialBilling | null): number | null {
+  if (!bill?.ok) return null
+  if (bill.billingMode !== 'subscription' && bill.kind !== 'plan_percent') return null
+  if (typeof bill.limitCents === 'number' && bill.limitCents > 0) return bill.limitCents / 100
+  const m = String(bill.priceLabel || '').match(/\$?\s*([\d.]+)/)
+  if (m) return Number(m[1])
+  if (String(bill.planName || '').toLowerCase().includes('pro')) return 20
+  return 20
+}
+
+function rescaleClientCostInPlace(
+  period: {
+    totalCostUsd?: number
+    clientCosts?: Record<string, number>
+    modelCosts?: Record<string, number>
+    modelClients?: Record<string, string>
+  },
+  client: string,
+  nextCost: number
+) {
+  if (!period.clientCosts) period.clientCosts = {}
+  const old = Number(period.clientCosts[client] || 0)
+  const next = Math.round(Math.max(0, nextCost) * 1e6) / 1e6
+  if (!(old > 0) || Math.abs(old - next) < 1e-9) {
+    period.clientCosts[client] = next
+    return
+  }
+  const ratio = next / old
+  period.clientCosts[client] = next
+  period.totalCostUsd = Math.round((Number(period.totalCostUsd || 0) - old + next) * 1e6) / 1e6
+  for (const [mid, tool] of Object.entries(period.modelClients || {})) {
+    if (tool !== client || !period.modelCosts?.[mid]) continue
+    period.modelCosts[mid] = Math.round(period.modelCosts[mid] * ratio * 1e6) / 1e6
+  }
+}
+
+/**
+ * 纠正 Cursor 订阅费用：按官方用量占比 × 月费估算，且不超过月套餐价（默认 $20）。
+ * 对已缓存的旧快照同样生效。
+ */
+export function normalizeCursorSubscriptionCosts(snapshot: TokenSnapshot): TokenSnapshot {
+  const bill = snapshot.billing?.byTool?.cursor
+  const planUsd = cursorPlanUsd(bill)
+  if (planUsd == null || !(planUsd > 0)) return snapshot
+
+  const next: TokenSnapshot = {
+    ...snapshot,
+    today: snapshot.today ? { ...snapshot.today, clientCosts: { ...snapshot.today.clientCosts }, modelCosts: { ...(snapshot.today.modelCosts || {}) } } : snapshot.today,
+    week: snapshot.week
+      ? { ...snapshot.week, clientCosts: { ...snapshot.week.clientCosts }, modelCosts: { ...(snapshot.week.modelCosts || {}) } }
+      : snapshot.week,
+    month: snapshot.month
+      ? { ...snapshot.month, clientCosts: { ...snapshot.month.clientCosts }, modelCosts: { ...(snapshot.month.modelCosts || {}) } }
+      : snapshot.month,
+    history: (snapshot.history || []).map((d) => ({
+      ...d,
+      clientCosts: { ...d.clientCosts },
+      modelCosts: { ...(d.modelCosts || {}) },
+    })),
+    tools: (snapshot.tools || []).map((t) => ({ ...t })),
+  }
+
+  const monthTarget =
+    typeof bill?.usedPercent === 'number'
+      ? Math.min(planUsd, (Math.max(0, bill.usedPercent) / 100) * planUsd)
+      : Math.min(Number(next.month?.clientCosts?.cursor || 0), planUsd)
+  const weekCap = (planUsd * 7) / 31
+  const dayCap = planUsd / 31
+
+  if (next.month) {
+    rescaleClientCostInPlace(
+      next.month,
+      'cursor',
+      Math.min(Number(next.month.clientCosts?.cursor || 0), monthTarget, planUsd)
+    )
+  }
+  if (next.week) {
+    rescaleClientCostInPlace(
+      next.week,
+      'cursor',
+      Math.min(Number(next.week.clientCosts?.cursor || 0), weekCap)
+    )
+  }
+  if (next.today) {
+    rescaleClientCostInPlace(
+      next.today,
+      'cursor',
+      Math.min(Number(next.today.clientCosts?.cursor || 0), dayCap)
+    )
+  }
+  for (const d of next.history || []) {
+    rescaleClientCostInPlace(d, 'cursor', Math.min(Number(d.clientCosts?.cursor || 0), dayCap))
+  }
+  for (const t of next.tools || []) {
+    if (t.id === 'cursor') t.monthCostUsd = next.month?.clientCosts?.cursor || 0
+  }
+  return next
+}
+
+/** 缓存命中率：cache / (input + cache) */
+export function cacheHitPct(cacheT: number, inputT: number): number {
+  const den = cacheT + inputT
+  if (!(den > 0)) return 0
+  return (cacheT / den) * 100
+}

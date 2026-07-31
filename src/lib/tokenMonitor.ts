@@ -242,14 +242,72 @@ function rescaleClientCostInPlace(
   }
 }
 
+/** ChatGPT 订阅月费合计（美元）：按已登记账号的套餐累加（如 2 × Plus $20 = $40） */
+export function chatgptPlanUsd(bill?: OfficialBilling | null): number | null {
+  if (!bill?.ok || bill.billingMode !== 'subscription') return null
+  const priceOf = (name?: string | null) => {
+    const n = String(name || 'plus').toLowerCase()
+    if (n.includes('pro')) return 200
+    if (n.includes('team')) return 30
+    if (n.includes('free')) return 0
+    return 20
+  }
+  const accounts = bill.accounts || []
+  if (accounts.length) return accounts.reduce((s, a) => s + priceOf(a.planName), 0)
+  return priceOf(bill.planName)
+}
+
+/** 将某工具的费用封顶到订阅月费：月 ≤ 套餐价，周/日按日历天数折算 */
+function capSubscriptionCostInPlace(
+  next: TokenSnapshot,
+  toolId: string,
+  planUsd: number,
+  monthTarget: number
+) {
+  const weekCap = (planUsd * 7) / 31
+  const dayCap = planUsd / 31
+  if (next.month) {
+    rescaleClientCostInPlace(
+      next.month,
+      toolId,
+      Math.min(Number(next.month.clientCosts?.[toolId] || 0), monthTarget, planUsd)
+    )
+  }
+  if (next.week) {
+    rescaleClientCostInPlace(
+      next.week,
+      toolId,
+      Math.min(Number(next.week.clientCosts?.[toolId] || 0), weekCap)
+    )
+  }
+  if (next.today) {
+    rescaleClientCostInPlace(
+      next.today,
+      toolId,
+      Math.min(Number(next.today.clientCosts?.[toolId] || 0), dayCap)
+    )
+  }
+  for (const d of next.history || []) {
+    rescaleClientCostInPlace(d, toolId, Math.min(Number(d.clientCosts?.[toolId] || 0), dayCap))
+  }
+  for (const t of next.tools || []) {
+    if (t.id === toolId) t.monthCostUsd = next.month?.clientCosts?.[toolId] || 0
+  }
+}
+
 /**
- * 纠正 Cursor 订阅费用：按官方用量占比 × 月费估算，且不超过月套餐价（默认 $20）。
+ * 纠正订阅制工具的预估费用：tokscale 按 API 标价会估出上千美元，
+ * 但 Cursor Pro / ChatGPT Plus 为包月订阅，实际支出不超过订阅月费。
  * 对已缓存的旧快照同样生效。
  */
-export function normalizeCursorSubscriptionCosts(snapshot: TokenSnapshot): TokenSnapshot {
-  const bill = snapshot.billing?.byTool?.cursor
-  const planUsd = cursorPlanUsd(bill)
-  if (planUsd == null || !(planUsd > 0)) return snapshot
+export function normalizeSubscriptionCosts(snapshot: TokenSnapshot): TokenSnapshot {
+  const cursorBill = snapshot.billing?.byTool?.cursor
+  const cursorPlan = cursorPlanUsd(cursorBill)
+  const codexBill = snapshot.billing?.byTool?.codex
+  const codexPlan = chatgptPlanUsd(codexBill)
+  const hasCursor = cursorPlan != null && cursorPlan > 0
+  const hasCodex = codexPlan != null && codexPlan > 0
+  if (!hasCursor && !hasCodex) return snapshot
 
   const next: TokenSnapshot = {
     ...snapshot,
@@ -268,39 +326,17 @@ export function normalizeCursorSubscriptionCosts(snapshot: TokenSnapshot): Token
     tools: (snapshot.tools || []).map((t) => ({ ...t })),
   }
 
-  const monthTarget =
-    typeof bill?.usedPercent === 'number'
-      ? Math.min(planUsd, (Math.max(0, bill.usedPercent) / 100) * planUsd)
-      : Math.min(Number(next.month?.clientCosts?.cursor || 0), planUsd)
-  const weekCap = (planUsd * 7) / 31
-  const dayCap = planUsd / 31
-
-  if (next.month) {
-    rescaleClientCostInPlace(
-      next.month,
-      'cursor',
-      Math.min(Number(next.month.clientCosts?.cursor || 0), monthTarget, planUsd)
-    )
+  if (hasCursor) {
+    // Cursor Dashboard 提供本账期用量占比，按占比 × 月费估算
+    const monthTarget =
+      typeof cursorBill?.usedPercent === 'number'
+        ? Math.min(cursorPlan, (Math.max(0, cursorBill.usedPercent) / 100) * cursorPlan)
+        : Math.min(Number(next.month?.clientCosts?.cursor || 0), cursorPlan)
+    capSubscriptionCostInPlace(next, 'cursor', cursorPlan, monthTarget)
   }
-  if (next.week) {
-    rescaleClientCostInPlace(
-      next.week,
-      'cursor',
-      Math.min(Number(next.week.clientCosts?.cursor || 0), weekCap)
-    )
-  }
-  if (next.today) {
-    rescaleClientCostInPlace(
-      next.today,
-      'cursor',
-      Math.min(Number(next.today.clientCosts?.cursor || 0), dayCap)
-    )
-  }
-  for (const d of next.history || []) {
-    rescaleClientCostInPlace(d, 'cursor', Math.min(Number(d.clientCosts?.cursor || 0), dayCap))
-  }
-  for (const t of next.tools || []) {
-    if (t.id === 'cursor') t.monthCostUsd = next.month?.clientCosts?.cursor || 0
+  if (hasCodex) {
+    // ChatGPT 的 usedPercent 是限流窗口占比而非账期进度，直接以订阅月费封顶
+    capSubscriptionCostInPlace(next, 'codex', codexPlan, codexPlan)
   }
   return next
 }

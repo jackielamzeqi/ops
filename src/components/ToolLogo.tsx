@@ -6,7 +6,7 @@ const LOGO: Record<string, string> = {
   kimi: 'kimi.svg',
   cursor: 'cursor.svg',
   opencode: 'opencode.svg',
-  qoder: 'qoder.svg',
+  qoder: 'qoder.png',
 }
 
 /** Claude 走 OpenRouter 时显示 OpenRouter 品牌标 */
@@ -20,7 +20,7 @@ export function resolveToolLogoId(toolId: string, provider?: string | null): str
 export function toolLogoSrc(toolId: string): string {
   const file = LOGO[toolId] || 'cursor.svg'
   const base = import.meta.env.BASE_URL || '/'
-  return `${base}icons/tools/${file}?v=3`
+  return `${base}icons/tools/${file}?v=5`
 }
 
 export function ToolLogo({

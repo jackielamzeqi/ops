@@ -830,6 +830,63 @@ function applyCursorSubscriptionCosts(snap) {
   }
 }
 
+/** ChatGPT 订阅月费合计（美元）：按已登记账号的套餐累加（如 2 × Plus $20 = $40） */
+function chatgptPlanUsdFromBilling(bill) {
+  if (!bill?.ok || bill.billingMode !== 'subscription') return null
+  const priceOf = (name) => {
+    const n = String(name || 'plus').toLowerCase()
+    if (n.includes('pro')) return 200
+    if (n.includes('team')) return 30
+    if (n.includes('free')) return 0
+    return 20
+  }
+  const accounts = Array.isArray(bill.accounts) ? bill.accounts : []
+  if (accounts.length) return accounts.reduce((s, a) => s + priceOf(a.planName), 0)
+  return priceOf(bill.planName)
+}
+
+/**
+ * ChatGPT（Codex CLI）订阅费用封顶：tokscale 按 API 标价会估出上千美元，
+ * 实际为包月订阅，月费用不超过订阅月费合计。
+ * ChatGPT 的 usedPercent 是限流窗口占比而非账期进度，故直接以月费封顶。
+ */
+function applyChatGPTSubscriptionCosts(snap) {
+  const bill = snap?.billing?.byTool?.codex
+  const planUsd = chatgptPlanUsdFromBilling(bill)
+  if (planUsd == null || !(planUsd > 0)) return
+
+  const weekCap = (planUsd * 7) / 31
+  const dayCap = planUsd / 31
+
+  if (snap.month) {
+    rescaleClientCost(
+      snap.month,
+      'codex',
+      Math.min(Number(snap.month.clientCosts?.codex || 0), planUsd)
+    )
+  }
+  if (snap.week) {
+    rescaleClientCost(
+      snap.week,
+      'codex',
+      Math.min(Number(snap.week.clientCosts?.codex || 0), weekCap)
+    )
+  }
+  if (snap.today) {
+    rescaleClientCost(
+      snap.today,
+      'codex',
+      Math.min(Number(snap.today.clientCosts?.codex || 0), dayCap)
+    )
+  }
+  for (const d of snap.history || []) {
+    rescaleClientCost(d, 'codex', Math.min(Number(d.clientCosts?.codex || 0), dayCap))
+  }
+  for (const t of snap.tools || []) {
+    if (t.id === 'codex') t.monthCostUsd = snap.month?.clientCosts?.codex || 0
+  }
+}
+
 /** 各工具运行时长（tokscale time-metrics） */
 /** 将同结构 src period 合并进 dst period（叠加数字 + 合并 clients/models map） */
 function mergePeriod(dst, src) {
@@ -1167,8 +1224,9 @@ async function collectSnapshot() {
     billing,
     warnings,
   }
-  // Cursor Pro 等订阅：费用不超过月套餐价（默认 $20）
+  // 订阅制工具：费用不超过订阅月费（Cursor Pro $20；ChatGPT Plus 按账号数累加）
   applyCursorSubscriptionCosts(snap)
+  applyChatGPTSubscriptionCosts(snap)
   return snap
 }
 

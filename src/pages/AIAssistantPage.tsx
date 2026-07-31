@@ -20,7 +20,7 @@ import { useModelLeaderboard } from '../hooks/useModelLeaderboard'
 import { countryLabel, formatContext, formatParams, formatScore, compactModelLabel } from '../lib/modelLeaderboard'
 import {
   launchLocalTool,
-  normalizeCursorSubscriptionCosts,
+  normalizeSubscriptionCosts,
   cacheHitPct,
   type OfficialBilling,
   type TokenSnapshot,
@@ -310,9 +310,9 @@ export default function AIAssistantPage() {
     account,
     accessToken
   )
-  /** Cursor Pro 订阅费用纠正（含旧缓存快照） */
+  /** Cursor Pro / ChatGPT Plus 订阅费用纠正（含旧缓存快照） */
   const snapshot = useMemo(
-    () => (rawSnapshot ? normalizeCursorSubscriptionCosts(rawSnapshot) : null),
+    () => (rawSnapshot ? normalizeSubscriptionCosts(rawSnapshot) : null),
     [rawSnapshot]
   )
   const fx = useExchangeRate()

@@ -2,13 +2,13 @@
   "schemaVersion": 2,
   "account": "jackielamzeqi",
   "workEnv": "personal",
-  "savedAt": "2026-07-31T06:21:54.471Z",
+  "savedAt": "2026-07-31T14:23:28.697Z",
   "snapshot": {
     "ok": true,
     "source": "token-agent",
     "reference": "https://github.com/Javis603/token-monitor",
     "engine": "tokscale",
-    "updatedAt": "2026-07-31T06:21:54.427Z",
+    "updatedAt": "2026-07-31T14:23:28.643Z",
     "hostname": "JK-MBP.local",
     "platform": "darwin-x64",
     "tools": [
@@ -246,7 +246,7 @@
         "cursor": 0
       },
       "clientActiveMs": {
-        "cursor": 7362457,
+        "cursor": 6270887,
         "opencode": 3541715,
         "qoder": 1775008
       },
@@ -383,7 +383,7 @@
         "qoder": 1775008
       },
       "week": {
-        "cursor": 7362457,
+        "cursor": 6270887,
         "opencode": 3541715,
         "qoder": 1775008
       },
@@ -464,11 +464,11 @@
           "planName": "Pro",
           "priceLabel": "$20/mo",
           "unit": "percent",
-          "usedPercent": 28.463768115942027,
-          "remainingPercent": 71.53623188405797,
-          "autoPercentUsed": 17.156666666666666,
+          "usedPercent": 29.56231884057971,
+          "remainingPercent": 70.4376811594203,
+          "autoPercentUsed": 18.42,
           "apiPercentUsed": 100,
-          "totalPercentUsed": 28.463768115942027,
+          "totalPercentUsed": 29.56231884057971,
           "limitCents": 2000,
           "includedSpendCents": 2000,
           "remainingCents": 0,
@@ -541,18 +541,21 @@
           "balanceCny": 0,
           "monthlyUsedCny": 25,
           "currency": "CNY",
-          "source": "kimi:/coding/v1/usages"
+          "source": "kimi:/coding/v1/usages",
+          "stale": true
         }
       },
       "errors": [
-        "ChatGPT usage HTTP 401（已显示上次成功结果）"
+        "ChatGPT usage HTTP 401（已显示上次成功结果）",
+        "Kimi usages HTTP 401（已显示上次成功结果）"
       ],
-      "updatedAt": "2026-07-31T06:21:54.427Z"
+      "updatedAt": "2026-07-31T14:23:28.643Z"
     },
     "warnings": [
       "tokscale 采集失败：tokscale timeout: --json --client claude,codex,kimi,cursor --group-by client,session,model --today",
       "Qoder 日志未暴露精确 token，已按会话正文粗估",
-      "ChatGPT usage HTTP 401（已显示上次成功结果）"
+      "ChatGPT usage HTTP 401（已显示上次成功结果）",
+      "Kimi usages HTTP 401（已显示上次成功结果）"
     ],
     "cached": false
   }

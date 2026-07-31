@@ -289,17 +289,16 @@ export interface AITool {
   icon: string
 }
 
-// 本机可检测工具优先（Codex / Claude / Kimi / Cursor / OpenCode / Qoder）
+// 本机可检测工具优先（Codex / Claude / Kimi / Cursor / OpenCode）
 // subscriptionPrice：目录默认美元/月；应用内持久化为人民币，编辑后按录入值直接展示
 // OpenCode 走按量计费（BYOK），目录默认 0；Token 用量来自本地 SQLite
-// Qoder 按 Credits 订阅；Token 用量来自本地 session 日志（日志无精确值时按正文粗估）
 export const aiTools: AITool[] = [
   { id: 'codex', name: 'ChatGPT', vendor: 'OpenAI', models: ['gpt-5.5', 'gpt-5.4-mini'], subscriptionPrice: 20, apiInputPrice: 18, apiOutputPrice: 72, color: '#10a37f', icon: '🟢' },
   { id: 'claude', name: 'Claude Code', vendor: 'Anthropic', models: ['Claude Sonnet', 'Claude Opus'], subscriptionPrice: 20, apiInputPrice: 22, apiOutputPrice: 108, color: '#d97757', icon: '🟠' },
   { id: 'kimi', name: 'Kimi Code', vendor: '月之暗面', models: ['kimi-for-coding', 'k3'], subscriptionPrice: 14, apiInputPrice: 8.6, apiOutputPrice: 8.6, color: '#6366f1', icon: '🔵' },
   { id: 'cursor', name: 'Cursor', vendor: 'Anysphere', models: ['Cursor Agent', 'Cursor CLI'], subscriptionPrice: 20, apiInputPrice: 0, apiOutputPrice: 0, color: '#a3a3a3', icon: '⬜' },
   { id: 'opencode', name: 'OpenCode', vendor: 'OpenCode', models: ['glm-5.2'], subscriptionPrice: 0, apiInputPrice: 0.5, apiOutputPrice: 1.5, color: '#5b8def', icon: '🔵' },
-  { id: 'qoder', name: 'Qoder', vendor: 'Qoder', models: ['Ultimate', 'Auto'], subscriptionPrice: 20, apiInputPrice: 0, apiOutputPrice: 0, color: '#0d9488', icon: '🟩' },
+  { id: 'qoder', name: 'Qoder', vendor: 'Qoder', models: ['auto', 'qmodel_preview'], subscriptionPrice: 0, apiInputPrice: 0, apiOutputPrice: 0, color: '#1366EC', icon: '🔷' },
 ]
 
 export type WorkEnvId = 'office' | 'personal' | 'cloud' | 'mobile'

@@ -23,10 +23,10 @@ import {
 } from './opencode-collect.mjs'
 import {
   collectQoder,
-  findQoderDataDir,
+  isQoderInstalled,
   readQoderActiveModel,
   QODER_CLIENT_ID,
-  QODER_DATA_BASE,
+  QODER_HOME,
 } from './qoder-collect.mjs'
 import {
   collectLocalSessionStats,
@@ -101,7 +101,7 @@ const TOOL_DEFS = [
     id: 'qoder',
     name: 'Qoder',
     binaries: ['qodercli', 'qoder'],
-    dataPaths: [QODER_DATA_BASE, '.qoder/projects', '.qoder/logs'],
+    dataPaths: [QODER_HOME, path.join(QODER_HOME, 'projects'), path.join(QODER_HOME, 'logs')],
     tokscaleClient: null,
     launch: { kind: 'cli', command: 'qodercli' },
   },
@@ -133,6 +133,34 @@ function which(bin) {
     const full = path.join(dir, bin)
     try {
       if (fs.existsSync(full) && fs.statSync(full).isFile()) return full
+      // Qoder：~/.qoder/bin/qodercli/ 是版本目录，内含 qodercli-*
+      if (bin === 'qodercli' && fs.existsSync(full) && fs.statSync(full).isDirectory()) {
+        const nested = fs
+          .readdirSync(full)
+          .filter((n) => n.startsWith('qodercli') && !n.includes('.'))
+          .map((n) => path.join(full, n))
+          .find((p) => {
+            try {
+              return fs.statSync(p).isFile()
+            } catch {
+              return false
+            }
+          })
+        if (nested) return nested
+        // 也匹配带版本号的可执行文件名 qodercli-1.1.9
+        const versioned = fs
+          .readdirSync(full)
+          .filter((n) => /^qodercli-/.test(n))
+          .map((n) => path.join(full, n))
+          .find((p) => {
+            try {
+              return fs.statSync(p).isFile()
+            } catch {
+              return false
+            }
+          })
+        if (versioned) return versioned
+      }
     } catch {
       /* continue */
     }
@@ -313,11 +341,7 @@ function formatModelShort(raw) {
     'opencode-go/glm-5.2': 'GLM 5.2',
     'composer-2.5-fast': 'Composer 2.5',
     'cursor-grok-4.5-high-fast': 'Grok 4.5',
-    ultimate: 'Ultimate',
-    auto: 'Auto',
-    performance: 'Performance',
-    efficient: 'Efficient',
-    lite: 'Lite',
+    qmodel_preview: 'QModel Preview',
   }
   if (labels[key]) return labels[key]
   const slug = key.includes('/') ? key.split('/').pop() : key
@@ -573,13 +597,14 @@ function detectTools(usageHint = null) {
     if (def.id === 'qoder' && installed) {
       const active = readQoderActiveModel()
       const label = active ? formatModelShort(active.raw) : null
-      const qd = findQoderDataDir()
       return {
         ...base,
         provider: 'Qoder',
         configuredModel: label,
         displayName: def.name,
-        dataDirs: qd ? [...new Set([...dataDirs, qd])] : dataDirs,
+        dataDirs: isQoderInstalled()
+          ? [...new Set([...dataDirs, QODER_HOME])]
+          : dataDirs,
       }
     }
     return base
@@ -1069,7 +1094,7 @@ async function collectSnapshot() {
     warnings.push(`OpenCode 采集失败：${e.message || e}`)
   }
 
-  // Qoder CLI：本地 session 日志 / transcript，独立采集后并入快照
+  // Qoder CLI：本地 segment JSONL，独立采集后并入快照
   try {
     const qd = collectQoder()
     if (qd.installed) {
@@ -1086,9 +1111,6 @@ async function collectSnapshot() {
       today.clientActiveMs[QODER_CLIENT_ID] = qd.activeMs.today
       week.clientActiveMs[QODER_CLIENT_ID] = qd.activeMs.week
       month.clientActiveMs[QODER_CLIENT_ID] = qd.activeMs.month
-      if (qd.estimated) {
-        warnings.push('Qoder 日志未暴露精确 token，已按会话正文粗估')
-      }
     }
   } catch (e) {
     warnings.push(`Qoder 采集失败：${e.message || e}`)

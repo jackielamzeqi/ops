@@ -72,7 +72,7 @@ export function getToolColor(toolId: string): string {
     codex: '#10a37f',
     cursor: '#a3a3a3',
     opencode: '#5b8def',
-    qoder: '#0d9488',
+    qoder: '#1366EC',
   }
   return colors[toolId] || '#888'
 }
@@ -106,7 +106,7 @@ export function getToolIcon(toolId: string): string {
     codex: '🟢',
     cursor: '⬜',
     opencode: '🔵',
-    qoder: '🟩',
+    qoder: '🔷',
   }
   return icons[toolId] || '⚪'
 }

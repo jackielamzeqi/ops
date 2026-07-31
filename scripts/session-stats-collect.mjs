@@ -9,6 +9,10 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import {
+  collectQoderSessionRanges,
+  QODER_CLIENT_ID,
+} from './qoder-collect.mjs'
 
 function emptyBucket() {
   return { sessions: 0, messages: 0 }
@@ -404,6 +408,7 @@ export function collectLocalSessionStats() {
     claude: collectClaude(),
     codex: collectCodex(),
     kimi: collectKimi(),
+    [QODER_CLIENT_ID]: collectQoderSessionRanges(),
   }
   const out = { today: {}, week: {}, month: {} }
   for (const range of ['today', 'week', 'month']) {

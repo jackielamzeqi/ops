@@ -2,13 +2,13 @@
   "schemaVersion": 2,
   "account": "jackielamzeqi",
   "workEnv": "personal",
-  "savedAt": "2026-07-30T17:41:49.227Z",
+  "savedAt": "2026-07-31T06:21:54.471Z",
   "snapshot": {
     "ok": true,
     "source": "token-agent",
     "reference": "https://github.com/Javis603/token-monitor",
     "engine": "tokscale",
-    "updatedAt": "2026-07-30T17:41:49.214Z",
+    "updatedAt": "2026-07-31T06:21:54.427Z",
     "hostname": "JK-MBP.local",
     "platform": "darwin-x64",
     "tools": [
@@ -28,12 +28,12 @@
           "/Users/jackie.lamzeqi/.claude"
         ],
         "apps": [],
-        "status": "active",
+        "status": "waiting",
         "provider": "OpenRouter",
         "configuredModel": "HY3",
         "displayName": "OpenRouter",
-        "monthTokens": 17536560,
-        "monthCostUsd": 2.265129487
+        "monthTokens": 0,
+        "monthCostUsd": 0
       },
       {
         "id": "codex",
@@ -51,12 +51,12 @@
           "/Users/jackie.lamzeqi/.codex"
         ],
         "apps": [],
-        "status": "active",
+        "status": "waiting",
         "provider": "openai",
         "configuredModel": "GPT-5.6 Sol",
         "displayName": "ChatGPT",
-        "monthTokens": 13160277,
-        "monthCostUsd": 4.963966987
+        "monthTokens": 0,
+        "monthCostUsd": 0
       },
       {
         "id": "kimi",
@@ -74,12 +74,12 @@
           "/Users/jackie.lamzeqi/.kimi-code"
         ],
         "apps": [],
-        "status": "active",
+        "status": "waiting",
         "provider": "Kimi Code",
         "configuredModel": "K2.7",
         "displayName": "Kimi Code",
-        "monthTokens": 19857091,
-        "monthCostUsd": 10.6733764
+        "monthTokens": 0,
+        "monthCostUsd": 0
       },
       {
         "id": "cursor",
@@ -107,12 +107,12 @@
         "apps": [
           "/Applications/Cursor.app"
         ],
-        "status": "active",
+        "status": "waiting",
         "provider": "Cursor",
         "configuredModel": "Auto",
         "displayName": "Cursor",
-        "monthTokens": 39817245,
-        "monthCostUsd": 5.487536
+        "monthTokens": 0,
+        "monthCostUsd": 0
       },
       {
         "id": "opencode",
@@ -136,6 +136,30 @@
         "displayName": "OpenCode",
         "monthTokens": 13938572,
         "monthCostUsd": 5.442376960000001
+      },
+      {
+        "id": "qoder",
+        "name": "Qoder",
+        "tokscaleClient": null,
+        "installed": true,
+        "binaries": [
+          {
+            "name": "qodercli",
+            "path": "/Users/jackie.lamzeqi/.local/bin/qodercli"
+          }
+        ],
+        "dataDirs": [
+          "/Users/jackie.lamzeqi/.qoder",
+          "/Users/jackie.lamzeqi/.qoder/projects",
+          "/Users/jackie.lamzeqi/.qoder/logs"
+        ],
+        "apps": [],
+        "status": "active",
+        "provider": "Qoder",
+        "configuredModel": "Auto",
+        "displayName": "Qoder",
+        "monthTokens": 17650,
+        "monthCostUsd": 0
       }
     ],
     "trackedClients": [
@@ -143,3316 +167,277 @@
       "codex",
       "kimi",
       "cursor",
-      "opencode"
+      "opencode",
+      "qoder"
     ],
     "today": {
-      "totalTokens": 726016,
-      "totalCostUsd": 0.645162,
-      "inputTokens": 635109,
-      "outputTokens": 90907,
-      "cacheReadTokens": 11993088,
+      "totalTokens": 17650,
+      "totalCostUsd": 0,
+      "inputTokens": 14023,
+      "outputTokens": 3627,
+      "cacheReadTokens": 0,
       "clients": {
-        "cursor": 726016
+        "qoder": 17650
       },
       "clientCosts": {
-        "cursor": 0.645161
+        "qoder": 0,
+        "cursor": 0
       },
       "clientActiveMs": {
-        "codex": 0,
-        "claude": 0,
-        "kimi": 0,
-        "cursor": 288081,
-        "opencode": 0
+        "cursor": 542971,
+        "opencode": 0,
+        "qoder": 1775008
       },
       "clientCacheRead": {
-        "cursor": 11993088
+        "qoder": 0
       },
       "clientSessions": {
-        "cursor": 3,
+        "qoder": 1,
+        "cursor": 5,
         "claude": 0,
         "codex": 0,
         "kimi": 0
       },
       "clientMessages": {
-        "cursor": 9,
+        "qoder": 7,
+        "cursor": 14,
         "claude": 0,
         "codex": 0,
         "kimi": 0
       },
       "models": {
-        "auto": 726016
+        "ultimate": 17650
       },
       "modelCosts": {
-        "auto": 0.645161
+        "ultimate": 0
       },
       "modelClients": {
-        "auto": "cursor"
+        "ultimate": "qoder"
       },
       "modelInput": {
-        "auto": 635109
+        "ultimate": 14023
       },
       "modelOutput": {
-        "auto": 90907
+        "ultimate": 3627
       },
       "modelCacheRead": {
-        "auto": 11993088
+        "ultimate": 0
       },
       "modelSessions": {
-        "auto": 3
+        "ultimate": 1
       },
       "modelMessages": {
-        "auto": 9
+        "ultimate": 7
       }
     },
     "week": {
-      "totalTokens": 46496076,
-      "totalCostUsd": 19.914189,
-      "inputTokens": 10027350,
-      "outputTokens": 1026976,
-      "cacheReadTokens": 159680320,
+      "totalTokens": 13956222,
+      "totalCostUsd": 5.442377,
+      "inputTokens": 1358559,
+      "outputTokens": 72607,
+      "cacheReadTokens": 12525056,
       "clients": {
-        "kimi": 13463936,
-        "cursor": 6667615,
-        "codex": 1729220,
-        "claude": 10696733,
-        "opencode": 13938572
+        "opencode": 13938572,
+        "qoder": 17650
       },
       "clientCosts": {
-        "kimi": 7.6617312,
-        "cursor": 4.516129,
-        "codex": 1.7732799999999997,
-        "claude": 0.520671095,
-        "opencode": 5.442376960000001
+        "opencode": 5.442376960000001,
+        "qoder": 0,
+        "cursor": 0
       },
       "clientActiveMs": {
-        "codex": 449929,
-        "claude": 1904551,
-        "cursor": 7167567,
-        "kimi": 4537012,
-        "opencode": 3541715
+        "cursor": 7362457,
+        "opencode": 3541715,
+        "qoder": 1775008
       },
       "clientCacheRead": {
-        "kimi": 12540928,
-        "cursor": 124240966,
-        "codex": 1615360,
-        "claude": 8758010,
-        "opencode": 12525056
+        "opencode": 12525056,
+        "qoder": 0
       },
       "clientSessions": {
-        "kimi": 4,
-        "cursor": 14,
-        "codex": 1,
+        "opencode": 2,
+        "qoder": 1,
+        "cursor": 16,
         "claude": 3,
-        "opencode": 2
+        "codex": 1,
+        "kimi": 4
       },
       "clientMessages": {
-        "kimi": 19,
-        "cursor": 124,
-        "codex": 4,
+        "opencode": 8,
+        "qoder": 7,
+        "cursor": 129,
         "claude": 11,
-        "opencode": 8
+        "codex": 4,
+        "kimi": 19
       },
       "models": {
-        "k3": 11434308,
-        "cursor-grok-4.5-high-fast": 1942360,
-        "claude-opus-5-thinking-high": 20083,
-        "claude-fable-5-thinking-high": 40945,
-        "gpt-5.6-sol-medium": 967249,
-        "gpt-5.6-sol": 1729220,
-        "tencent/hy3": 7120348,
-        "auto": 3538403,
-        "composer-2.5-fast": 158575,
-        "kimi-for-coding": 2029628,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 3576385,
-        "glm-5.2": 13938572
+        "glm-5.2": 13938572,
+        "ultimate": 17650
       },
       "modelCosts": {
-        "k3": 7.3347984,
-        "cursor-grok-4.5-high-fast": 1.368097,
-        "claude-opus-5-thinking-high": 0.235704,
-        "claude-fable-5-thinking-high": 0.71112,
-        "gpt-5.6-sol-medium": 2.000597,
-        "gpt-5.6-sol": 1.7732799999999997,
-        "tencent/hy3": 0.520671095,
-        "auto": 0.170062,
-        "composer-2.5-fast": 0.030549,
-        "kimi-for-coding": 0.3269328,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 0,
-        "glm-5.2": 5.442376960000001
+        "glm-5.2": 5.442376960000001,
+        "ultimate": 0
       },
       "modelClients": {
-        "k3": "kimi",
-        "cursor-grok-4.5-high-fast": "cursor",
-        "claude-opus-5-thinking-high": "cursor",
-        "claude-fable-5-thinking-high": "cursor",
-        "gpt-5.6-sol-medium": "cursor",
-        "gpt-5.6-sol": "codex",
-        "tencent/hy3": "claude",
-        "auto": "cursor",
-        "composer-2.5-fast": "cursor",
-        "kimi-for-coding": "kimi",
-        "nvidia/nemotron-3-ultra-550b-a55b:free": "claude",
-        "glm-5.2": "opencode"
+        "glm-5.2": "opencode",
+        "ultimate": "qoder"
       },
       "modelInput": {
-        "k3": 581639,
-        "cursor-grok-4.5-high-fast": 1752965,
-        "claude-opus-5-thinking-high": 66,
-        "claude-fable-5-thinking-high": 106,
-        "gpt-5.6-sol-medium": 824268,
-        "gpt-5.6-sol": 98008,
-        "tencent/hy3": 1519602,
-        "auto": 3206181,
-        "composer-2.5-fast": 143134,
-        "kimi-for-coding": 168973,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 387872,
-        "glm-5.2": 1344536
+        "glm-5.2": 1344536,
+        "ultimate": 14023
       },
       "modelOutput": {
-        "k3": 158781,
-        "cursor-grok-4.5-high-fast": 189395,
-        "claude-opus-5-thinking-high": 20017,
-        "claude-fable-5-thinking-high": 40839,
-        "gpt-5.6-sol-medium": 142981,
-        "gpt-5.6-sol": 15852,
-        "tencent/hy3": 19696,
-        "auto": 332222,
-        "composer-2.5-fast": 15441,
-        "kimi-for-coding": 13615,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 11553,
-        "glm-5.2": 68980
+        "glm-5.2": 68980,
+        "ultimate": 3627
       },
       "modelCacheRead": {
-        "k3": 10693888,
-        "cursor-grok-4.5-high-fast": 23979328,
-        "claude-opus-5-thinking-high": 5592524,
-        "claude-fable-5-thinking-high": 4974260,
-        "gpt-5.6-sol-medium": 49001866,
-        "gpt-5.6-sol": 1615360,
-        "tencent/hy3": 5581050,
-        "auto": 39974268,
-        "composer-2.5-fast": 718720,
-        "kimi-for-coding": 1847040,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 3176960,
-        "glm-5.2": 12525056
+        "glm-5.2": 12525056,
+        "ultimate": 0
       },
       "modelSessions": {
-        "k3": 3,
-        "cursor-grok-4.5-high-fast": 4,
-        "claude-opus-5-thinking-high": 0,
-        "claude-fable-5-thinking-high": 0,
-        "gpt-5.6-sol-medium": 2,
-        "gpt-5.6-sol": 1,
-        "tencent/hy3": 2,
-        "auto": 7,
-        "composer-2.5-fast": 0,
-        "kimi-for-coding": 1,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 1,
-        "glm-5.2": 2
+        "glm-5.2": 2,
+        "ultimate": 1
       },
       "modelMessages": {
-        "k3": 16,
-        "cursor-grok-4.5-high-fast": 36,
-        "claude-opus-5-thinking-high": 0,
-        "claude-fable-5-thinking-high": 1,
-        "gpt-5.6-sol-medium": 18,
-        "gpt-5.6-sol": 4,
-        "tencent/hy3": 7,
-        "auto": 66,
-        "composer-2.5-fast": 3,
-        "kimi-for-coding": 3,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 4,
-        "glm-5.2": 8
+        "glm-5.2": 8,
+        "ultimate": 7
       }
     },
     "month": {
-      "totalTokens": 104309745,
-      "totalCostUsd": 28.832386,
-      "inputTokens": 41847789,
-      "outputTokens": 4913584,
-      "cacheReadTokens": 632037206,
+      "totalTokens": 13956222,
+      "totalCostUsd": 5.442377,
+      "inputTokens": 1358559,
+      "outputTokens": 72607,
+      "cacheReadTokens": 12525056,
       "clients": {
-        "kimi": 19857091,
-        "cursor": 39817245,
-        "codex": 13160277,
-        "claude": 17536560,
-        "opencode": 13938572
+        "opencode": 13938572,
+        "qoder": 17650
       },
       "clientCosts": {
-        "kimi": 10.6733764,
-        "cursor": 5.487536,
-        "codex": 4.963966987,
-        "claude": 2.265129487,
-        "opencode": 5.442376960000001
+        "opencode": 5.442376960000001,
+        "qoder": 0,
+        "cursor": 0
       },
       "clientActiveMs": {
-        "codex": 3281958,
-        "claude": 5664499,
-        "kimi": 6042166,
-        "cursor": 33975952,
-        "opencode": 3541715
+        "cursor": 34230842,
+        "opencode": 3541715,
+        "qoder": 1775008
       },
       "clientCacheRead": {
-        "kimi": 18402148,
-        "cursor": 574511272,
-        "codex": 12113344,
-        "claude": 14485386,
-        "opencode": 12525056
+        "opencode": 12525056,
+        "qoder": 0
       },
       "clientSessions": {
-        "kimi": 5,
-        "cursor": 41,
-        "codex": 10,
+        "opencode": 2,
+        "qoder": 1,
+        "cursor": 43,
         "claude": 14,
-        "opencode": 2
+        "codex": 10,
+        "kimi": 5
       },
       "clientMessages": {
-        "kimi": 22,
-        "cursor": 427,
-        "codex": 31,
+        "opencode": 8,
+        "qoder": 7,
+        "cursor": 432,
         "claude": 33,
-        "opencode": 8
+        "codex": 31,
+        "kimi": 22
       },
       "models": {
-        "k3": 13911808,
-        "claude-fable-5-thinking-high": 102383,
-        "cursor-grok-4.5-high-fast": 10858921,
-        "claude-opus-5-thinking-high": 20083,
-        "gpt-5.6-sol-medium": 967249,
-        "grok-4.5-fast-xhigh": 2068447,
-        "gpt-5.6-sol": 1729220,
-        "gpt-5.5": 963021,
-        "gpt-5.4-mini": 8644098,
-        "z-ai/glm-5.2": 2943859,
-        "composer-2.5-fast": 622643,
-        "tencent/hy3": 9002678,
-        "auto": 25177519,
-        "kimi-for-coding": 5945283,
-        "hy3": 1823938,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 3576385,
-        "tencent/hy3:free": 2013638,
-        "glm-5.2": 13938572
+        "glm-5.2": 13938572,
+        "ultimate": 17650
       },
       "modelCosts": {
-        "k3": 9.7156719,
-        "claude-fable-5-thinking-high": 0.563169,
-        "cursor-grok-4.5-high-fast": 3.355488,
-        "claude-opus-5-thinking-high": 0.076269,
-        "gpt-5.6-sol-medium": 0.647353,
-        "grok-4.5-fast-xhigh": 0.4045,
-        "gpt-5.6-sol": 1.7732799999999997,
-        "gpt-5.5": 1.7519580000000001,
-        "gpt-5.4-mini": 1.1774478,
-        "z-ai/glm-5.2": 1.44581852,
-        "composer-2.5-fast": 0.049377,
-        "tencent/hy3": 0.8193109669999998,
-        "auto": 0.39138,
-        "kimi-for-coding": 0.9577045,
-        "hy3": 0.2612811870000001,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 0,
-        "tencent/hy3:free": 0,
-        "glm-5.2": 5.442376960000001
+        "glm-5.2": 5.442376960000001,
+        "ultimate": 0
       },
       "modelClients": {
-        "k3": "kimi",
-        "claude-fable-5-thinking-high": "cursor",
-        "cursor-grok-4.5-high-fast": "cursor",
-        "claude-opus-5-thinking-high": "cursor",
-        "gpt-5.6-sol-medium": "cursor",
-        "grok-4.5-fast-xhigh": "cursor",
-        "gpt-5.6-sol": "codex",
-        "gpt-5.5": "codex",
-        "gpt-5.4-mini": "codex",
-        "z-ai/glm-5.2": "claude",
-        "composer-2.5-fast": "cursor",
-        "tencent/hy3": "claude",
-        "auto": "cursor",
-        "kimi-for-coding": "kimi",
-        "hy3": "codex",
-        "nvidia/nemotron-3-ultra-550b-a55b:free": "claude",
-        "tencent/hy3:free": "claude",
-        "glm-5.2": "opencode"
+        "glm-5.2": "opencode",
+        "ultimate": "qoder"
       },
       "modelInput": {
-        "k3": 800696,
-        "claude-fable-5-thinking-high": 212,
-        "cursor-grok-4.5-high-fast": 9412351,
-        "claude-opus-5-thinking-high": 66,
-        "gpt-5.6-sol-medium": 824268,
-        "grok-4.5-fast-xhigh": 1825704,
-        "gpt-5.6-sol": 98008,
-        "gpt-5.5": 202416,
-        "gpt-5.4-mini": 458376,
-        "z-ai/glm-5.2": 431161,
-        "composer-2.5-fast": 556344,
-        "tencent/hy3": 1798696,
-        "auto": 22828424,
-        "kimi-for-coding": 361370,
-        "hy3": 196105,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 387872,
-        "tencent/hy3:free": 321184,
-        "glm-5.2": 1344536
+        "glm-5.2": 1344536,
+        "ultimate": 14023
       },
       "modelOutput": {
-        "k3": 229949,
-        "claude-fable-5-thinking-high": 102171,
-        "cursor-grok-4.5-high-fast": 1446570,
-        "claude-opus-5-thinking-high": 20017,
-        "gpt-5.6-sol-medium": 142981,
-        "grok-4.5-fast-xhigh": 242743,
-        "gpt-5.6-sol": 15852,
-        "gpt-5.5": 12189,
-        "gpt-5.4-mini": 49658,
-        "z-ai/glm-5.2": 45626,
-        "composer-2.5-fast": 66299,
-        "tencent/hy3": 40388,
-        "auto": 2349095,
-        "kimi-for-coding": 62928,
-        "hy3": 14329,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 11553,
-        "tencent/hy3:free": 14694,
-        "glm-5.2": 68980
+        "glm-5.2": 68980,
+        "ultimate": 3627
       },
       "modelCacheRead": {
-        "k3": 12881163,
-        "claude-fable-5-thinking-high": 12875936,
-        "cursor-grok-4.5-high-fast": 187335872,
-        "claude-opus-5-thinking-high": 5592524,
-        "gpt-5.6-sol-medium": 49001866,
-        "grok-4.5-fast-xhigh": 21474880,
-        "gpt-5.6-sol": 1615360,
-        "gpt-5.5": 748416,
-        "gpt-5.4-mini": 8136064,
-        "z-ai/glm-5.2": 2467072,
-        "composer-2.5-fast": 4501911,
-        "tencent/hy3": 7163594,
-        "auto": 293728283,
-        "kimi-for-coding": 5520985,
-        "hy3": 1613504,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 3176960,
-        "tencent/hy3:free": 1677760,
-        "glm-5.2": 12525056
+        "glm-5.2": 12525056,
+        "ultimate": 0
       },
       "modelSessions": {
-        "k3": 4,
-        "claude-fable-5-thinking-high": 0,
-        "cursor-grok-4.5-high-fast": 11,
-        "claude-opus-5-thinking-high": 0,
-        "gpt-5.6-sol-medium": 1,
-        "grok-4.5-fast-xhigh": 2,
-        "gpt-5.6-sol": 1,
-        "gpt-5.5": 1,
-        "gpt-5.4-mini": 7,
-        "z-ai/glm-5.2": 2,
-        "composer-2.5-fast": 1,
-        "tencent/hy3": 7,
-        "auto": 26,
-        "kimi-for-coding": 1,
-        "hy3": 1,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 3,
-        "tencent/hy3:free": 2,
-        "glm-5.2": 2
+        "glm-5.2": 2,
+        "ultimate": 1
       },
       "modelMessages": {
-        "k3": 15,
-        "claude-fable-5-thinking-high": 1,
-        "cursor-grok-4.5-high-fast": 116,
-        "claude-opus-5-thinking-high": 0,
-        "gpt-5.6-sol-medium": 10,
-        "grok-4.5-fast-xhigh": 22,
-        "gpt-5.6-sol": 4,
-        "gpt-5.5": 2,
-        "gpt-5.4-mini": 20,
-        "z-ai/glm-5.2": 6,
-        "composer-2.5-fast": 7,
-        "tencent/hy3": 17,
-        "auto": 270,
-        "kimi-for-coding": 7,
-        "hy3": 4,
-        "nvidia/nemotron-3-ultra-550b-a55b:free": 7,
-        "tencent/hy3:free": 4,
-        "glm-5.2": 8
+        "glm-5.2": 8,
+        "ultimate": 7
       }
     },
     "durations": {
       "today": {
-        "codex": 0,
-        "claude": 0,
-        "kimi": 0,
-        "cursor": 288081,
-        "opencode": 0
+        "cursor": 542971,
+        "opencode": 0,
+        "qoder": 1775008
       },
       "week": {
-        "codex": 449929,
-        "cursor": 7167567,
-        "claude": 1904551,
-        "kimi": 4537012,
-        "opencode": 3541715
+        "cursor": 7362457,
+        "opencode": 3541715,
+        "qoder": 1775008
       },
       "month": {
-        "codex": 3281958,
-        "kimi": 6042166,
-        "cursor": 33975952,
-        "claude": 5664499,
-        "opencode": 3541715
+        "cursor": 34230842,
+        "opencode": 3541715,
+        "qoder": 1775008
       }
     },
     "history": [
       {
-        "date": "2025-07-18",
-        "totalTokens": 2516,
-        "totalCostUsd": 0.002986,
-        "messages": 4,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 2516
-        },
-        "clientCosts": {
-          "cursor": 0.002986
-        },
-        "models": {
-          "auto": 2516
-        },
-        "modelCosts": {
-          "auto": 0.002986
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1305,
-          "output": 1211,
-          "cacheRead": 25856,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-09",
-        "totalTokens": 50190,
-        "totalCostUsd": 0.049312,
-        "messages": 6,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 50190
-        },
-        "clientCosts": {
-          "cursor": 0.049312
-        },
-        "models": {
-          "auto": 50190
-        },
-        "modelCosts": {
-          "auto": 0.049312
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 40690,
-          "output": 9500,
-          "cacheRead": 190464,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-10",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 7,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-11",
-        "totalTokens": 3836,
-        "totalCostUsd": 0.004386,
-        "messages": 3,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 3836
-        },
-        "clientCosts": {
-          "cursor": 0.004386
-        },
-        "models": {
-          "auto": 3836
-        },
-        "modelCosts": {
-          "auto": 0.004386
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 2228,
-          "output": 1608,
-          "cacheRead": 14592,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-12",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 1,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-14",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 2,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-15",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 2,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-16",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 4,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-19",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 2,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-20",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 5,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-21",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 1,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-22",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 1,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-23",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 1,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-27",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 2,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-03-31",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 2,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-04-01",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 5,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-04-08",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 1,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-04-09",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 1,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-04-10",
-        "totalTokens": 0,
-        "totalCostUsd": 0,
-        "messages": 1,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 0
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "auto": 0
-        },
-        "modelCosts": {
-          "auto": 0
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-04-25",
-        "totalTokens": 423789,
-        "totalCostUsd": 0.125916,
-        "messages": 13,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 423789
-        },
-        "clientCosts": {
-          "cursor": 0.125916
-        },
-        "models": {
-          "premium (codex 5.3)": 328306,
-          "auto": 91374,
-          "gpt-5.5-medium": 4109
-        },
-        "modelCosts": {
-          "premium (codex 5.3)": 0,
-          "auto": 0.081953,
-          "gpt-5.5-medium": 0.043963
-        },
-        "modelClients": {
-          "premium (codex 5.3)": "cursor",
-          "auto": "cursor",
-          "gpt-5.5-medium": "cursor"
-        },
-        "breakdown": {
-          "input": 385065,
-          "output": 38724,
-          "cacheRead": 1744000,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-04-27",
-        "totalTokens": 653949,
-        "totalCostUsd": 0.645161,
-        "messages": 14,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 653949
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "gpt-5.5-medium": 337372,
-          "premium (codex 5.3)": 289785,
-          "auto": 26792
-        },
-        "modelCosts": {
-          "gpt-5.5-medium": 0.639261,
-          "premium (codex 5.3)": 0,
-          "auto": 0.0059
-        },
-        "modelClients": {
-          "gpt-5.5-medium": "cursor",
-          "premium (codex 5.3)": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 635156,
-          "output": 18793,
-          "cacheRead": 2333952,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-04-28",
-        "totalTokens": 152009,
-        "totalCostUsd": 0.645161,
-        "messages": 6,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 152009
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "gpt-5.5-medium": 152009
-        },
-        "modelCosts": {
-          "gpt-5.5-medium": 0.645161
-        },
-        "modelClients": {
-          "gpt-5.5-medium": "cursor"
-        },
-        "breakdown": {
-          "input": 145356,
-          "output": 6653,
-          "cacheRead": 343040,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-04-29",
-        "totalTokens": 357846,
-        "totalCostUsd": 0.645161,
-        "messages": 6,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 357846
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "gpt-5.5-medium": 92651,
-          "premium (codex 5.3)": 265195
-        },
-        "modelCosts": {
-          "gpt-5.5-medium": 0.645161,
-          "premium (codex 5.3)": 0
-        },
-        "modelClients": {
-          "gpt-5.5-medium": "cursor",
-          "premium (codex 5.3)": "cursor"
-        },
-        "breakdown": {
-          "input": 326747,
-          "output": 31099,
-          "cacheRead": 2407040,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-09",
-        "totalTokens": 1123332,
-        "totalCostUsd": 0,
-        "messages": 10,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1123332
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "premium": 1123332,
-          "auto": 0
-        },
-        "modelCosts": {
-          "premium": 0,
-          "auto": 0
-        },
-        "modelClients": {
-          "premium": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1076071,
-          "output": 47261,
-          "cacheRead": 9794432,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-10",
-        "totalTokens": 226913,
-        "totalCostUsd": 0,
-        "messages": 10,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 226913
-        },
-        "clientCosts": {
-          "cursor": 0
-        },
-        "models": {
-          "premium": 226913
-        },
-        "modelCosts": {
-          "premium": 0
-        },
-        "modelClients": {
-          "premium": "cursor"
-        },
-        "breakdown": {
-          "input": 210566,
-          "output": 16347,
-          "cacheRead": 2158336,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-11",
-        "totalTokens": 617238,
-        "totalCostUsd": 0.180906,
-        "messages": 18,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 617238
-        },
-        "clientCosts": {
-          "cursor": 0.180906
-        },
-        "models": {
-          "composer-2-fast": 70873,
-          "auto": 0,
-          "premium": 546365
-        },
-        "modelCosts": {
-          "composer-2-fast": 0.180906,
-          "auto": 0,
-          "premium": 0
-        },
-        "modelClients": {
-          "composer-2-fast": "cursor",
-          "auto": "cursor",
-          "premium": "cursor"
-        },
-        "breakdown": {
-          "input": 598103,
-          "output": 19135,
-          "cacheRead": 4614560,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-12",
-        "totalTokens": 209103,
-        "totalCostUsd": 0.645161,
-        "messages": 7,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 209103
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "claude-opus-4-7-thinking-xhigh": 11182,
-          "premium": 197921
-        },
-        "modelCosts": {
-          "claude-opus-4-7-thinking-xhigh": 0.645161,
-          "premium": 0
-        },
-        "modelClients": {
-          "claude-opus-4-7-thinking-xhigh": "cursor",
-          "premium": "cursor"
-        },
-        "breakdown": {
-          "input": 195604,
-          "output": 13499,
-          "cacheRead": 1619737,
-          "cacheWrite": 1202420,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-14",
-        "totalTokens": 1875113,
-        "totalCostUsd": 0.645161,
-        "messages": 11,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1875113
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "claude-opus-4-7-thinking-xhigh": 36116,
-          "composer-2-fast": 1838997
-        },
-        "modelCosts": {
-          "claude-opus-4-7-thinking-xhigh": 0.538524,
-          "composer-2-fast": 0.106637
-        },
-        "modelClients": {
-          "claude-opus-4-7-thinking-xhigh": "cursor",
-          "composer-2-fast": "cursor"
-        },
-        "breakdown": {
-          "input": 1815051,
-          "output": 60062,
-          "cacheRead": 9495315,
-          "cacheWrite": 1779161,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-15",
-        "totalTokens": 23129,
-        "totalCostUsd": 0.645161,
-        "messages": 3,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 23129
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "claude-opus-4-7-thinking-xhigh": 23129
-        },
-        "modelCosts": {
-          "claude-opus-4-7-thinking-xhigh": 0.645161
-        },
-        "modelClients": {
-          "claude-opus-4-7-thinking-xhigh": "cursor"
-        },
-        "breakdown": {
-          "input": 21,
-          "output": 23108,
-          "cacheRead": 1162633,
-          "cacheWrite": 1183881,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-17",
-        "totalTokens": 134576,
-        "totalCostUsd": 0.12793,
-        "messages": 6,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 134576
-        },
-        "clientCosts": {
-          "cursor": 0.12793
-        },
-        "models": {
-          "auto": 134576
-        },
-        "modelCosts": {
-          "auto": 0.12793
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 115232,
-          "output": 19344,
-          "cacheRead": 1174016,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-19",
-        "totalTokens": 758349,
-        "totalCostUsd": 0.645161,
-        "messages": 8,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 758349
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "composer-2.5-fast": 754647,
-          "auto": 0,
-          "claude-opus-4-7-thinking-xhigh": 3702
-        },
-        "modelCosts": {
-          "composer-2.5-fast": 0.315592,
-          "auto": 0,
-          "claude-opus-4-7-thinking-xhigh": 0.329569
-        },
-        "modelClients": {
-          "composer-2.5-fast": "cursor",
-          "auto": "cursor",
-          "claude-opus-4-7-thinking-xhigh": "cursor"
-        },
-        "breakdown": {
-          "input": 707403,
-          "output": 50946,
-          "cacheRead": 4413185,
-          "cacheWrite": 422586,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-20",
-        "totalTokens": 70956,
-        "totalCostUsd": 0.175196,
-        "messages": 1,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 70956
-        },
-        "clientCosts": {
-          "cursor": 0.175196
-        },
-        "models": {
-          "composer-2.5-fast": 70956
-        },
-        "modelCosts": {
-          "composer-2.5-fast": 0.175196
-        },
-        "modelClients": {
-          "composer-2.5-fast": "cursor"
-        },
-        "breakdown": {
-          "input": 67709,
-          "output": 3247,
-          "cacheRead": 140800,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-21",
-        "totalTokens": 217062,
-        "totalCostUsd": 0.645161,
-        "messages": 8,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 217062
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "composer-2.5-fast": 217062,
-          "auto": 0
-        },
-        "modelCosts": {
-          "composer-2.5-fast": 0.645161,
-          "auto": 0
-        },
-        "modelClients": {
-          "composer-2.5-fast": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 189147,
-          "output": 27915,
-          "cacheRead": 3331008,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-22",
-        "totalTokens": 1601887,
-        "totalCostUsd": 0.645161,
-        "messages": 27,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1601887
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "composer-2.5-fast": 1028505,
-          "auto": 573382
-        },
-        "modelCosts": {
-          "composer-2.5-fast": 0.604179,
-          "auto": 0.040982
-        },
-        "modelClients": {
-          "composer-2.5-fast": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1300146,
-          "output": 301741,
-          "cacheRead": 18147520,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-27",
-        "totalTokens": 867457,
-        "totalCostUsd": 0.645161,
-        "messages": 12,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 867457
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 867457
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 847420,
-          "output": 20037,
-          "cacheRead": 4952715,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-28",
-        "totalTokens": 813825,
-        "totalCostUsd": 0.645161,
-        "messages": 16,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 813825
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "premium": 334164,
-          "claude-opus-4-7-thinking-xhigh": 53548,
-          "composer-2.5-fast": 426113
-        },
-        "modelCosts": {
-          "premium": 0,
-          "claude-opus-4-7-thinking-xhigh": 0.467775,
-          "composer-2.5-fast": 0.177386
-        },
-        "modelClients": {
-          "premium": "cursor",
-          "claude-opus-4-7-thinking-xhigh": "cursor",
-          "composer-2.5-fast": "cursor"
-        },
-        "breakdown": {
-          "input": 712108,
-          "output": 101717,
-          "cacheRead": 5465374,
-          "cacheWrite": 614626,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-29",
-        "totalTokens": 916977,
-        "totalCostUsd": 0.645161,
-        "messages": 12,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 916977
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "composer-2.5-fast": 114639,
-          "auto": 759435,
-          "claude-opus-4-7-thinking-xhigh": 42903
-        },
-        "modelCosts": {
-          "composer-2.5-fast": 0.085321,
-          "auto": 0.077547,
-          "claude-opus-4-7-thinking-xhigh": 0.482292
-        },
-        "modelClients": {
-          "composer-2.5-fast": "cursor",
-          "auto": "cursor",
-          "claude-opus-4-7-thinking-xhigh": "cursor"
-        },
-        "breakdown": {
-          "input": 813305,
-          "output": 103672,
-          "cacheRead": 11783716,
-          "cacheWrite": 117236,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-30",
-        "totalTokens": 2348355,
-        "totalCostUsd": 0.645161,
-        "messages": 41,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 2348355
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "claude-opus-4-8-thinking-high": 319199,
-          "composer-2.5-fast": 1025304,
-          "gpt-5.3-codex-high-fast": 150228,
-          "auto": 853624
-        },
-        "modelCosts": {
-          "claude-opus-4-8-thinking-high": 0.452761,
-          "composer-2.5-fast": 0.166344,
-          "gpt-5.3-codex-high-fast": 0.011501,
-          "auto": 0.014555
-        },
-        "modelClients": {
-          "claude-opus-4-8-thinking-high": "cursor",
-          "composer-2.5-fast": "cursor",
-          "gpt-5.3-codex-high-fast": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 2100865,
-          "output": 247490,
-          "cacheRead": 49744202,
-          "cacheWrite": 1211556,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-05-31",
-        "totalTokens": 1937332,
-        "totalCostUsd": 0.645161,
-        "messages": 30,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1937332
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 1937332
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1821043,
-          "output": 116289,
-          "cacheRead": 12207433,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-01",
-        "totalTokens": 1098961,
-        "totalCostUsd": 0.645161,
-        "messages": 38,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1098961
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "claude-opus-4-8-thinking-high": 18635,
-          "auto": 1080326
-        },
-        "modelCosts": {
-          "claude-opus-4-8-thinking-high": 0.339241,
-          "auto": 0.30592
-        },
-        "modelClients": {
-          "claude-opus-4-8-thinking-high": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 992505,
-          "output": 106456,
-          "cacheRead": 14434896,
-          "cacheWrite": 84155,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-02",
-        "totalTokens": 907567,
-        "totalCostUsd": 0.645161,
-        "messages": 21,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 907567
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "gpt-5.5-medium": 30478,
-          "auto": 877089
-        },
-        "modelCosts": {
-          "gpt-5.5-medium": 0.14939,
-          "auto": 0.495771
-        },
-        "modelClients": {
-          "gpt-5.5-medium": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 868921,
-          "output": 38646,
-          "cacheRead": 5433316,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-03",
-        "totalTokens": 3099375,
-        "totalCostUsd": 0.645161,
-        "messages": 69,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 3099375
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "claude-opus-4-8-thinking-high": 14170,
-          "auto": 3085205
-        },
-        "modelCosts": {
-          "claude-opus-4-8-thinking-high": 0.214618,
-          "auto": 0.430543
-        },
-        "modelClients": {
-          "claude-opus-4-8-thinking-high": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 2858993,
-          "output": 240382,
-          "cacheRead": 27891994,
-          "cacheWrite": 120713,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-04",
-        "totalTokens": 2325183,
-        "totalCostUsd": 0.645161,
-        "messages": 49,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 2325183
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 2325183
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 2149505,
-          "output": 175678,
-          "cacheRead": 26174397,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-09",
-        "totalTokens": 2533688,
-        "totalCostUsd": 0.645161,
-        "messages": 85,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 2533688
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 2533688
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 2311886,
-          "output": 221802,
-          "cacheRead": 33047475,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-10",
-        "totalTokens": 2604554,
-        "totalCostUsd": 0.645161,
-        "messages": 62,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 2604554
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 2388933,
-          "claude-fable-5-thinking-high": 29533,
-          "composer-2.5-fast": 186088
-        },
-        "modelCosts": {
-          "auto": 0.101392,
-          "claude-fable-5-thinking-high": 0.505879,
-          "composer-2.5-fast": 0.03789
-        },
-        "modelClients": {
-          "auto": "cursor",
-          "claude-fable-5-thinking-high": "cursor",
-          "composer-2.5-fast": "cursor"
-        },
-        "breakdown": {
-          "input": 2434439,
-          "output": 170115,
-          "cacheRead": 29595267,
-          "cacheWrite": 539369,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-11",
-        "totalTokens": 282357,
-        "totalCostUsd": 0.251312,
-        "messages": 9,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 282357
-        },
-        "clientCosts": {
-          "cursor": 0.251312
-        },
-        "models": {
-          "auto": 282357
-        },
-        "modelCosts": {
-          "auto": 0.251312
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 266202,
-          "output": 16155,
-          "cacheRead": 2604285,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-12",
-        "totalTokens": 582260,
-        "totalCostUsd": 0.551739,
-        "messages": 34,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 582260
-        },
-        "clientCosts": {
-          "cursor": 0.551739
-        },
-        "models": {
-          "auto": 582260
-        },
-        "modelCosts": {
-          "auto": 0.551739
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 501092,
-          "output": 81168,
-          "cacheRead": 23897545,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-13",
-        "totalTokens": 3787135,
-        "totalCostUsd": 0.645161,
-        "messages": 94,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 3787135
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 3787135
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 3440082,
-          "output": 347053,
-          "cacheRead": 68175625,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-15",
-        "totalTokens": 1568906,
-        "totalCostUsd": 0.645161,
-        "messages": 54,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1568906
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 1568906
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1375625,
-          "output": 193281,
-          "cacheRead": 20761409,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-16",
-        "totalTokens": 2276616,
-        "totalCostUsd": 0.645161,
-        "messages": 46,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 2276616
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 2276616
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 2097969,
-          "output": 178647,
-          "cacheRead": 18728708,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-17",
-        "totalTokens": 1209399,
-        "totalCostUsd": 0.645161,
-        "messages": 52,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1209399
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 1209399
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1098991,
-          "output": 110408,
-          "cacheRead": 18663100,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-18",
-        "totalTokens": 1248821,
-        "totalCostUsd": 0.645161,
-        "messages": 40,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1248821
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 1248821
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1100539,
-          "output": 148282,
-          "cacheRead": 19305563,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-23",
-        "totalTokens": 1570314,
-        "totalCostUsd": 0.645161,
-        "messages": 55,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1570314
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 1570314
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1343770,
-          "output": 226544,
-          "cacheRead": 41299820,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-24",
-        "totalTokens": 1324423,
-        "totalCostUsd": 0.645161,
-        "messages": 23,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1324423
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 1324423
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1249243,
-          "output": 75180,
-          "cacheRead": 11013279,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-25",
-        "totalTokens": 473507,
-        "totalCostUsd": 0.645161,
-        "messages": 24,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 473507
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 425233,
-          "claude-opus-4-8-thinking-high": 48274
-        },
-        "modelCosts": {
-          "auto": 0.023117,
-          "claude-opus-4-8-thinking-high": 0.622044
-        },
-        "modelClients": {
-          "auto": "cursor",
-          "claude-opus-4-8-thinking-high": "cursor"
-        },
-        "breakdown": {
-          "input": 396514,
-          "output": 76993,
-          "cacheRead": 9680608,
-          "cacheWrite": 924357,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-26",
-        "totalTokens": 18148,
-        "totalCostUsd": 0.645161,
-        "messages": 2,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 18148
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "claude-opus-4-8-thinking-high": 18148
-        },
-        "modelCosts": {
-          "claude-opus-4-8-thinking-high": 0.645161
-        },
-        "modelClients": {
-          "claude-opus-4-8-thinking-high": "cursor"
-        },
-        "breakdown": {
-          "input": 34,
-          "output": 18114,
-          "cacheRead": 1381237,
-          "cacheWrite": 299416,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-27",
-        "totalTokens": 4596,
-        "totalCostUsd": 0.645161,
-        "messages": 1,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 4596
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "claude-opus-4-8-thinking-high": 4596
-        },
-        "modelCosts": {
-          "claude-opus-4-8-thinking-high": 0.645161
-        },
-        "modelClients": {
-          "claude-opus-4-8-thinking-high": "cursor"
-        },
-        "breakdown": {
-          "input": 24,
-          "output": 4572,
-          "cacheRead": 643490,
-          "cacheWrite": 61754,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-06-28",
-        "totalTokens": 18060834,
-        "totalCostUsd": 14.964038,
-        "messages": 241,
-        "activeTimeMs": 2603216,
-        "clients": {
-          "cursor": 3406512,
-          "codex": 14654322
-        },
-        "clientCosts": {
-          "cursor": 0.645161,
-          "codex": 14.318876549999999
-        },
-        "models": {
-          "auto": 3406512,
-          "gpt-5.4-mini": 902166,
-          "gpt-5.5": 13752156
-        },
-        "modelCosts": {
-          "auto": 0.645161,
-          "gpt-5.4-mini": 0.16879155,
-          "gpt-5.5": 14.150084999999999
-        },
-        "modelClients": {
-          "auto": "cursor",
-          "gpt-5.4-mini": "codex",
-          "gpt-5.5": "codex"
-        },
-        "breakdown": {
-          "input": 4095190,
-          "output": 503218,
-          "cacheRead": 69276667,
-          "cacheWrite": 0,
-          "reasoning": 16282
-        }
-      },
-      {
-        "date": "2026-06-29",
-        "totalTokens": 9103793,
-        "totalCostUsd": 6.684855,
-        "messages": 88,
-        "activeTimeMs": 775926,
-        "clients": {
-          "codex": 6869401,
-          "cursor": 2234392
-        },
-        "clientCosts": {
-          "codex": 6.039694000000001,
-          "cursor": 0.645161
-        },
-        "models": {
-          "gpt-5.5": 6869401,
-          "auto": 2119879,
-          "claude-opus-4-8-thinking-high": 114513
-        },
-        "modelCosts": {
-          "gpt-5.5": 6.039694000000001,
-          "auto": 0.092313,
-          "claude-opus-4-8-thinking-high": 0.552848
-        },
-        "modelClients": {
-          "gpt-5.5": "codex",
-          "auto": "cursor",
-          "claude-opus-4-8-thinking-high": "cursor"
-        },
-        "breakdown": {
-          "input": 2339515,
-          "output": 294989,
-          "cacheRead": 49693792,
-          "cacheWrite": 478276,
-          "reasoning": 7081
-        }
-      },
-      {
-        "date": "2026-06-30",
-        "totalTokens": 1563299,
-        "totalCostUsd": 0.645161,
-        "messages": 28,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1563299
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 1563299
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1384541,
-          "output": 178758,
-          "cacheRead": 31475327,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-01",
-        "totalTokens": 3502254,
-        "totalCostUsd": 0.645161,
-        "messages": 56,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 3502254
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 3502254
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 3235164,
-          "output": 267090,
-          "cacheRead": 38287606,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-02",
-        "totalTokens": 2026342,
-        "totalCostUsd": 0.645161,
-        "messages": 29,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 2026342
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 2026342
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1845108,
-          "output": 181234,
-          "cacheRead": 13748509,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-03",
-        "totalTokens": 2473847,
-        "totalCostUsd": 0.645161,
-        "messages": 55,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 2473847
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 2473847
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 2204392,
-          "output": 269455,
-          "cacheRead": 28499680,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-04",
-        "totalTokens": 2341112,
-        "totalCostUsd": 0.645161,
-        "messages": 42,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 2341112
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 2295813,
-          "claude-fable-5-thinking-high": 45299
-        },
-        "modelCosts": {
-          "auto": 0.104407,
-          "claude-fable-5-thinking-high": 0.540754
-        },
-        "modelClients": {
-          "auto": "cursor",
-          "claude-fable-5-thinking-high": "cursor"
-        },
-        "breakdown": {
-          "input": 2141967,
-          "output": 199145,
-          "cacheRead": 19954694,
-          "cacheWrite": 451146,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-05",
-        "totalTokens": 9986079,
-        "totalCostUsd": 2.99644,
-        "messages": 132,
-        "activeTimeMs": 1173325,
-        "clients": {
-          "codex": 5243178,
-          "cursor": 4742901
-        },
-        "clientCosts": {
-          "codex": 2.3512788000000002,
-          "cursor": 0.645161
-        },
-        "models": {
-          "gpt-5.4-mini": 4280157,
-          "claude-fable-5-thinking-high": 16139,
-          "composer-2.5-fast": 220197,
-          "gpt-5.5": 963021,
-          "auto": 4506565
-        },
-        "modelCosts": {
-          "gpt-5.4-mini": 0.5993208,
-          "claude-fable-5-thinking-high": 0.403027,
-          "composer-2.5-fast": 0.055911,
-          "gpt-5.5": 1.7519580000000001,
-          "auto": 0.186224
-        },
-        "modelClients": {
-          "gpt-5.4-mini": "codex",
-          "claude-fable-5-thinking-high": "cursor",
-          "composer-2.5-fast": "cursor",
-          "gpt-5.5": "codex",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 4709260,
-          "output": 494788,
-          "cacheRead": 84225881,
-          "cacheWrite": 240234,
-          "reasoning": 12751
-        }
-      },
-      {
-        "date": "2026-07-06",
-        "totalTokens": 5892752,
-        "totalCostUsd": 1.223288,
-        "messages": 63,
-        "activeTimeMs": 386722,
-        "clients": {
-          "cursor": 1528811,
-          "codex": 4363941
-        },
-        "clientCosts": {
-          "cursor": 0.645161,
-          "codex": 0.578127
-        },
-        "models": {
-          "auto": 1528811,
-          "gpt-5.4-mini": 4363941
-        },
-        "modelCosts": {
-          "auto": 0.645161,
-          "gpt-5.4-mini": 0.578127
-        },
-        "modelClients": {
-          "auto": "cursor",
-          "gpt-5.4-mini": "codex"
-        },
-        "breakdown": {
-          "input": 1611735,
-          "output": 158526,
-          "cacheRead": 27323268,
-          "cacheWrite": 0,
-          "reasoning": 7291
-        }
-      },
-      {
-        "date": "2026-07-07",
-        "totalTokens": 345329,
-        "totalCostUsd": 0.31775,
-        "messages": 5,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 345329
-        },
-        "clientCosts": {
-          "cursor": 0.31775
-        },
-        "models": {
-          "auto": 345329
-        },
-        "modelCosts": {
-          "auto": 0.31775
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 310728,
-          "output": 34601,
-          "cacheRead": 3737295,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-08",
-        "totalTokens": 903149,
-        "totalCostUsd": 0.645161,
-        "messages": 20,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 903149
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 903149
-        },
-        "modelCosts": {
-          "auto": 0.645161
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 807887,
-          "output": 95262,
-          "cacheRead": 12359832,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-09",
-        "totalTokens": 2049913,
-        "totalCostUsd": 0.645161,
-        "messages": 36,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 2049913
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "grok-4.5-fast-xhigh": 1580841,
-          "auto": 397517,
-          "composer-2.5-fast": 71555
-        },
-        "modelCosts": {
-          "grok-4.5-fast-xhigh": 0.6197,
-          "auto": 0.012608,
-          "composer-2.5-fast": 0.012854
-        },
-        "modelClients": {
-          "grok-4.5-fast-xhigh": "cursor",
-          "auto": "cursor",
-          "composer-2.5-fast": "cursor"
-        },
-        "breakdown": {
-          "input": 1806293,
-          "output": 243620,
-          "cacheRead": 22512627,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-10",
-        "totalTokens": 303145,
-        "totalCostUsd": 0.645161,
-        "messages": 6,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 303145
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "grok-4.5-fast-xhigh": 303145
-        },
-        "modelCosts": {
-          "grok-4.5-fast-xhigh": 0.645161
-        },
-        "modelClients": {
-          "grok-4.5-fast-xhigh": "cursor"
-        },
-        "breakdown": {
-          "input": 272724,
-          "output": 30421,
-          "cacheRead": 3239424,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-11",
-        "totalTokens": 184461,
-        "totalCostUsd": 0.645161,
-        "messages": 2,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 184461
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "grok-4.5-fast-xhigh": 184461
-        },
-        "modelCosts": {
-          "grok-4.5-fast-xhigh": 0.645161
-        },
-        "modelClients": {
-          "grok-4.5-fast-xhigh": "cursor"
-        },
-        "breakdown": {
-          "input": 164165,
-          "output": 20296,
-          "cacheRead": 1965696,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-13",
-        "totalTokens": 594400,
-        "totalCostUsd": 0.645161,
-        "messages": 14,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 594400
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "cursor-grok-4.5-high-fast": 594400
-        },
-        "modelCosts": {
-          "cursor-grok-4.5-high-fast": 0.645161
-        },
-        "modelClients": {
-          "cursor-grok-4.5-high-fast": "cursor"
-        },
-        "breakdown": {
-          "input": 527868,
-          "output": 66532,
-          "cacheRead": 5219584,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-14",
-        "totalTokens": 1038974,
-        "totalCostUsd": 0.645161,
-        "messages": 21,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1038974
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "cursor-grok-4.5-high-fast": 147724,
-          "auto": 891250
-        },
-        "modelCosts": {
-          "cursor-grok-4.5-high-fast": 0.521127,
-          "auto": 0.124034
-        },
-        "modelClients": {
-          "cursor-grok-4.5-high-fast": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 962759,
-          "output": 76215,
-          "cacheRead": 14129920,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-15",
-        "totalTokens": 49139,
-        "totalCostUsd": 0.044453,
-        "messages": 1,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 49139
-        },
-        "clientCosts": {
-          "cursor": 0.044453
-        },
-        "models": {
-          "auto": 49139
-        },
-        "modelCosts": {
-          "auto": 0.044453
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 45303,
-          "output": 3836,
-          "cacheRead": 321920,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-16",
-        "totalTokens": 1261524,
-        "totalCostUsd": 0.645161,
-        "messages": 16,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1261524
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "cursor-grok-4.5-high-fast": 988198,
-          "auto": 273326
-        },
-        "modelCosts": {
-          "cursor-grok-4.5-high-fast": 0.637172,
-          "auto": 0.007989
-        },
-        "modelClients": {
-          "cursor-grok-4.5-high-fast": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1145209,
-          "output": 116315,
-          "cacheRead": 19339264,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-17",
-        "totalTokens": 1926688,
-        "totalCostUsd": 0.645161,
-        "messages": 23,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1926688
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "cursor-grok-4.5-high-fast": 1345314,
-          "composer-2.5-fast": 68719,
-          "auto": 512655
-        },
-        "modelCosts": {
-          "cursor-grok-4.5-high-fast": 0.62362,
-          "composer-2.5-fast": 0.008059,
-          "auto": 0.013481
-        },
-        "modelClients": {
-          "cursor-grok-4.5-high-fast": "cursor",
-          "composer-2.5-fast": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1689032,
-          "output": 237656,
-          "cacheRead": 27808256,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-18",
-        "totalTokens": 4445741,
-        "totalCostUsd": 1.587252947,
-        "messages": 123,
-        "activeTimeMs": 3316603,
-        "clients": {
-          "codex": 1823938,
-          "claude": 2331655,
-          "cursor": 290148
-        },
-        "clientCosts": {
-          "codex": 0.261281187,
-          "claude": 1.0519367599999998,
-          "cursor": 0.274035
-        },
-        "models": {
-          "hy3": 1823938,
-          "z-ai/glm-5.2": 2331655,
-          "auto": 290148
-        },
-        "modelCosts": {
-          "hy3": 0.261281187,
-          "z-ai/glm-5.2": 1.0519367599999998,
-          "auto": 0.27403500000000003
-        },
-        "modelClients": {
-          "hy3": "codex",
-          "z-ai/glm-5.2": "claude",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 690502,
-          "output": 94119,
-          "cacheRead": 5916480,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-19",
-        "totalTokens": 10697169,
-        "totalCostUsd": 4.349328,
-        "messages": 182,
-        "activeTimeMs": 2677209,
-        "clients": {
-          "cursor": 1809480,
-          "kimi": 6393155,
-          "claude": 2494534
-        },
-        "clientCosts": {
-          "cursor": 0.645161,
-          "kimi": 3.0116452,
-          "claude": 0.6925216319999999
-        },
-        "models": {
-          "auto": 514626,
-          "k3": 2477500,
-          "tencent/hy3": 1882330,
-          "cursor-grok-4.5-high-fast": 1294854,
-          "z-ai/glm-5.2": 612204,
-          "kimi-for-coding": 3915655
-        },
-        "modelCosts": {
-          "auto": 0.012006,
-          "k3": 2.3808735,
-          "tencent/hy3": 0.29863987200000003,
-          "cursor-grok-4.5-high-fast": 0.633155,
-          "z-ai/glm-5.2": 0.3938817599999999,
-          "kimi-for-coding": 0.6307716999999999
-        },
-        "modelClients": {
-          "auto": "cursor",
-          "k3": "kimi",
-          "tencent/hy3": "claude",
-          "cursor-grok-4.5-high-fast": "cursor",
-          "z-ai/glm-5.2": "claude",
-          "kimi-for-coding": "kimi"
-        },
-        "breakdown": {
-          "input": 2459030,
-          "output": 374919,
-          "cacheRead": 35840756,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-20",
-        "totalTokens": 3944829,
-        "totalCostUsd": 0.645161,
-        "messages": 87,
-        "activeTimeMs": 543272,
-        "clients": {
-          "cursor": 1931191,
-          "claude": 2013638
-        },
-        "clientCosts": {
-          "cursor": 0.645161,
-          "claude": 0
-        },
-        "models": {
-          "auto": 300362,
-          "cursor-grok-4.5-high-fast": 1630829,
-          "tencent/hy3:free": 2013638
-        },
-        "modelCosts": {
-          "auto": 0.00466,
-          "cursor-grok-4.5-high-fast": 0.640501,
-          "tencent/hy3:free": 0
-        },
-        "modelClients": {
-          "auto": "cursor",
-          "cursor-grok-4.5-high-fast": "cursor",
-          "tencent/hy3:free": "claude"
-        },
-        "breakdown": {
-          "input": 1992282,
-          "output": 274787,
-          "cacheRead": 40587904,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-21",
-        "totalTokens": 354432,
-        "totalCostUsd": 0.645161,
-        "messages": 7,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 354432
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 173023,
-          "cursor-grok-4.5-high-fast": 134371,
-          "composer-2.5-fast": 47038
-        },
-        "modelCosts": {
-          "auto": 0.14433,
-          "cursor-grok-4.5-high-fast": 0.344681,
-          "composer-2.5-fast": 0.15615
-        },
-        "modelClients": {
-          "auto": "cursor",
-          "cursor-grok-4.5-high-fast": "cursor",
-          "composer-2.5-fast": "cursor"
-        },
-        "breakdown": {
-          "input": 296321,
-          "output": 58111,
-          "cacheRead": 3838098,
-          "cacheWrite": 120099,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-22",
-        "totalTokens": 810239,
-        "totalCostUsd": 0.645161,
-        "messages": 23,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 810239
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 121525,
-          "cursor-grok-4.5-high-fast": 688714
-        },
-        "modelCosts": {
-          "auto": 0.00473,
-          "cursor-grok-4.5-high-fast": 0.640431
-        },
-        "modelClients": {
-          "auto": "cursor",
-          "cursor-grok-4.5-high-fast": "cursor"
-        },
-        "breakdown": {
-          "input": 677481,
-          "output": 132758,
-          "cacheRead": 15968128,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-23",
-        "totalTokens": 480392,
-        "totalCostUsd": 0.645161,
-        "messages": 6,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 480392
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "cursor-grok-4.5-high-fast": 215893,
-          "auto": 207940,
-          "composer-2.5-fast": 56559
-        },
-        "modelCosts": {
-          "cursor-grok-4.5-high-fast": 0.529257,
-          "auto": 0.05384,
-          "composer-2.5-fast": 0.062064
-        },
-        "modelClients": {
-          "cursor-grok-4.5-high-fast": "cursor",
-          "auto": "cursor",
-          "composer-2.5-fast": "cursor"
-        },
-        "breakdown": {
-          "input": 425395,
-          "output": 54997,
-          "cacheRead": 3672224,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-24",
-        "totalTokens": 2201759,
-        "totalCostUsd": 0.645161,
-        "messages": 33,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 2201759
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "auto": 325495,
-          "cursor-grok-4.5-high-fast": 1876264
-        },
-        "modelCosts": {
-          "auto": 0.004831,
-          "cursor-grok-4.5-high-fast": 0.64033
-        },
-        "modelClients": {
-          "auto": "cursor",
-          "cursor-grok-4.5-high-fast": "cursor"
-        },
-        "breakdown": {
-          "input": 1799834,
-          "output": 401925,
-          "cacheRead": 43859840,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-25",
-        "totalTokens": 368106,
-        "totalCostUsd": 0.645161,
-        "messages": 4,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 368106
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "composer-2.5-fast": 98018,
-          "cursor-grok-4.5-high-fast": 108661,
-          "auto": 161427
-        },
-        "modelCosts": {
-          "composer-2.5-fast": 0.168608,
-          "cursor-grok-4.5-high-fast": 0.395701,
-          "auto": 0.080852
-        },
-        "modelClients": {
-          "composer-2.5-fast": "cursor",
-          "cursor-grok-4.5-high-fast": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 308208,
-          "output": 59898,
-          "cacheRead": 4610075,
-          "cacheWrite": 109215,
-          "reasoning": 0
-        }
-      },
-      {
         "date": "2026-07-26",
-        "totalTokens": 43077490,
-        "totalCostUsd": 16.036649,
-        "messages": 388,
-        "activeTimeMs": 10359954,
+        "totalTokens": 13938572,
+        "totalCostUsd": 5.442377,
+        "messages": 0,
+        "activeTimeMs": 3541715,
         "clients": {
-          "kimi": 13463936,
-          "claude": 10639968,
-          "cursor": 3305794,
-          "codex": 1729220,
           "opencode": 13938572
         },
         "clientCosts": {
-          "kimi": 7.6617312,
-          "claude": 0.5140995749999999,
-          "cursor": 0.645161,
-          "codex": 1.7732799999999997,
-          "opencode": 5.442376960000001
+          "opencode": 5.442376960000001,
+          "cursor": 0
         },
         "models": {
-          "k3": 11434308,
-          "nvidia/nemotron-3-ultra-550b-a55b:free": 3576385,
-          "tencent/hy3": 7063583,
-          "cursor-grok-4.5-high-fast": 1609951,
-          "composer-2.5-fast": 60557,
-          "gpt-5.6-sol-medium": 967249,
-          "auto": 607009,
-          "claude-opus-5-thinking-high": 20083,
-          "gpt-5.6-sol": 1729220,
-          "claude-fable-5-thinking-high": 40945,
-          "kimi-for-coding": 2029628,
           "glm-5.2": 13938572
         },
         "modelCosts": {
-          "k3": 7.3347984,
-          "nvidia/nemotron-3-ultra-550b-a55b:free": 0,
-          "tencent/hy3": 0.5140995749999999,
-          "cursor-grok-4.5-high-fast": 0.193501,
-          "composer-2.5-fast": 0.001811,
-          "gpt-5.6-sol-medium": 0.302316,
-          "auto": 0.004456,
-          "claude-opus-5-thinking-high": 0.035618,
-          "gpt-5.6-sol": 1.7732799999999997,
-          "claude-fable-5-thinking-high": 0.107459,
-          "kimi-for-coding": 0.3269328,
           "glm-5.2": 5.442376960000001
         },
         "modelClients": {
-          "k3": "kimi",
-          "nvidia/nemotron-3-ultra-550b-a55b:free": "claude",
-          "tencent/hy3": "claude",
-          "cursor-grok-4.5-high-fast": "cursor",
-          "composer-2.5-fast": "cursor",
-          "gpt-5.6-sol-medium": "cursor",
-          "auto": "cursor",
-          "claude-opus-5-thinking-high": "cursor",
-          "gpt-5.6-sol": "codex",
-          "claude-fable-5-thinking-high": "cursor",
-          "kimi-for-coding": "kimi",
           "glm-5.2": "opencode"
-        },
-        "breakdown": {
-          "input": 5576767,
-          "output": 672337,
-          "cacheRead": 115347109,
-          "cacheWrite": 1681179,
-          "reasoning": 2396
-        }
-      },
-      {
-        "date": "2026-07-27",
-        "totalTokens": 1553735,
-        "totalCostUsd": 0.645161,
-        "messages": 16,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 1553735
-        },
-        "clientCosts": {
-          "cursor": 0.645161
-        },
-        "models": {
-          "cursor-grok-4.5-high-fast": 148418,
-          "auto": 1405317
-        },
-        "modelCosts": {
-          "cursor-grok-4.5-high-fast": 0.184887,
-          "auto": 0.460274
-        },
-        "modelClients": {
-          "cursor-grok-4.5-high-fast": "cursor",
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 1456812,
-          "output": 96923,
-          "cacheRead": 12186880,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-28",
-        "totalTokens": 132095,
-        "totalCostUsd": 0.33825552,
-        "messages": 3,
-        "activeTimeMs": 73253,
-        "clients": {
-          "cursor": 75330,
-          "claude": 56765
-        },
-        "clientCosts": {
-          "cursor": 0.331684,
-          "claude": 0.006571520000000001
-        },
-        "models": {
-          "cursor-grok-4.5-high-fast": 75330,
-          "tencent/hy3": 56765
-        },
-        "modelCosts": {
-          "cursor-grok-4.5-high-fast": 0.331684,
-          "tencent/hy3": 0.006571520000000001
-        },
-        "modelClients": {
-          "cursor-grok-4.5-high-fast": "cursor",
-          "tencent/hy3": "claude"
-        },
-        "breakdown": {
-          "input": 100126,
-          "output": 5089,
-          "cacheRead": 293504,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-29",
-        "totalTokens": 548033,
-        "totalCostUsd": 0.480373,
-        "messages": 7,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 548033
-        },
-        "clientCosts": {
-          "cursor": 0.480373
-        },
-        "models": {
-          "auto": 548033
-        },
-        "modelCosts": {
-          "auto": 0.480373
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 527254,
-          "output": 20779,
-          "cacheRead": 1438080,
-          "cacheWrite": 0,
-          "reasoning": 0
-        }
-      },
-      {
-        "date": "2026-07-30",
-        "totalTokens": 90601,
-        "totalCostUsd": 0.085455,
-        "messages": 3,
-        "activeTimeMs": 0,
-        "clients": {
-          "cursor": 90601
-        },
-        "clientCosts": {
-          "cursor": 0.085455
-        },
-        "models": {
-          "auto": 90601
-        },
-        "modelCosts": {
-          "auto": 0.085455
-        },
-        "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 78538,
-          "output": 12063,
-          "cacheRead": 1286528,
-          "cacheWrite": 0,
-          "reasoning": 0
         }
       },
       {
         "date": "2026-07-31",
-        "totalTokens": 726016,
-        "totalCostUsd": 0.645161,
-        "messages": 8,
-        "activeTimeMs": 0,
+        "totalTokens": 17650,
+        "totalCostUsd": 0,
+        "messages": 0,
+        "activeTimeMs": 1775008,
         "clients": {
-          "cursor": 726016
+          "qoder": 17650
         },
         "clientCosts": {
-          "cursor": 0.645161
+          "qoder": 0,
+          "cursor": 0
         },
         "models": {
-          "auto": 726016
+          "ultimate": 17650
         },
         "modelCosts": {
-          "auto": 0.645161
+          "ultimate": 0
         },
         "modelClients": {
-          "auto": "cursor"
-        },
-        "breakdown": {
-          "input": 635109,
-          "output": 90907,
-          "cacheRead": 11993088,
-          "cacheWrite": 0,
-          "reasoning": 0
+          "ultimate": "qoder"
         }
       }
     ],
@@ -3479,11 +464,11 @@
           "planName": "Pro",
           "priceLabel": "$20/mo",
           "unit": "percent",
-          "usedPercent": 27.43768115942029,
-          "remainingPercent": 72.5623188405797,
-          "autoPercentUsed": 15.976666666666667,
+          "usedPercent": 28.463768115942027,
+          "remainingPercent": 71.53623188405797,
+          "autoPercentUsed": 17.156666666666666,
           "apiPercentUsed": 100,
-          "totalPercentUsed": 27.43768115942029,
+          "totalPercentUsed": 28.463768115942027,
           "limitCents": 2000,
           "includedSpendCents": 2000,
           "remainingCents": 0,
@@ -3551,7 +536,7 @@
             "limit": 100,
             "remaining": 100,
             "usedPercent": 0,
-            "resetAt": "2026-07-30T20:42:58.681992Z"
+            "resetAt": "2026-07-31T06:42:58.681992Z"
           },
           "balanceCny": 0,
           "monthlyUsedCny": 25,
@@ -3562,9 +547,11 @@
       "errors": [
         "ChatGPT usage HTTP 401（已显示上次成功结果）"
       ],
-      "updatedAt": "2026-07-30T17:41:49.214Z"
+      "updatedAt": "2026-07-31T06:21:54.427Z"
     },
     "warnings": [
+      "tokscale 采集失败：tokscale timeout: --json --client claude,codex,kimi,cursor --group-by client,session,model --today",
+      "Qoder 日志未暴露精确 token，已按会话正文粗估",
       "ChatGPT usage HTTP 401（已显示上次成功结果）"
     ],
     "cached": false

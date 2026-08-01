@@ -2,13 +2,13 @@
   "schemaVersion": 2,
   "account": "jackielamzeqi",
   "workEnv": "office",
-  "savedAt": "2026-08-01T12:34:17.228Z",
+  "savedAt": "2026-08-01T12:38:17.233Z",
   "snapshot": {
     "ok": true,
     "source": "token-agent",
     "reference": "https://github.com/Javis603/token-monitor",
     "engine": "tokscale",
-    "updatedAt": "2026-08-01T12:34:17.212Z",
+    "updatedAt": "2026-08-01T12:38:17.219Z",
     "hostname": "sz-11188601m2",
     "platform": "darwin-arm64",
     "tools": [
@@ -111,7 +111,7 @@
         "provider": "Cursor",
         "configuredModel": "Auto",
         "displayName": "Cursor",
-        "monthTokens": 1276527,
+        "monthTokens": 1280177,
         "monthCostUsd": 0
       },
       {
@@ -171,13 +171,13 @@
       "qoder"
     ],
     "today": {
-      "totalTokens": 1276527,
+      "totalTokens": 1280177,
       "totalCostUsd": 0,
-      "inputTokens": 1122216,
-      "outputTokens": 154311,
-      "cacheReadTokens": 11731840,
+      "inputTokens": 1124238,
+      "outputTokens": 155939,
+      "cacheReadTokens": 11930368,
       "clients": {
-        "cursor": 1276527,
+        "cursor": 1280177,
         "qoder": 0
       },
       "clientCosts": {
@@ -186,15 +186,15 @@
         "codex": 0
       },
       "clientActiveMs": {
-        "cursor": 785705,
         "kimi": 0,
+        "cursor": 815705,
         "claude": 0,
         "codex": 0,
         "opencode": 0,
         "qoder": 45991043
       },
       "clientCacheRead": {
-        "cursor": 11731840,
+        "cursor": 11930368,
         "qoder": 0
       },
       "clientSessions": {
@@ -212,7 +212,7 @@
         "kimi": 0
       },
       "models": {
-        "auto": 1276527,
+        "auto": 1280177,
         "qmodel_preview": 0
       },
       "modelCosts": {
@@ -224,15 +224,15 @@
         "qmodel_preview": "qoder"
       },
       "modelInput": {
-        "auto": 1122216,
+        "auto": 1124238,
         "qmodel_preview": 0
       },
       "modelOutput": {
-        "auto": 154311,
+        "auto": 155939,
         "qmodel_preview": 0
       },
       "modelCacheRead": {
-        "auto": 11731840,
+        "auto": 11930368,
         "qmodel_preview": 0
       },
       "modelSessions": {
@@ -245,14 +245,14 @@
       }
     },
     "week": {
-      "totalTokens": 463112914,
+      "totalTokens": 463116564,
       "totalCostUsd": 13.826304,
-      "inputTokens": 29016294,
-      "outputTokens": 2517598,
-      "cacheReadTokens": 580779757,
+      "inputTokens": 29018316,
+      "outputTokens": 2519226,
+      "cacheReadTokens": 580978285,
       "clients": {
         "codex": 450593531,
-        "cursor": 10494005,
+        "cursor": 10497655,
         "kimi": 1875894,
         "claude": 149484,
         "qoder": 0
@@ -267,14 +267,14 @@
       "clientActiveMs": {
         "codex": 58604611,
         "claude": 900522,
+        "cursor": 7416268,
         "kimi": 1065611,
-        "cursor": 7386268,
         "opencode": 0,
         "qoder": 49751810
       },
       "clientCacheRead": {
         "codex": 429260544,
-        "cursor": 149700717,
+        "cursor": 149899245,
         "kimi": 1810688,
         "claude": 7808,
         "qoder": 0
@@ -302,7 +302,7 @@
         "gpt-5.6-terra": 5276174,
         "kimi-for-coding": 1875894,
         "composer-2.5-fast": 60557,
-        "auto": 7532481,
+        "auto": 7536131,
         "hy3": 149484,
         "qmodel_preview": 0
       },
@@ -341,7 +341,7 @@
         "gpt-5.6-terra": 385906,
         "kimi-for-coding": 41154,
         "composer-2.5-fast": 55078,
-        "auto": 6984027,
+        "auto": 6986049,
         "hy3": 138759,
         "qmodel_preview": 0
       },
@@ -354,7 +354,7 @@
         "gpt-5.6-terra": 31900,
         "kimi-for-coding": 24052,
         "composer-2.5-fast": 5479,
-        "auto": 548454,
+        "auto": 550082,
         "hy3": 2917,
         "qmodel_preview": 0
       },
@@ -367,7 +367,7 @@
         "gpt-5.6-terra": 4858368,
         "kimi-for-coding": 1810688,
         "composer-2.5-fast": 298944,
-        "auto": 61072673,
+        "auto": 61271201,
         "hy3": 7808,
         "qmodel_preview": 0
       },
@@ -399,13 +399,13 @@
       }
     },
     "month": {
-      "totalTokens": 1276527,
+      "totalTokens": 1280177,
       "totalCostUsd": 0,
-      "inputTokens": 1122216,
-      "outputTokens": 154311,
-      "cacheReadTokens": 11731840,
+      "inputTokens": 1124238,
+      "outputTokens": 155939,
+      "cacheReadTokens": 11930368,
       "clients": {
-        "cursor": 1276527,
+        "cursor": 1280177,
         "qoder": 0
       },
       "clientCosts": {
@@ -414,7 +414,7 @@
         "codex": 0
       },
       "clientActiveMs": {
-        "cursor": 785705,
+        "cursor": 815705,
         "kimi": 0,
         "claude": 0,
         "codex": 0,
@@ -422,7 +422,7 @@
         "qoder": 49751810
       },
       "clientCacheRead": {
-        "cursor": 11731840,
+        "cursor": 11930368,
         "qoder": 0
       },
       "clientSessions": {
@@ -440,7 +440,7 @@
         "kimi": 1
       },
       "models": {
-        "auto": 1276527,
+        "auto": 1280177,
         "qmodel_preview": 0
       },
       "modelCosts": {
@@ -452,15 +452,15 @@
         "qmodel_preview": "qoder"
       },
       "modelInput": {
-        "auto": 1122216,
+        "auto": 1124238,
         "qmodel_preview": 0
       },
       "modelOutput": {
-        "auto": 154311,
+        "auto": 155939,
         "qmodel_preview": 0
       },
       "modelCacheRead": {
-        "auto": 11731840,
+        "auto": 11930368,
         "qmodel_preview": 0
       },
       "modelSessions": {
@@ -474,23 +474,23 @@
     },
     "durations": {
       "today": {
-        "cursor": 785705,
         "kimi": 0,
+        "cursor": 815705,
         "claude": 0,
         "codex": 0,
         "opencode": 0,
         "qoder": 45991043
       },
       "week": {
+        "cursor": 7416268,
         "kimi": 1065611,
-        "cursor": 7386268,
         "claude": 900522,
         "codex": 58604611,
         "opencode": 0,
         "qoder": 49751810
       },
       "month": {
-        "cursor": 785705,
+        "cursor": 815705,
         "kimi": 0,
         "claude": 0,
         "codex": 0,
@@ -1083,19 +1083,19 @@
           "codex": 0
         },
         "models": {
+          "auto": 91374,
           "premium (codex 5.3)": 328306,
-          "gpt-5.5-medium": 4109,
-          "auto": 91374
+          "gpt-5.5-medium": 4109
         },
         "modelCosts": {
+          "auto": 0,
           "premium (codex 5.3)": 0,
-          "gpt-5.5-medium": 0.043963,
-          "auto": 0
+          "gpt-5.5-medium": 0.043963
         },
         "modelClients": {
+          "auto": "cursor",
           "premium (codex 5.3)": "cursor",
-          "gpt-5.5-medium": "cursor",
-          "auto": "cursor"
+          "gpt-5.5-medium": "cursor"
         },
         "breakdown": {
           "input": 385065,
@@ -1120,18 +1120,18 @@
         },
         "models": {
           "premium (codex 5.3)": 289785,
-          "auto": 26792,
-          "gpt-5.5-medium": 337372
+          "gpt-5.5-medium": 337372,
+          "auto": 26792
         },
         "modelCosts": {
           "premium (codex 5.3)": 0,
-          "auto": 0,
-          "gpt-5.5-medium": 0.645161
+          "gpt-5.5-medium": 0.645161,
+          "auto": 0
         },
         "modelClients": {
           "premium (codex 5.3)": "cursor",
-          "auto": "cursor",
-          "gpt-5.5-medium": "cursor"
+          "gpt-5.5-medium": "cursor",
+          "auto": "cursor"
         },
         "breakdown": {
           "input": 635156,
@@ -1187,18 +1187,18 @@
           "codex": 0
         },
         "models": {
-          "gpt-5.5-medium": 92651,
           "premium (codex 5.3)": 265195,
+          "gpt-5.5-medium": 92651,
           "minimax-m2.7": 84762
         },
         "modelCosts": {
-          "gpt-5.5-medium": 0.645161,
           "premium (codex 5.3)": 0,
+          "gpt-5.5-medium": 0.645161,
           "minimax-m2.7": 0.0020887249999999996
         },
         "modelClients": {
-          "gpt-5.5-medium": "cursor",
           "premium (codex 5.3)": "cursor",
+          "gpt-5.5-medium": "cursor",
           "minimax-m2.7": "claude"
         },
         "breakdown": {
@@ -1291,18 +1291,18 @@
           "codex": 0
         },
         "models": {
-          "auto": 0,
           "premium": 546365,
+          "auto": 0,
           "composer-2-fast": 70873
         },
         "modelCosts": {
-          "auto": 0,
           "premium": 0,
+          "auto": 0,
           "composer-2-fast": 0.180906
         },
         "modelClients": {
-          "auto": "cursor",
           "premium": "cursor",
+          "auto": "cursor",
           "composer-2-fast": "cursor"
         },
         "breakdown": {
@@ -1327,16 +1327,16 @@
           "codex": 0
         },
         "models": {
-          "claude-opus-4-7-thinking-xhigh": 11182,
-          "premium": 197921
+          "premium": 197921,
+          "claude-opus-4-7-thinking-xhigh": 11182
         },
         "modelCosts": {
-          "claude-opus-4-7-thinking-xhigh": 0.645161,
-          "premium": 0
+          "premium": 0,
+          "claude-opus-4-7-thinking-xhigh": 0.645161
         },
         "modelClients": {
-          "claude-opus-4-7-thinking-xhigh": "cursor",
-          "premium": "cursor"
+          "premium": "cursor",
+          "claude-opus-4-7-thinking-xhigh": "cursor"
         },
         "breakdown": {
           "input": 195604,
@@ -1391,16 +1391,16 @@
           "codex": 0
         },
         "models": {
-          "claude-opus-4-7-thinking-xhigh": 36116,
-          "composer-2-fast": 1838997
+          "composer-2-fast": 1838997,
+          "claude-opus-4-7-thinking-xhigh": 36116
         },
         "modelCosts": {
-          "claude-opus-4-7-thinking-xhigh": 0.538524,
-          "composer-2-fast": 0.106637
+          "composer-2-fast": 0.106637,
+          "claude-opus-4-7-thinking-xhigh": 0.538524
         },
         "modelClients": {
-          "claude-opus-4-7-thinking-xhigh": "cursor",
-          "composer-2-fast": "cursor"
+          "composer-2-fast": "cursor",
+          "claude-opus-4-7-thinking-xhigh": "cursor"
         },
         "breakdown": {
           "input": 1815051,
@@ -1417,25 +1417,25 @@
         "messages": 18,
         "activeTimeMs": 211151,
         "clients": {
-          "cursor": 23129,
-          "claude": 1232080
+          "claude": 1232080,
+          "cursor": 23129
         },
         "clientCosts": {
-          "cursor": 0.645161,
           "claude": 0.025876080000000003,
+          "cursor": 0.645161,
           "codex": 0
         },
         "models": {
-          "claude-opus-4-7-thinking-xhigh": 23129,
-          "minimax-m2.7": 1232080
+          "minimax-m2.7": 1232080,
+          "claude-opus-4-7-thinking-xhigh": 23129
         },
         "modelCosts": {
-          "claude-opus-4-7-thinking-xhigh": 0.645161,
-          "minimax-m2.7": 0.025876080000000003
+          "minimax-m2.7": 0.025876080000000003,
+          "claude-opus-4-7-thinking-xhigh": 0.645161
         },
         "modelClients": {
-          "claude-opus-4-7-thinking-xhigh": "cursor",
-          "minimax-m2.7": "claude"
+          "minimax-m2.7": "claude",
+          "claude-opus-4-7-thinking-xhigh": "cursor"
         },
         "breakdown": {
           "input": 91557,
@@ -1522,22 +1522,22 @@
           "codex": 0
         },
         "models": {
-          "claude-opus-4-7-thinking-xhigh": 3702,
-          "auto": 0,
+          "composer-2.5-fast": 754647,
           "minimax-m2.7": 1179446,
-          "composer-2.5-fast": 754647
+          "claude-opus-4-7-thinking-xhigh": 3702,
+          "auto": 0
         },
         "modelCosts": {
-          "claude-opus-4-7-thinking-xhigh": 0.329569,
-          "auto": 0,
+          "composer-2.5-fast": 0.315592,
           "minimax-m2.7": 0.03521089500000001,
-          "composer-2.5-fast": 0.315592
+          "claude-opus-4-7-thinking-xhigh": 0.329569,
+          "auto": 0
         },
         "modelClients": {
-          "claude-opus-4-7-thinking-xhigh": "cursor",
-          "auto": "cursor",
+          "composer-2.5-fast": "cursor",
           "minimax-m2.7": "claude",
-          "composer-2.5-fast": "cursor"
+          "claude-opus-4-7-thinking-xhigh": "cursor",
+          "auto": "cursor"
         },
         "breakdown": {
           "input": 842062,
@@ -1554,25 +1554,25 @@
         "messages": 13,
         "activeTimeMs": 297192,
         "clients": {
-          "cursor": 70956,
-          "claude": 1652217
+          "claude": 1652217,
+          "cursor": 70956
         },
         "clientCosts": {
-          "cursor": 0.175196,
           "claude": 0.03846864,
+          "cursor": 0.175196,
           "codex": 0
         },
         "models": {
-          "composer-2.5-fast": 70956,
-          "minimax-m2.7": 1652217
+          "minimax-m2.7": 1652217,
+          "composer-2.5-fast": 70956
         },
         "modelCosts": {
-          "composer-2.5-fast": 0.175196,
-          "minimax-m2.7": 0.03846864
+          "minimax-m2.7": 0.03846864,
+          "composer-2.5-fast": 0.175196
         },
         "modelClients": {
-          "composer-2.5-fast": "cursor",
-          "minimax-m2.7": "claude"
+          "minimax-m2.7": "claude",
+          "composer-2.5-fast": "cursor"
         },
         "breakdown": {
           "input": 213047,
@@ -1596,16 +1596,16 @@
           "codex": 0
         },
         "models": {
-          "composer-2.5-fast": 217062,
-          "auto": 0
+          "auto": 0,
+          "composer-2.5-fast": 217062
         },
         "modelCosts": {
-          "composer-2.5-fast": 0.645161,
-          "auto": 0
+          "auto": 0,
+          "composer-2.5-fast": 0.645161
         },
         "modelClients": {
-          "composer-2.5-fast": "cursor",
-          "auto": "cursor"
+          "auto": "cursor",
+          "composer-2.5-fast": "cursor"
         },
         "breakdown": {
           "input": 189147,
@@ -1725,21 +1725,21 @@
           "codex": 0
         },
         "models": {
-          "premium": 334164,
-          "minimax-m2.7": 8460231,
           "composer-2.5-fast": 426113,
+          "minimax-m2.7": 8460231,
+          "premium": 334164,
           "claude-opus-4-7-thinking-xhigh": 53548
         },
         "modelCosts": {
-          "premium": 0,
-          "minimax-m2.7": 0.3225910100000001,
           "composer-2.5-fast": 0.177386,
+          "minimax-m2.7": 0.3225910100000001,
+          "premium": 0,
           "claude-opus-4-7-thinking-xhigh": 0.467775
         },
         "modelClients": {
-          "premium": "cursor",
-          "minimax-m2.7": "claude",
           "composer-2.5-fast": "cursor",
+          "minimax-m2.7": "claude",
+          "premium": "cursor",
           "claude-opus-4-7-thinking-xhigh": "cursor"
         },
         "breakdown": {
@@ -1766,22 +1766,22 @@
           "codex": 0
         },
         "models": {
-          "claude-opus-4-7-thinking-xhigh": 42903,
-          "composer-2.5-fast": 114639,
+          "auto": 759435,
           "minimax-m2.7": 639841,
-          "auto": 759435
+          "claude-opus-4-7-thinking-xhigh": 42903,
+          "composer-2.5-fast": 114639
         },
         "modelCosts": {
-          "claude-opus-4-7-thinking-xhigh": 0.548183,
-          "composer-2.5-fast": 0.096978,
+          "auto": 0,
           "minimax-m2.7": 0.06759064999999999,
-          "auto": 0
+          "claude-opus-4-7-thinking-xhigh": 0.548183,
+          "composer-2.5-fast": 0.096978
         },
         "modelClients": {
-          "claude-opus-4-7-thinking-xhigh": "cursor",
-          "composer-2.5-fast": "cursor",
+          "auto": "cursor",
           "minimax-m2.7": "claude",
-          "auto": "cursor"
+          "claude-opus-4-7-thinking-xhigh": "cursor",
+          "composer-2.5-fast": "cursor"
         },
         "breakdown": {
           "input": 1072655,
@@ -1805,22 +1805,22 @@
           "codex": 0
         },
         "models": {
-          "claude-opus-4-8-thinking-high": 319199,
           "gpt-5.3-codex-high-fast": 150228,
-          "auto": 853624,
-          "composer-2.5-fast": 1025304
+          "composer-2.5-fast": 1025304,
+          "claude-opus-4-8-thinking-high": 319199,
+          "auto": 853624
         },
         "modelCosts": {
-          "claude-opus-4-8-thinking-high": 0.463211,
           "gpt-5.3-codex-high-fast": 0.011767,
-          "auto": 0,
-          "composer-2.5-fast": 0.170183
+          "composer-2.5-fast": 0.170183,
+          "claude-opus-4-8-thinking-high": 0.463211,
+          "auto": 0
         },
         "modelClients": {
-          "claude-opus-4-8-thinking-high": "cursor",
           "gpt-5.3-codex-high-fast": "cursor",
-          "auto": "cursor",
-          "composer-2.5-fast": "cursor"
+          "composer-2.5-fast": "cursor",
+          "claude-opus-4-8-thinking-high": "cursor",
+          "auto": "cursor"
         },
         "breakdown": {
           "input": 2100865,
@@ -1867,27 +1867,27 @@
         "messages": 93,
         "activeTimeMs": 1015829,
         "clients": {
-          "claude": 3429555,
-          "cursor": 1098961
+          "cursor": 1098961,
+          "claude": 3429555
         },
         "clientCosts": {
-          "claude": 0.43653050499999996,
           "cursor": 0.645161,
+          "claude": 0.43653050499999996,
           "codex": 0
         },
         "models": {
-          "minimax-m2.7": 3429555,
           "claude-opus-4-8-thinking-high": 18635,
+          "minimax-m2.7": 3429555,
           "auto": 1080326
         },
         "modelCosts": {
-          "minimax-m2.7": 0.43653050499999996,
           "claude-opus-4-8-thinking-high": 0.645161,
+          "minimax-m2.7": 0.43653050499999996,
           "auto": 0
         },
         "modelClients": {
-          "minimax-m2.7": "claude",
           "claude-opus-4-8-thinking-high": "cursor",
+          "minimax-m2.7": "claude",
           "auto": "cursor"
         },
         "breakdown": {
@@ -1938,28 +1938,28 @@
         "messages": 72,
         "activeTimeMs": 96332,
         "clients": {
-          "claude": 92165,
-          "cursor": 3099375
+          "cursor": 3099375,
+          "claude": 92165
         },
         "clientCosts": {
-          "claude": 0.019194305000000002,
           "cursor": 0.645161,
+          "claude": 0.019194305000000002,
           "codex": 0
         },
         "models": {
-          "minimax-m2.7": 92165,
           "auto": 3085205,
-          "claude-opus-4-8-thinking-high": 14170
+          "claude-opus-4-8-thinking-high": 14170,
+          "minimax-m2.7": 92165
         },
         "modelCosts": {
-          "minimax-m2.7": 0.019194305000000002,
           "auto": 0,
-          "claude-opus-4-8-thinking-high": 0.645161
+          "claude-opus-4-8-thinking-high": 0.645161,
+          "minimax-m2.7": 0.019194305000000002
         },
         "modelClients": {
-          "minimax-m2.7": "claude",
           "auto": "cursor",
-          "claude-opus-4-8-thinking-high": "cursor"
+          "claude-opus-4-8-thinking-high": "cursor",
+          "minimax-m2.7": "claude"
         },
         "breakdown": {
           "input": 2931174,
@@ -2048,19 +2048,19 @@
           "codex": 0
         },
         "models": {
-          "auto": 2388933,
+          "claude-fable-5-thinking-high": 29533,
           "composer-2.5-fast": 186088,
-          "claude-fable-5-thinking-high": 29533
+          "auto": 2388933
         },
         "modelCosts": {
-          "auto": 0,
+          "claude-fable-5-thinking-high": 0.600206,
           "composer-2.5-fast": 0.044955,
-          "claude-fable-5-thinking-high": 0.600206
+          "auto": 0
         },
         "modelClients": {
-          "auto": "cursor",
+          "claude-fable-5-thinking-high": "cursor",
           "composer-2.5-fast": "cursor",
-          "claude-fable-5-thinking-high": "cursor"
+          "auto": "cursor"
         },
         "breakdown": {
           "input": 2434439,
@@ -2287,25 +2287,25 @@
         "messages": 59,
         "activeTimeMs": 207943,
         "clients": {
-          "cursor": 1570314,
-          "claude": 66525
+          "claude": 66525,
+          "cursor": 1570314
         },
         "clientCosts": {
-          "cursor": 0,
           "claude": 0.00040645,
+          "cursor": 0,
           "codex": 0
         },
         "models": {
-          "auto": 1570314,
-          "minimax-m2.7": 66525
+          "minimax-m2.7": 66525,
+          "auto": 1570314
         },
         "modelCosts": {
-          "auto": 0,
-          "minimax-m2.7": 0.00040645
+          "minimax-m2.7": 0.00040645,
+          "auto": 0
         },
         "modelClients": {
-          "auto": "cursor",
-          "minimax-m2.7": "claude"
+          "minimax-m2.7": "claude",
+          "auto": "cursor"
         },
         "breakdown": {
           "input": 1343770,
@@ -2322,27 +2322,27 @@
         "messages": 183,
         "activeTimeMs": 4892573,
         "clients": {
-          "claude": 13282568,
-          "cursor": 1324423
+          "cursor": 1324423,
+          "claude": 13282568
         },
         "clientCosts": {
-          "claude": 12.29384945,
           "cursor": 0,
+          "claude": 12.29384945,
           "codex": 0
         },
         "models": {
-          "claude-sonnet-4-6": 9645143,
           "auto": 1324423,
+          "claude-sonnet-4-6": 9645143,
           "claude-opus-4-8": 3637425
         },
         "modelCosts": {
-          "claude-sonnet-4-6": 6.41549145,
           "auto": 0,
+          "claude-sonnet-4-6": 6.41549145,
           "claude-opus-4-8": 5.8783579999999995
         },
         "modelClients": {
-          "claude-sonnet-4-6": "claude",
           "auto": "cursor",
+          "claude-sonnet-4-6": "claude",
           "claude-opus-4-8": "claude"
         },
         "breakdown": {
@@ -2360,28 +2360,28 @@
         "messages": 53,
         "activeTimeMs": 1635532,
         "clients": {
-          "claude": 6190202,
-          "cursor": 473507
+          "cursor": 473507,
+          "claude": 6190202
         },
         "clientCosts": {
-          "claude": 9.61525025,
           "cursor": 0.645161,
+          "claude": 9.61525025,
           "codex": 0
         },
         "models": {
-          "claude-opus-4-8": 6190202,
+          "claude-opus-4-8-thinking-high": 48274,
           "auto": 425233,
-          "claude-opus-4-8-thinking-high": 48274
+          "claude-opus-4-8": 6190202
         },
         "modelCosts": {
-          "claude-opus-4-8": 9.61525025,
+          "claude-opus-4-8-thinking-high": 0.645161,
           "auto": 0,
-          "claude-opus-4-8-thinking-high": 0.645161
+          "claude-opus-4-8": 9.61525025
         },
         "modelClients": {
-          "claude-opus-4-8": "claude",
+          "claude-opus-4-8-thinking-high": "cursor",
           "auto": "cursor",
-          "claude-opus-4-8-thinking-high": "cursor"
+          "claude-opus-4-8": "claude"
         },
         "breakdown": {
           "input": 431564,
@@ -2501,21 +2501,21 @@
         },
         "models": {
           "auto": 2119879,
-          "claude-opus-4-8-thinking-high": 114513,
+          "gpt-5.5": 20948005,
           "codex-auto-review": 1322331,
-          "gpt-5.5": 20948005
+          "claude-opus-4-8-thinking-high": 114513
         },
         "modelCosts": {
           "auto": 0,
-          "claude-opus-4-8-thinking-high": 0.645161,
+          "gpt-5.5": 1.286724,
           "codex-auto-review": 0.003599,
-          "gpt-5.5": 1.286724
+          "claude-opus-4-8-thinking-high": 0.645161
         },
         "modelClients": {
           "auto": "cursor",
-          "claude-opus-4-8-thinking-high": "cursor",
+          "gpt-5.5": "codex",
           "codex-auto-review": "codex",
-          "gpt-5.5": "codex"
+          "claude-opus-4-8-thinking-high": "cursor"
         },
         "breakdown": {
           "input": 4010889,
@@ -2540,19 +2540,19 @@
           "cursor": 0
         },
         "models": {
-          "codex-auto-review": 302901,
+          "gpt-5.5": 39892207,
           "auto": 1563299,
-          "gpt-5.5": 39892207
+          "codex-auto-review": 302901
         },
         "modelCosts": {
-          "codex-auto-review": 0.000972,
+          "gpt-5.5": 1.289351,
           "auto": 0,
-          "gpt-5.5": 1.289351
+          "codex-auto-review": 0.000972
         },
         "modelClients": {
-          "codex-auto-review": "codex",
+          "gpt-5.5": "codex",
           "auto": "cursor",
-          "gpt-5.5": "codex"
+          "codex-auto-review": "codex"
         },
         "breakdown": {
           "input": 4509497,
@@ -2577,18 +2577,18 @@
           "cursor": 0
         },
         "models": {
-          "gpt-5.5": 63279512,
           "codex-auto-review": 2056066,
+          "gpt-5.5": 63279512,
           "auto": 3502254
         },
         "modelCosts": {
-          "gpt-5.5": 1.285129,
           "codex-auto-review": 0.005194,
+          "gpt-5.5": 1.285129,
           "auto": 0
         },
         "modelClients": {
-          "gpt-5.5": "codex",
           "codex-auto-review": "codex",
+          "gpt-5.5": "codex",
           "auto": "cursor"
         },
         "breakdown": {
@@ -2614,19 +2614,19 @@
           "cursor": 0
         },
         "models": {
-          "codex-auto-review": 314773,
+          "gpt-5.5": 59797484,
           "auto": 2026342,
-          "gpt-5.5": 59797484
+          "codex-auto-review": 314773
         },
         "modelCosts": {
-          "codex-auto-review": 0.000451,
+          "gpt-5.5": 1.289872,
           "auto": 0,
-          "gpt-5.5": 1.289872
+          "codex-auto-review": 0.000451
         },
         "modelClients": {
-          "codex-auto-review": "codex",
+          "gpt-5.5": "codex",
           "auto": "cursor",
-          "gpt-5.5": "codex"
+          "codex-auto-review": "codex"
         },
         "breakdown": {
           "input": 5495730,
@@ -2688,19 +2688,19 @@
           "codex": 1.290323
         },
         "models": {
-          "claude-fable-5-thinking-high": 45299,
+          "auto": 2295813,
           "gpt-5.5": 6074388,
-          "auto": 2295813
+          "claude-fable-5-thinking-high": 45299
         },
         "modelCosts": {
-          "claude-fable-5-thinking-high": 0.645161,
+          "auto": 0,
           "gpt-5.5": 1.290323,
-          "auto": 0
+          "claude-fable-5-thinking-high": 0.645161
         },
         "modelClients": {
-          "claude-fable-5-thinking-high": "cursor",
+          "auto": "cursor",
           "gpt-5.5": "codex",
-          "auto": "cursor"
+          "claude-fable-5-thinking-high": "cursor"
         },
         "breakdown": {
           "input": 2503321,
@@ -2725,20 +2725,20 @@
           "codex": 1.290323
         },
         "models": {
-          "claude-fable-5-thinking-high": 16139,
           "auto": 4506565,
+          "claude-fable-5-thinking-high": 16139,
           "gpt-5.5": 27355960,
           "composer-2.5-fast": 220197
         },
         "modelCosts": {
-          "claude-fable-5-thinking-high": 0.566563,
           "auto": 0,
+          "claude-fable-5-thinking-high": 0.566563,
           "gpt-5.5": 1.290323,
           "composer-2.5-fast": 0.078598
         },
         "modelClients": {
-          "claude-fable-5-thinking-high": "cursor",
           "auto": "cursor",
+          "claude-fable-5-thinking-high": "cursor",
           "gpt-5.5": "codex",
           "composer-2.5-fast": "cursor"
         },
@@ -2791,24 +2791,24 @@
         "messages": 31,
         "activeTimeMs": 385925,
         "clients": {
-          "codex": 1045248,
-          "cursor": 345329
+          "cursor": 345329,
+          "codex": 1045248
         },
         "clientCosts": {
-          "codex": 1.290323,
-          "cursor": 0
+          "cursor": 0,
+          "codex": 1.290323
         },
         "models": {
-          "gpt-5.5": 1045248,
-          "auto": 345329
+          "auto": 345329,
+          "gpt-5.5": 1045248
         },
         "modelCosts": {
-          "gpt-5.5": 1.290323,
-          "auto": 0
+          "auto": 0,
+          "gpt-5.5": 1.290323
         },
         "modelClients": {
-          "gpt-5.5": "codex",
-          "auto": "cursor"
+          "auto": "cursor",
+          "gpt-5.5": "codex"
         },
         "breakdown": {
           "input": 517412,
@@ -2866,19 +2866,19 @@
           "codex": 0
         },
         "models": {
-          "auto": 397517,
+          "grok-4.5-fast-xhigh": 1580841,
           "composer-2.5-fast": 71555,
-          "grok-4.5-fast-xhigh": 1580841
+          "auto": 397517
         },
         "modelCosts": {
-          "auto": 0,
+          "grok-4.5-fast-xhigh": 0.632051,
           "composer-2.5-fast": 0.01311,
-          "grok-4.5-fast-xhigh": 0.632051
+          "auto": 0
         },
         "modelClients": {
-          "auto": "cursor",
+          "grok-4.5-fast-xhigh": "cursor",
           "composer-2.5-fast": "cursor",
-          "grok-4.5-fast-xhigh": "cursor"
+          "auto": "cursor"
         },
         "breakdown": {
           "input": 1806293,
@@ -2895,30 +2895,30 @@
         "messages": 457,
         "activeTimeMs": 8665363,
         "clients": {
-          "codex": 40870997,
-          "cursor": 303145
+          "cursor": 303145,
+          "codex": 40870997
         },
         "clientCosts": {
-          "codex": 1.290323,
-          "cursor": 0.645161
+          "cursor": 0.645161,
+          "codex": 1.290323
         },
         "models": {
+          "grok-4.5-fast-xhigh": 303145,
           "gpt-5.6-sol": 9221866,
           "gpt-5.5": 31441287,
-          "codex-auto-review": 207844,
-          "grok-4.5-fast-xhigh": 303145
+          "codex-auto-review": 207844
         },
         "modelCosts": {
+          "grok-4.5-fast-xhigh": 0.645161,
           "gpt-5.6-sol": 0.337076,
           "gpt-5.5": 0.952801,
-          "codex-auto-review": 0.000447,
-          "grok-4.5-fast-xhigh": 0.645161
+          "codex-auto-review": 0.000447
         },
         "modelClients": {
+          "grok-4.5-fast-xhigh": "cursor",
           "gpt-5.6-sol": "codex",
           "gpt-5.5": "codex",
-          "codex-auto-review": "codex",
-          "grok-4.5-fast-xhigh": "cursor"
+          "codex-auto-review": "codex"
         },
         "breakdown": {
           "input": 2744535,
@@ -2943,24 +2943,24 @@
           "cursor": 0.645161
         },
         "models": {
-          "codex-auto-review": 483038,
-          "gpt-5.6-luna": 7770333,
-          "grok-4.5-fast-xhigh": 184461,
           "gpt-5.6-sol": 34722706,
+          "codex-auto-review": 483038,
+          "grok-4.5-fast-xhigh": 184461,
+          "gpt-5.6-luna": 7770333,
           "gpt-5.6-terra": 4643373
         },
         "modelCosts": {
-          "codex-auto-review": 0.002244,
-          "gpt-5.6-luna": 0.005094,
-          "grok-4.5-fast-xhigh": 0.645161,
           "gpt-5.6-sol": 1.238382,
+          "codex-auto-review": 0.002244,
+          "grok-4.5-fast-xhigh": 0.645161,
+          "gpt-5.6-luna": 0.005094,
           "gpt-5.6-terra": 0.044603
         },
         "modelClients": {
-          "codex-auto-review": "codex",
-          "gpt-5.6-luna": "codex",
-          "grok-4.5-fast-xhigh": "cursor",
           "gpt-5.6-sol": "codex",
+          "codex-auto-review": "codex",
+          "grok-4.5-fast-xhigh": "cursor",
+          "gpt-5.6-luna": "codex",
           "gpt-5.6-terra": "codex"
         },
         "breakdown": {
@@ -3016,21 +3016,21 @@
           "cursor": 0.645161
         },
         "models": {
+          "gpt-5.6-terra": 25320239,
           "codex-auto-review": 7345472,
           "cursor-grok-4.5-high-fast": 594400,
-          "gpt-5.6-terra": 25320239,
           "gpt-5.6-sol": 39093522
         },
         "modelCosts": {
+          "gpt-5.6-terra": 0.151358,
           "codex-auto-review": 0.01006,
           "cursor-grok-4.5-high-fast": 0.645161,
-          "gpt-5.6-terra": 0.151358,
           "gpt-5.6-sol": 1.128905
         },
         "modelClients": {
+          "gpt-5.6-terra": "codex",
           "codex-auto-review": "codex",
           "cursor-grok-4.5-high-fast": "cursor",
-          "gpt-5.6-terra": "codex",
           "gpt-5.6-sol": "codex"
         },
         "breakdown": {
@@ -3056,22 +3056,22 @@
           "cursor": 0.645161
         },
         "models": {
-          "gpt-5.6-sol": 160275294,
-          "auto": 891250,
+          "codex-auto-review": 4340844,
           "cursor-grok-4.5-high-fast": 147724,
-          "codex-auto-review": 4340844
+          "auto": 891250,
+          "gpt-5.6-sol": 160275294
         },
         "modelCosts": {
-          "gpt-5.6-sol": 1.288384,
-          "auto": 0,
+          "codex-auto-review": 0.001939,
           "cursor-grok-4.5-high-fast": 0.645161,
-          "codex-auto-review": 0.001939
+          "auto": 0,
+          "gpt-5.6-sol": 1.288384
         },
         "modelClients": {
-          "gpt-5.6-sol": "codex",
-          "auto": "cursor",
+          "codex-auto-review": "codex",
           "cursor-grok-4.5-high-fast": "cursor",
-          "codex-auto-review": "codex"
+          "auto": "cursor",
+          "gpt-5.6-sol": "codex"
         },
         "breakdown": {
           "input": 9840686,
@@ -3096,18 +3096,18 @@
           "cursor": 0
         },
         "models": {
-          "gpt-5.6-sol": 148283620,
           "codex-auto-review": 6644607,
+          "gpt-5.6-sol": 148283620,
           "auto": 49139
         },
         "modelCosts": {
-          "gpt-5.6-sol": 1.283223,
           "codex-auto-review": 0.0071,
+          "gpt-5.6-sol": 1.283223,
           "auto": 0
         },
         "modelClients": {
-          "gpt-5.6-sol": "codex",
           "codex-auto-review": "codex",
+          "gpt-5.6-sol": "codex",
           "auto": "cursor"
         },
         "breakdown": {
@@ -3134,27 +3134,27 @@
         },
         "models": {
           "gpt-5.6-terra": 55104089,
-          "cursor-grok-4.5-high-fast": 988198,
-          "auto": 273326,
           "gpt-5.6-sol": 66853803,
+          "cursor-grok-4.5-high-fast": 988198,
+          "gpt-5.5": 20994139,
           "codex-auto-review": 7225477,
-          "gpt-5.5": 20994139
+          "auto": 273326
         },
         "modelCosts": {
           "gpt-5.6-terra": 0.133252,
-          "cursor-grok-4.5-high-fast": 0.645161,
-          "auto": 0,
           "gpt-5.6-sol": 0.882265,
+          "cursor-grok-4.5-high-fast": 0.645161,
+          "gpt-5.5": 0.267388,
           "codex-auto-review": 0.007418,
-          "gpt-5.5": 0.267388
+          "auto": 0
         },
         "modelClients": {
           "gpt-5.6-terra": "codex",
-          "cursor-grok-4.5-high-fast": "cursor",
-          "auto": "cursor",
           "gpt-5.6-sol": "codex",
+          "cursor-grok-4.5-high-fast": "cursor",
+          "gpt-5.5": "codex",
           "codex-auto-review": "codex",
-          "gpt-5.5": "codex"
+          "auto": "cursor"
         },
         "breakdown": {
           "input": 11224664,
@@ -3171,44 +3171,44 @@
         "messages": 639,
         "activeTimeMs": 15345611,
         "clients": {
-          "codex": 90977711,
           "claude": 68674,
+          "codex": 90977711,
           "cursor": 1926688
         },
         "clientCosts": {
-          "codex": 1.290323,
           "claude": 0.020342819999999998,
+          "codex": 1.290323,
           "cursor": 0.645161
         },
         "models": {
-          "gpt-5.6-terra": 5534015,
+          "bluelm-minimax-m2-pre": 68674,
           "gpt-5.5": 19682009,
           "codex-auto-review": 1169123,
-          "bluelm-minimax-m2-pre": 68674,
           "auto": 512655,
           "gpt-5.6-sol": 64592564,
+          "cursor-grok-4.5-high-fast": 1345314,
           "composer-2.5-fast": 68719,
-          "cursor-grok-4.5-high-fast": 1345314
+          "gpt-5.6-terra": 5534015
         },
         "modelCosts": {
-          "gpt-5.6-terra": 0.01626,
+          "bluelm-minimax-m2-pre": 0.020342819999999998,
           "gpt-5.5": 0.300175,
           "codex-auto-review": 0.00297,
-          "bluelm-minimax-m2-pre": 0.020342819999999998,
           "auto": 0,
           "gpt-5.6-sol": 0.970918,
+          "cursor-grok-4.5-high-fast": 0.63693,
           "composer-2.5-fast": 0.008231,
-          "cursor-grok-4.5-high-fast": 0.63693
+          "gpt-5.6-terra": 0.01626
         },
         "modelClients": {
-          "gpt-5.6-terra": "codex",
+          "bluelm-minimax-m2-pre": "claude",
           "gpt-5.5": "codex",
           "codex-auto-review": "codex",
-          "bluelm-minimax-m2-pre": "claude",
           "auto": "cursor",
           "gpt-5.6-sol": "codex",
+          "cursor-grok-4.5-high-fast": "cursor",
           "composer-2.5-fast": "cursor",
-          "cursor-grok-4.5-high-fast": "cursor"
+          "gpt-5.6-terra": "codex"
         },
         "breakdown": {
           "input": 9643959,
@@ -3262,16 +3262,16 @@
           "codex": 0
         },
         "models": {
-          "auto": 514626,
-          "cursor-grok-4.5-high-fast": 1294854
+          "cursor-grok-4.5-high-fast": 1294854,
+          "auto": 514626
         },
         "modelCosts": {
-          "auto": 0,
-          "cursor-grok-4.5-high-fast": 0.645161
+          "cursor-grok-4.5-high-fast": 0.645161,
+          "auto": 0
         },
         "modelClients": {
-          "auto": "cursor",
-          "cursor-grok-4.5-high-fast": "cursor"
+          "cursor-grok-4.5-high-fast": "cursor",
+          "auto": "cursor"
         },
         "breakdown": {
           "input": 1580726,
@@ -3288,35 +3288,35 @@
         "messages": 799,
         "activeTimeMs": 11212778,
         "clients": {
+          "codex": 93224880,
           "cursor": 1931191,
-          "claude": 39535,
-          "codex": 93224880
+          "claude": 39535
         },
         "clientCosts": {
+          "codex": 1.290323,
           "cursor": 0.645161,
-          "claude": 0,
-          "codex": 1.290323
+          "claude": 0
         },
         "models": {
-          "auto": 300362,
-          "tencent/hy3:free": 39535,
-          "gpt-5.6-terra": 964979,
+          "gpt-5.6-sol": 92259901,
           "cursor-grok-4.5-high-fast": 1630829,
-          "gpt-5.6-sol": 92259901
+          "tencent/hy3:free": 39535,
+          "auto": 300362,
+          "gpt-5.6-terra": 964979
         },
         "modelCosts": {
-          "auto": 0,
-          "tencent/hy3:free": 0,
-          "gpt-5.6-terra": 0.003761,
+          "gpt-5.6-sol": 1.286562,
           "cursor-grok-4.5-high-fast": 0.645161,
-          "gpt-5.6-sol": 1.286562
+          "tencent/hy3:free": 0,
+          "auto": 0,
+          "gpt-5.6-terra": 0.003761
         },
         "modelClients": {
-          "auto": "cursor",
-          "tencent/hy3:free": "claude",
-          "gpt-5.6-terra": "codex",
+          "gpt-5.6-sol": "codex",
           "cursor-grok-4.5-high-fast": "cursor",
-          "gpt-5.6-sol": "codex"
+          "tencent/hy3:free": "claude",
+          "auto": "cursor",
+          "gpt-5.6-terra": "codex"
         },
         "breakdown": {
           "input": 7032724,
@@ -3333,33 +3333,33 @@
         "messages": 200,
         "activeTimeMs": 2755390,
         "clients": {
-          "cursor": 354432,
-          "codex": 17402987
+          "codex": 17402987,
+          "cursor": 354432
         },
         "clientCosts": {
-          "cursor": 0.626781,
-          "codex": 1.290323
+          "codex": 1.290323,
+          "cursor": 0.626781
         },
         "models": {
+          "gpt-5.6-terra": 190232,
           "auto": 173023,
           "cursor-grok-4.5-high-fast": 134371,
-          "gpt-5.6-terra": 190232,
-          "gpt-5.6-sol": 17212755,
-          "composer-2.5-fast": 47038
+          "composer-2.5-fast": 47038,
+          "gpt-5.6-sol": 17212755
         },
         "modelCosts": {
+          "gpt-5.6-terra": 0.003282,
           "auto": 0,
           "cursor-grok-4.5-high-fast": 0.431362,
-          "gpt-5.6-terra": 0.003282,
-          "gpt-5.6-sol": 1.287041,
-          "composer-2.5-fast": 0.195419
+          "composer-2.5-fast": 0.195419,
+          "gpt-5.6-sol": 1.287041
         },
         "modelClients": {
+          "gpt-5.6-terra": "codex",
           "auto": "cursor",
           "cursor-grok-4.5-high-fast": "cursor",
-          "gpt-5.6-terra": "codex",
-          "gpt-5.6-sol": "codex",
-          "composer-2.5-fast": "cursor"
+          "composer-2.5-fast": "cursor",
+          "gpt-5.6-sol": "codex"
         },
         "breakdown": {
           "input": 1468703,
@@ -3385,18 +3385,18 @@
         },
         "models": {
           "auto": 121525,
-          "gpt-5.6-sol": 67575156,
-          "cursor-grok-4.5-high-fast": 688714
+          "cursor-grok-4.5-high-fast": 688714,
+          "gpt-5.6-sol": 67575156
         },
         "modelCosts": {
           "auto": 0,
-          "gpt-5.6-sol": 1.290323,
-          "cursor-grok-4.5-high-fast": 0.645161
+          "cursor-grok-4.5-high-fast": 0.645161,
+          "gpt-5.6-sol": 1.290323
         },
         "modelClients": {
           "auto": "cursor",
-          "gpt-5.6-sol": "codex",
-          "cursor-grok-4.5-high-fast": "cursor"
+          "cursor-grok-4.5-high-fast": "cursor",
+          "gpt-5.6-sol": "codex"
         },
         "breakdown": {
           "input": 3423258,
@@ -3421,22 +3421,22 @@
           "codex": 1.290323
         },
         "models": {
-          "auto": 207940,
+          "cursor-grok-4.5-high-fast": 215893,
           "gpt-5.6-sol": 115093740,
           "composer-2.5-fast": 56559,
-          "cursor-grok-4.5-high-fast": 215893
+          "auto": 207940
         },
         "modelCosts": {
-          "auto": 0,
+          "cursor-grok-4.5-high-fast": 0.577446,
           "gpt-5.6-sol": 1.290323,
           "composer-2.5-fast": 0.067715,
-          "cursor-grok-4.5-high-fast": 0.577446
+          "auto": 0
         },
         "modelClients": {
-          "auto": "cursor",
+          "cursor-grok-4.5-high-fast": "cursor",
           "gpt-5.6-sol": "codex",
           "composer-2.5-fast": "cursor",
-          "cursor-grok-4.5-high-fast": "cursor"
+          "auto": "cursor"
         },
         "breakdown": {
           "input": 6244349,
@@ -3453,27 +3453,27 @@
         "messages": 934,
         "activeTimeMs": 11121008,
         "clients": {
-          "codex": 127234086,
-          "cursor": 2201759
+          "cursor": 2201759,
+          "codex": 127234086
         },
         "clientCosts": {
-          "codex": 1.290323,
-          "cursor": 0.645161
+          "cursor": 0.645161,
+          "codex": 1.290323
         },
         "models": {
-          "gpt-5.6-sol": 127234086,
           "auto": 325495,
-          "cursor-grok-4.5-high-fast": 1876264
+          "cursor-grok-4.5-high-fast": 1876264,
+          "gpt-5.6-sol": 127234086
         },
         "modelCosts": {
-          "gpt-5.6-sol": 1.290323,
           "auto": 0,
-          "cursor-grok-4.5-high-fast": 0.645161
+          "cursor-grok-4.5-high-fast": 0.645161,
+          "gpt-5.6-sol": 1.290323
         },
         "modelClients": {
-          "gpt-5.6-sol": "codex",
           "auto": "cursor",
-          "cursor-grok-4.5-high-fast": "cursor"
+          "cursor-grok-4.5-high-fast": "cursor",
+          "gpt-5.6-sol": "codex"
         },
         "breakdown": {
           "input": 7018336,
@@ -3497,18 +3497,18 @@
           "codex": 0
         },
         "models": {
-          "composer-2.5-fast": 98018,
           "auto": 161427,
+          "composer-2.5-fast": 98018,
           "cursor-grok-4.5-high-fast": 108661
         },
         "modelCosts": {
-          "composer-2.5-fast": 0.192766,
           "auto": 0,
+          "composer-2.5-fast": 0.192766,
           "cursor-grok-4.5-high-fast": 0.452395
         },
         "modelClients": {
-          "composer-2.5-fast": "cursor",
           "auto": "cursor",
+          "composer-2.5-fast": "cursor",
           "cursor-grok-4.5-high-fast": "cursor"
         },
         "breakdown": {
@@ -3535,26 +3535,26 @@
         "models": {
           "claude-fable-5-thinking-high": 40945,
           "composer-2.5-fast": 60557,
-          "cursor-grok-4.5-high-fast": 1609951,
+          "claude-opus-5-thinking-high": 20083,
           "auto": 607009,
-          "gpt-5.6-sol-medium": 967249,
-          "claude-opus-5-thinking-high": 20083
+          "cursor-grok-4.5-high-fast": 1609951,
+          "gpt-5.6-sol-medium": 967249
         },
         "modelCosts": {
           "claude-fable-5-thinking-high": 0.108207,
           "composer-2.5-fast": 0.001824,
-          "cursor-grok-4.5-high-fast": 0.194847,
+          "claude-opus-5-thinking-high": 0.035866,
           "auto": 0,
-          "gpt-5.6-sol-medium": 0.304418,
-          "claude-opus-5-thinking-high": 0.035866
+          "cursor-grok-4.5-high-fast": 0.194847,
+          "gpt-5.6-sol-medium": 0.304418
         },
         "modelClients": {
           "claude-fable-5-thinking-high": "cursor",
           "composer-2.5-fast": "cursor",
-          "cursor-grok-4.5-high-fast": "cursor",
+          "claude-opus-5-thinking-high": "cursor",
           "auto": "cursor",
-          "gpt-5.6-sol-medium": "cursor",
-          "claude-opus-5-thinking-high": "cursor"
+          "cursor-grok-4.5-high-fast": "cursor",
+          "gpt-5.6-sol-medium": "cursor"
         },
         "breakdown": {
           "input": 2849069,
@@ -3571,37 +3571,37 @@
         "messages": 1060,
         "activeTimeMs": 16129855,
         "clients": {
-          "cursor": 1553735,
-          "claude": 149484,
           "kimi": 1875894,
-          "codex": 119398601
+          "cursor": 1553735,
+          "codex": 119398601,
+          "claude": 149484
         },
         "clientCosts": {
-          "cursor": 0.507012,
-          "claude": 0,
           "kimi": 0.2779172,
-          "codex": 1.290323
+          "cursor": 0.507012,
+          "codex": 1.290323,
+          "claude": 0
         },
         "models": {
-          "cursor-grok-4.5-high-fast": 148418,
-          "hy3": 149484,
           "kimi-for-coding": 1875894,
+          "auto": 1405317,
           "gpt-5.6-sol": 119398601,
-          "auto": 1405317
+          "hy3": 149484,
+          "cursor-grok-4.5-high-fast": 148418
         },
         "modelCosts": {
-          "cursor-grok-4.5-high-fast": 0.507012,
-          "hy3": 0,
           "kimi-for-coding": 0.2779172,
+          "auto": 0,
           "gpt-5.6-sol": 1.290323,
-          "auto": 0
+          "hy3": 0,
+          "cursor-grok-4.5-high-fast": 0.507012
         },
         "modelClients": {
-          "cursor-grok-4.5-high-fast": "cursor",
-          "hy3": "claude",
           "kimi-for-coding": "kimi",
+          "auto": "cursor",
           "gpt-5.6-sol": "codex",
-          "auto": "cursor"
+          "hy3": "claude",
+          "cursor-grok-4.5-high-fast": "cursor"
         },
         "breakdown": {
           "input": 5785827,
@@ -3720,34 +3720,34 @@
         "messages": 982,
         "activeTimeMs": 18282406,
         "clients": {
-          "codex": 105783737,
           "cursor": 3643985,
+          "codex": 105783737,
           "qoder": 0
         },
         "clientCosts": {
-          "codex": 1.290323,
           "cursor": 0.645161,
+          "codex": 1.290323,
           "qoder": 0
         },
         "models": {
-          "gpt-5.6-terra": 5276174,
-          "gpt-5.6-sol": 100507563,
           "claude-fable-5-thinking-high": 38991,
+          "gpt-5.6-sol": 100507563,
           "auto": 3604994,
+          "gpt-5.6-terra": 5276174,
           "qmodel_preview": 0
         },
         "modelCosts": {
-          "gpt-5.6-terra": 0.01684,
-          "gpt-5.6-sol": 1.273483,
           "claude-fable-5-thinking-high": 0.645161,
+          "gpt-5.6-sol": 1.273483,
           "auto": 0,
+          "gpt-5.6-terra": 0.01684,
           "qmodel_preview": 0
         },
         "modelClients": {
-          "gpt-5.6-terra": "codex",
-          "gpt-5.6-sol": "codex",
           "claude-fable-5-thinking-high": "cursor",
+          "gpt-5.6-sol": "codex",
           "auto": "cursor",
+          "gpt-5.6-terra": "codex",
           "qmodel_preview": "qoder"
         },
         "breakdown": {
@@ -3760,12 +3760,12 @@
       },
       {
         "date": "2026-08-01",
-        "totalTokens": 1276527,
+        "totalTokens": 1280177,
         "totalCostUsd": 0,
-        "messages": 17,
+        "messages": 18,
         "activeTimeMs": 45991043,
         "clients": {
-          "cursor": 1276527,
+          "cursor": 1280177,
           "qoder": 0
         },
         "clientCosts": {
@@ -3774,7 +3774,7 @@
           "codex": 0
         },
         "models": {
-          "auto": 1276527,
+          "auto": 1280177,
           "qmodel_preview": 0
         },
         "modelCosts": {
@@ -3786,9 +3786,9 @@
           "qmodel_preview": "qoder"
         },
         "breakdown": {
-          "input": 1122216,
-          "output": 154311,
-          "cacheRead": 11731840,
+          "input": 1124238,
+          "output": 155939,
+          "cacheRead": 11930368,
           "cacheWrite": 0,
           "reasoning": 0
         }
@@ -3817,11 +3817,11 @@
           "planName": "Pro",
           "priceLabel": "$20/mo",
           "unit": "percent",
-          "usedPercent": 31.08695652173913,
-          "remainingPercent": 68.91304347826087,
-          "autoPercentUsed": 20.173333333333332,
+          "usedPercent": 31.104347826086958,
+          "remainingPercent": 68.89565217391305,
+          "autoPercentUsed": 20.19333333333333,
           "apiPercentUsed": 100,
-          "totalPercentUsed": 31.08695652173913,
+          "totalPercentUsed": 31.104347826086958,
           "limitCents": 2000,
           "includedSpendCents": 2000,
           "remainingCents": 0,
@@ -3841,7 +3841,7 @@
           "usedPercent": 0,
           "remainingPercent": 100,
           "windowSeconds": 604800,
-          "resetAt": 1786192455,
+          "resetAt": 1786192694,
           "resetAfterSeconds": 604800,
           "secondaryUsedPercent": null,
           "creditsBalanceUsd": 0,
@@ -3864,7 +3864,7 @@
               "usedPercent": 0,
               "remainingPercent": 100,
               "windowSeconds": 604800,
-              "resetAt": 1786192455
+              "resetAt": 1786192694
             }
           ],
           "source": "chatgpt:wham/usage"
@@ -3897,7 +3897,7 @@
         }
       },
       "errors": [],
-      "updatedAt": "2026-08-01T12:34:17.212Z"
+      "updatedAt": "2026-08-01T12:38:17.219Z"
     },
     "warnings": [],
     "cached": false
